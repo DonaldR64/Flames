@@ -1,0 +1,61 @@
+{
+	"id": "Base",
+	"version": "FOWv4",
+	"by": "DR",
+	"notes": [],
+	"sections": [
+
+	    {"name":"Support","formations":[
+	       {"id":550,"name":"KV-8 Flame Tank Company","pts": 0, "upgrades":[105]},	     
+	       {"id":551,"name":"OT-34 Flame Tank Company","pts": 0, "upgrades":[100,101]}	     
+
+
+
+
+
+	    ]}
+
+	],
+
+	"upgrades": [
+
+      	{"id": 100, "name": "OT-34/76", "pts": 2},
+      	{"id": 101, "name": "OT-34/85", "pts": 4},
+
+      	{"id": 105, "name": "KV-8", "pts": 5}
+
+
+
+
+
+
+
+
+
+
+
+	],
+
+
+   	"formationConstraints": [
+
+
+    	{"max": 1, "min": 0, "from": [550,551]}
+
+
+    ],
+
+
+
+   "upgradeConstraints": [      
+
+
+   	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
+   	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [551]}
+
+
+
+
+
+   ]
+}
