@@ -42,17 +42,16 @@
 
 	"upgrades": [
 
-		{"id": 1, "name": "3x IS-2", "pts": 7.3},
-		{"id": 2, "name": "4x IS-2", "pts": 7.3},
-		{"id": 3, "name": "5x IS-2", "pts": 7.3},
+		{"id": 1, "name": "3x IS-2", "pts": 22},
+		{"id": 2, "name": "4x IS-2", "pts": 30},
+		{"id": 3, "name": "5x IS-2", "pts": 37},
 
-      	{"id": 4, "name": "3x IS-2", "pts": 8},      	
-      	{"id": 5, "name": "4x IS-2", "pts": 8},
-      	{"id": 6, "name": "5x IS-2", "pts": 8},
-      	{"id": 7, "name": "3x IS-85", "pts": 8},
-      	{"id": 8, "name": "4x IS-85", "pts": 8},
-      	{"id": 9, "name": "5x IS-85", "pts": 8},
-
+      	{"id": 4, "name": "3x IS-2", "pts": 22},      	
+      	{"id": 5, "name": "4x IS-2", "pts": 30},
+      	{"id": 6, "name": "5x IS-2", "pts": 37},
+      	{"id": 7, "name": "3x IS-85", "pts": 24},
+      	{"id": 8, "name": "4x IS-85", "pts": 32},
+      	{"id": 9, "name": "5x IS-85", "pts": 40},
 
       	{"id": 10, "name": "22 x PPSh SMG Teams", "pts": 24},
       	{"id": 11, "name": "15 x PPSh SMG Teams", "pts": 17},
