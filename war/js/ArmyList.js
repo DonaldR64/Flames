@@ -111,7 +111,7 @@ var ArmyList = {
 					total += x.min * x.from[0].pts;
 				}
 			});
-			total = Math.round(total);
+			total = Math.ceil(total);
 			formation.cost = formation.pts + total;
 		});
 	},
