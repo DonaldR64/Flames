@@ -92,14 +92,14 @@
 
    	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
    	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [551]},
-    	{"max": 1, "min": 0, "from": [110,111,112], "appliesTo": [552]},
+    	{"max": 1, "min": 1, "from": [110,111,112], "appliesTo": [552]},
     	{"max": 1, "min": 0, "from": [113], "appliesTo": [552]},
-    	{"max": 1, "min": 0, "from": [120,121], "appliesTo": [553,555]},
-    	{"max": 1, "min": 0, "from": [125,126,127,128], "appliesTo": [554,556]},
-    	{"max": 1, "min": 0, "from": [130,131], "appliesTo": [557]},
-    	{"max": 1, "min": 0, "from": [135,136], "appliesTo": [558,560]},
-    	{"max": 1, "min": 0, "from": [140,141], "appliesTo": [559]},
-    	{"max": 1, "min": 0, "from": [150,151], "appliesTo": [561,562]},
-    	{"max": 1, "min": 0, "from": [155,156], "appliesTo": [563]}
+    	{"max": 1, "min": 1, "from": [120,121], "appliesTo": [553,555]},
+    	{"max": 1, "min": 1, "from": [125,126,127,128], "appliesTo": [554,556]},
+    	{"max": 1, "min": 1, "from": [130,131], "appliesTo": [557]},
+    	{"max": 1, "min": 1, "from": [135,136], "appliesTo": [558,560]},
+    	{"max": 1, "min": 1, "from": [140,141], "appliesTo": [559]},
+    	{"max": 1, "min": 1, "from": [150,151], "appliesTo": [561,562]},
+    	{"max": 1, "min": 1, "from": [155,156], "appliesTo": [563]}
    ]
 }
