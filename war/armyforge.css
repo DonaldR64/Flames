@@ -1,5 +1,5 @@
 body {
-	background-color:silver;
+	background-color:olive;
 	padding:0;
 	margin:0;
 	color:#404000;
@@ -15,16 +15,6 @@ p {
 	text-align:center;
 	padding-top:2em;
 }
-
-#traits {
-	max-width:98%;
-	width:70em;
-	margin:auto;
-	text-align:center;
-	padding-top:2em;
-}
-
-
 table {
 	margin:auto;
 	border-collapse:collapse;
@@ -65,7 +55,7 @@ a.xx {
 img.icon {
 	margin-left:0;
 	margin-right:0.5em;
-	height:2.4em;	
+	height:1.2em;	
 	vertical-align:middle;
 	border:none;
 }
@@ -83,9 +73,9 @@ img.icon {
 	font-size:small;
 	font-family:sans-serif;
 	width:18em;
-	text-align:center;
+	text-align:left;
 	background-color:#eeeecb;
-	border-top:solid 0.1em black;
+	border-top:solid 0.1em olive;
 	vertical-align:center;
 	padding:0.33em;
 }
