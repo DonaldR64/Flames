@@ -1,0 +1,266 @@
+{
+   "id": "Soviet Tank/Mechanized Corps 1943",
+   "version": "Battlegroup Kursk",
+   "by": "Octagon",
+   "notes":["Platoon Level Game: 1 Infantry Platoon up to 4 Infantry Platoons, 3 Restricted Units<br>Command Level Game: 2 Infantry Platoons up to 6 Infantry Platoons, 4 Restricted Units<br>Battalion Level Game: 3 Infantry Platoons up to 9 Infantry Platoons, 5 Restricted Units"],
+   "sections": [
+      {"name": "Forward HQ Units", "formations": [
+         {"id": 501, "name": "Forward HQ", "pts": 22, "units": "3 men (Senior Officer, Mortar Spotter), Gaz Jeep (3-r)", "upgrades": [1,2]},
+         {"id": 502, "name": "VVS Air Control Officer", "pts": 26, "units": "2 men (Officer, Air Spotter 3+), Gaz Jeep (1-r)", "upgrades": [3]},
+         {"id": 503, "name": "Motorcycle Dispatch Rider", "pts": 12, "units": "1 Man, Motorcycle (Dispatches) (0-i)"},
+         {"id": 504, "name": "Forward Signals Unit", "pts": 18, "units": "3 Men, Radio Truck or Van (Communications) (1-i)"},
+         {"id": 505, "name": "Comms Relay Team", "pts": 14, "units": "2 Men (Communications) (1-i)"},
+         {"id": 506, "name": "Wire Team", "pts": 7, "units": "2 Men (Wire Communications) (0-i)"},
+         {"id": 507, "name": "NKVD Officer", "pts": 26, "units": "3 Men, Gaz Jeep (Senior Officer, 'Fight Damn You!', Mortar Spotter) (d6-r)"}
+      ]},
+      {"name":"Infantry Platoons & Squads","formations":[
+         {"id":510,"name":"Motorised Rifle Platoon","pts":58,"units":"Command Squad (3 men, Officer, Mortar Spotter), 4 Rifle Squads (8 men with 1 LMG) (5-i)","upgrades":[5,6,7]},
+         {"id":517,"name":"Motorised Rifle Squad","pts": 14,"units":"8 men with 1 LMG (1-i)","upgrades":[6,7,8]},
+         {"id":518,"name":"Tank Rider Squad","pts": 12,"units":"8 men all with SMGs (1-i)","upgrades":[7]}
+      ]},
+      {"name":"Infantry Support - 4 per Infantry Platoon","formations":[
+         {"id":511,"name":"Maxim Machine Gun","pts": 18,"units":"3 men with a Maxim MG (1-i)","upgrades":[10]},
+         {"id":512,"name":"Light Mortar Team","pts": 12,"units":"2 men with 50mm Mortar (1-i)","upgrades":[10]},
+         {"id":513,"name":"AT Rifle Team","pts": 14,"units":"2 men with AT Rifle (1-i)"},
+         {"id":514,"name":"Anti-Tank Gun","pts": 18,"units":"45mmL46 gun with 3 crew (1-i)","upgrades":[10,11,12,13]},
+         {"id":515,"name":"Infantry Gun","pts": 19,"units":"76.2mm Infantry gun with 3 crew (1-i)","upgrades":[10,13,14]},
+         {"id":516,"name":"AA DshK Machine Gun Team","pts": 24,"units":"3 men with a DshK MG (1-i)"}
+      ]},
+      {"name":"Tank Units","formations":[
+         {"id":520,"name":"T-34 Company","pts": 350,"units":"1 T-34/43 (Officer) & 9 T34/43s (30-r)"},
+         {"id":521,"name":"T-34 Platoon","pts": 100,"units":"3 T-34/43s (9-r)"},
+         {"id":522,"name":"Light Tank Platoon","pts": 0},
+         {"id":523,"name":"SU-76 Battery (Restricted)","pts": 75,"units":"3 SU-76s (6-r)"},
+         {"id":524,"name":"T-34","pts": 40,"units":"1 T-34/43 (3-r)"},
+         {"id":525,"name":"Light Tank","pts": 0},
+         {"id":526,"name":"SU-76","pts": 30,"units":"1 SU-76 (2-r)"}
+      ]},
+
+      {"name":"Artillery Units","formations":[
+         {"id":530,"name":"Forward Observer Team","pts": 16,"units":"2 men, Gaz Jeep (Artillery Spotter+) (1-i)","upgrades":[25]},
+         {"id":531,"name":"Guards Mortar Battery","pts": 0},
+         {"id":532,"name":"Off Table Artillery","pts": 125,"units":"2 BM-13 Katyushas (0 BR)"},
+         {"id":533,"name":"Mortar Battery","pts": 0,"upgrades": [9]},
+         {"id":534,"name":"Heavy Mortar Battery","pts": 0,"upgrades": [9]},
+         {"id":535,"name":"Off Table Mortar Fire","pts": 0}
+      ]},
+
+      {"name":"Reconnaissance Support Units","formations":[
+         {"id":540,"name":"Sniper","pts": 10,"units":"1 man (Sniper Scout) (1-v)","upgrades":[40]},
+         {"id":541,"name":"Infantry Foot Patrol","pts": 22,"units":"Squad of 8 men with 1 LMG (Scout, Mortar Spotter) (2-i)","upgrades":[10]},
+         {"id":542,"name":"Mechanised Infantry Patrol","pts": 28,"units":"Squad of 6 men with 1 LMG, White Scout Car (Scout, Mortar Spotter) (3-i)","upgrades":[10]},
+         {"id":543,"name":"Motorcycle Recon Patrol","pts": 18,"units":"3 Men on a Motorcycle with Sidecar (Scout, Mortar Spotter) (1-i)"},
+         {"id":544,"name":"Jeep Recon Team","pts": 18,"units":"3 Men with Jeep (Scout, Mortar Spotter) (2-i)"},
+         {"id":545,"name":"Light Tank Recon","pts": 0},
+         {"id":546,"name":"Armoured Car Recon (Restricted)","pts": 0},
+         {"id":547,"name":"Aerial Recon","pts": 50, "units": "1 PO-2 Aircraft (Scout2, Mortar Spotter) (2-r)"}
+      ]},
+
+      {"name":"Engineer Support Units","formations":[
+         {"id":550,"name":"Repair Vehicle (Restricted)","pts": 12,"units":"1 Med. Repair Truck (Vehicle Repair) (2-i)"},
+         {"id":551,"name":"Sapper Squad","pts": 21,"units":"8 men with AT Grenades (2-r)","upgrades": [50,51,52,53]},
+         {"id":552,"name":"Heavy Bridging Unit (Restricted)","pts": 36,"units":"12 men, 2 Heavy Trucks with a Bridge (Bridging) (4-i)","upgrades": [55]},
+         {"id":553,"name":"Light Bridging Unit","pts": 18,"units":"6 men with a Heavy Truck/Bridge (Bridging) (2-i)"},
+         {"id":554,"name":"Anti-Tank Mine Dog","pts": 10,"units":"1 man and his dog (Mine Dog) (0-i)"}
+      ]},
+
+      {"name":"Logistics Support Units","formations":[
+         {"id":560,"name":"Combat Medic","pts": 8,"units":"1 man (Medic) (0-i)"},
+         {"id":561,"name":"Stretcher Party","pts": 10,"units":"2 man (Medic) (1-i)"},
+         {"id":562,"name":"Ambulance (Restricted)","pts": 14,"units":"1 Jeep Ambulance (Medic) (2-i)","upgrades": [60,61]}
+      ]},
+
+      {"name":"Specialist Support Units","formations":[
+         {"id":570,"name":"Lend-Lease Tank","pts": 0},
+         {"id":571,"name":"Heavy Assault Gun","pts": 0},
+         {"id":572,"name":"AA Vehicle (Restricted)","pts": 28,"units": "Gaz Truck with Quad Maxim MGs (1-i)"},
+         {"id":573,"name":"Heavy AT Gun","pts": 0,"upgrades": [62,63,64]},
+         {"id":574,"name":"Towed AA Gun","pts": 36,"units": "37mm AA Gun with 3 Crew (1-i)","upgrades": [62,63]}
+      ]},
+
+      {"name":"Additional Fire Support (also see Book) (all 0 BR)","formations":[
+         {"id":580,"name":"Off-Table Artillery Support Request","pts": 0},
+         {"id":581,"name":"Pre-Registered Target Point","pts": 10},
+         {"id":582,"name":"Counter-Battery Fire Mission","pts": 10},
+         {"id":583,"name":"Timed 122mm Barrage","pts": 20},
+         {"id":584,"name":"Timed 152mm Barrage","pts": 30},
+         {"id":585,"name":"Timed Katyusha Barrage","pts": 25},
+         {"id":586,"name":"Timed IL-2 Air Strike","pts": 10},
+         {"id":587,"name":"Timed PE-2 Air Strike","pts": 20},
+         {"id":588,"name":"Timed IL-4 Air Strike","pts": 25}
+      ]}
+
+
+
+   ],
+
+   "upgrades": [
+      {"id": 1, "name": "Upgrade Gaz Jeep to White Scout Car", "pts": 18},
+      {"id": 2, "name": "Replace Men and Jeep with T-34/43", "pts": 27},
+      {"id": 3, "name": "Upgrade Gaz Jeep to Medium Truck", "pts": 2},
+
+      {"id": 5, "name": "mount Command Squad in a Jeep", "pts": 2},
+      {"id": 6, "name": "mount a Rifle Squad in a Medium Truck ", "pts": 4},
+      {"id": 7, "name": "equip a Command or Rifle Squad with AT Grenades", "pts": 5},
+      {"id": 8, "name": "replace all of a Rifle Squads rifles with SMGs", "pts": 0},
+
+
+      {"id": 9, "name": "add a 3 man Loader Team to a Mortar Team", "pts": 10},
+      {"id": 10, "name": "add a 3 man Loader Team", "pts": 10},
+      {"id": 11, "name": "Upgrade AT gun to 45mmL66", "pts": 8},
+      {"id": 12, "name": "add Komsomolyets Tractor Tow", "pts": 8},
+      {"id": 13, "name": "add Medium Truck Tow", "pts": 4},
+      {"id": 14, "name": "Horse and Limber Truck", "pts": 4},
+
+      {"id": 20, "name": "3 T-60s (6-r)", "pts": 50},
+      {"id": 21, "name": "3 T-70s (6-r)", "pts": 65},
+
+      {"id": 22, "name": "T-60s (2-r)", "pts": 20},
+      {"id": 23, "name": "T-70s (2-r)", "pts": 25},
+
+      {"id": 25, "name": "upgrade Jeep to Bren Carrier", "pts": 2},
+
+      {"id": 30, "name": "2 BM-13 Katyushas (2-i)", "pts": 100},
+      {"id": 31, "name": "2 BM-8-13 Katyushas (2-i)", "pts": 120},
+
+      {"id": 32, "name": "2 82mm Mortars with 3 crew each (2-i)", "pts": 44},
+      {"id": 33, "name": "3 82mm Mortars with 3 crew each (3-i)", "pts": 66},
+
+      {"id": 34, "name": "2 120mm Mortars with 3 crew each (2-i)", "pts": 59},
+      {"id": 35, "name": "3 120mm Mortars with 3 crew each (3-i)", "pts": 87},
+
+      {"id": 36, "name": "2 82mm Mortars (0 BR)", "pts": 54},
+      {"id": 37, "name": "2 120mm Mortars (0 BR)", "pts": 72},
+
+      {"id": 40, "name": "add a Spotter", "pts": 5},
+
+      {"id": 41, "name": "T-60 (Scout) (2-i)", "pts": 30},
+      {"id": 42, "name": "T-70 (Scout) (2-i)", "pts": 35},
+      {"id": 43, "name": "Valentine III (Scout) (2-i)", "pts": 44},
+
+      {"id": 44, "name": "BA-10 (Scout,Mortar Spotter) (1-i)", "pts": 26},
+      {"id": 45, "name": "BA-64 (Scout,Mortar Spotter) (1-i)", "pts": 20},
+      {"id": 46, "name": "M3A1 White Scout Car (Scout,Mortar Spotter) (1-i)", "pts": 20},
+
+      {"id": 50, "name": "mount in a Medium Truck", "pts": 4},
+      {"id": 51, "name": "add Flamethrower", "pts": 10},
+      {"id": 52, "name": "add Mine Sweeper", "pts": 5},
+      {"id": 53, "name": "add Demolition Charge", "pts": 5},
+
+      {"id": 55, "name": "extra 6 men and Heavy Truck", "pts": 24},
+
+      {"id": 60, "name": "upgrade Jeep to Medium Truck", "pts": 2},
+      {"id": 61, "name": "upgrade Jeep to M5 Halftrack", "pts": 6},
+
+      {"id": 62, "name": "include a 3 man loader team", "pts": 10},
+      {"id": 63, "name": "Medium Truck Tow", "pts": 4},
+      {"id": 64, "name": "Komsomolyets Tractor Tow", "pts": 8},
+
+      {"id": 70, "name": "Churchill III or IV (3-r)", "pts": 48},
+      {"id": 71, "name": "M3 Grant (3-r)", "pts": 44},
+      {"id": 72, "name": "Matilda II (3-r)", "pts": 28},
+      {"id": 73, "name": "Valentine III (2-r)", "pts": 34},
+      {"id": 74, "name": "M5 Stuart (2-r)", "pts": 38},
+
+      {"id": 75, "name": "SU-122 (3-r)", "pts": 48},
+      {"id": 76, "name": "SU-152 (3-4)", "pts": 52},
+
+      {"id": 80, "name": "76.2mm Zis3 AT Gun with 3 crew (2-i)", "pts": 43},
+      {"id": 81, "name": "57mmL73 Zis2 AT Gun with 3 crew (2-i)", "pts": 43},
+
+      {"id": 90, "name": "3rd Target Priority (5+)", "pts": 5},
+      {"id": 91, "name": "2nd Target Priority (4+)", "pts": 10},
+      {"id": 92, "name": "1st Target Priority (2+)", "pts": 20}
+
+
+
+      ],
+
+   "formationConstraints": [
+      {"max": 1, "perArmy": true, "from": [501]},
+      {"max": 1, "perArmy": true, "from": [502]},
+      {"max": 1, "perArmy": true, "from": [507]},
+      {"min": 1, "from": [510]},
+      {"max": 1, "perArmy": true, "from": [546]},
+      {"max": 1, "perArmy": true, "from": [552]},
+
+      {"max": 1, "name": "Logistics","from": [560,561,562], "forEach": [501,502,503,504,505,506,507],"name2": "Forward HQ Units"},
+      {"max": 1, "name": "Additional Fire Support","from": [580,581,582,583,584,585,586,587,588], "forEach": [501,502,503,504,505,506,507],"name2": "Forward HQ Units"},
+
+      {"max": 4, "name": "Recon Support","from": [540,541,542,543,544,545,546,547], "forEach": [510],"name2": "Rifle Platoons"},
+      {"max": 4, "name": "Engineering Support","from": [550,551,552,553,554], "forEach": [510],"name2": "Rifle Platoons"},
+      {"max": 4, "name": "Logistics Support","from": [560,561,562], "forEach": [510],"name2": "Rifle Platoons"},
+      {"max": 4, "name": "Specialist Support","from": [570,571,572,573,574], "forEach": [510],"name2": "Rifle Platoonss"},
+      {"max": 4, "name": "Infantry Support","from": [511,512,513,514,515,516], "forEach": [510],"name2": "Rifle Platoons"},
+
+      {"max": 1, "name": "Recon Support","from": [540,541,542,543,544,545,546,547], "forEach": [511,512,513,514,515,516,517,518],"name2": "Infantry Units"},
+      {"max": 1, "name": "Engineering Support","from": [550,551,552,553,554], "forEach": [511,512,513,514,515,516,517,518],"name2": "Infantry Units"},
+      {"max": 1, "name": "Logistics Support","from": [560,561,562], "forEach": [511,512,513,514,515,516,517,518],"name2": "Infantry Units"},
+      {"max": 1, "name": "Specialist Support","from": [570,571,572,573,574], "forEach": [511,512,513,514,515,516,517,518],"name2": "Infantry Units"},
+      {"max": 1, "name": "Infantry Support","from": [511,512,513,514,515,516], "forEach": [511,512,513,514,515,516,517,518],"name2": "Infantry Units"}
+
+
+
+
+      ],
+
+   "upgradeConstraints": [
+      {"max": 1,"from": [1], "appliesTo": [501]},
+      {"max": 1,"from": [2], "appliesTo": [501]},
+      {"max": 1,"from": [3], "appliesTo": [502]},
+      {"max": 1,"from": [5], "appliesTo": [510]},
+      {"max": 4,"from": [6], "appliesTo": [510,517]},      
+      {"max": 5,"from": [7], "appliesTo": [510,517,518]},      
+      {"max": 4,"from": [8], "appliesTo": [510,517]},     
+      {"max": 3,"from": [9], "appliesTo": [533,534]},     
+      {"max": 1,"from": [10], "appliesTo": [511,512,514,515]},     
+      {"max": 1,"from": [11], "appliesTo": [514]},     
+      {"max": 1,"from": [12], "appliesTo": [514]},     
+      {"max": 1,"from": [13], "appliesTo": [514,515]},     
+      {"max": 1,"from": [14], "appliesTo": [515]},     
+
+      {"min": 1,"max": 1,"from": [20,21], "appliesTo": [522]},
+      {"min": 1,"max": 1,"from": [22,23], "appliesTo": [525]},
+
+      {"max": 1,"from": [25], "appliesTo": [530]},     
+
+
+
+      {"min": 1,"max": 1,"from": [30,31], "appliesTo": [531]},
+      {"min": 1,"max": 1,"from": [32,33], "appliesTo": [533]},
+      {"min": 1,"max": 1,"from": [34,35], "appliesTo": [534]},
+      {"min": 1,"max": 1,"from": [36,37], "appliesTo": [535]},
+
+      {"max": 1,"from": [40], "appliesTo": [540]},     
+
+      {"min": 1,"max": 1,"from": [41,42,43], "appliesTo": [545]},
+      {"min": 1,"max": 1,"from": [44,45,46], "appliesTo": [546]},
+
+      {"max": 1,"from": [50], "appliesTo": [551]},
+      {"max": 1,"from": [51], "appliesTo": [551]},
+      {"max": 1,"from": [52], "appliesTo": [551]},
+      {"max": 1,"from": [53], "appliesTo": [551]},
+
+      {"max": 1,"from": [55], "appliesTo": [552]},
+
+      {"max": 1,"from": [60,61], "appliesTo": [562]},
+
+      {"max": 1,"from": [62], "appliesTo": [573,574]},
+      {"max": 1,"from": [63], "appliesTo": [573,574]},
+      {"max": 1,"from": [64], "appliesTo": [573]},
+
+      {"min": 1,"max": 1,"from": [70,71,72,73,74], "appliesTo": [570]},
+
+      {"min": 1,"max": 1,"from": [75,76], "appliesTo": [571]},
+
+      {"min": 1,"max": 1,"from": [80,81], "appliesTo": [573]},
+
+      {"min": 1,"max": 1,"from": [90,91,92], "appliesTo": [580]}
+
+
+
+   ]
+
+
+
+}
