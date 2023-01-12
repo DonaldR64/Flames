@@ -24,7 +24,7 @@
 	       {"id":555,"name":"Light Tank-Killer Company","pts": 0, "upgrades":[120,121]},	     
 	       {"id":556,"name":"Heavy Tank-Killer Company","pts": 0, "upgrades":[125,126,127,128]},	     
 	       {"id":557,"name":"100mm Tank-Killer Company","pts": 0, "upgrades":[130,131]},	     
-	       {"id":558,"name":"76mm Artillery Battery","pts": 0, "upgrades":[135.136]},
+	       {"id":558,"name":"76mm Artillery Battery","pts": 0, "upgrades":[135,136]},
 	       {"id":559,"name":"122mm Artillery Battery","pts": 0, "upgrades":[140,141]},	
 	       {"id":560,"name":"76mm Artillery Battery","pts": 0, "upgrades":[136,136]},	     	     
 	       {"id":561,"name":"Katyusha Guards Rocket Battery","pts": 0, "upgrades":[150,151]},	     
