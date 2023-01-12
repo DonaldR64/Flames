@@ -31,7 +31,7 @@ var Force = {
 												total += u.pts;
 											}
 									});
-
+									total = Math.round(total);
 									return total;
 								},
 								canRemove:function(upgradeType) {
