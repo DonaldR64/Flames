@@ -1,6 +1,6 @@
 /* GENERIC */
 body {
-	background-color:silver;
+	background-color:olive;
 	margin:0.2em 2em 2em 2em;
 }
 table {
@@ -28,7 +28,7 @@ tr.interactive:hover > td {
 /* ORBAT */
 #notes {
 	margin:1em;
-	font-size:normal;
+	font-size:x-small;
 	width:56%;
 }
 #orbatDiv {
@@ -81,7 +81,7 @@ tr.mandatory > td {
 	color:black;
 }
 .orbat tbody {
-	border-top:dotted 1px black;			
+	border-top:dotted 1px gray;			
 }
 .points {
 	padding-left:0;	
@@ -94,7 +94,7 @@ tr.mandatory > td {
 //s	font-weight:normal;
 }
 #formationDivider {
-	border-bottom:1px dotted black;
+	border-bottom:1px dotted gray;
 }
 #controls a {
 	padding-right:1em;
