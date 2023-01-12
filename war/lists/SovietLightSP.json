@@ -1,0 +1,139 @@
+{
+	"id": "Light SP Artillery Regiment",
+	"version": "FOWv4",
+	"by": "DR",
+	"notes": ["For BA-64 OP Must Field Artillery Unit"],
+	"sections": [
+		{"name": "Core", "formations": [
+			{"id": 501, "name": "HQ Unit","pts": 1, "units": "1 x T-70"},
+			
+			{"id": 502, "name": "1st SU-76 Battery","pts": 0,"upgrades": [1,2,3]},			
+			{"id": 503, "name": "2nd SU-76 Battery","pts": 0,"upgrades": [1,2,3]},			
+			{"id": 504, "name": "3rd SU-76 Battery","pts": 0,"upgrades": [1,2,3]},			
+			{"id": 505, "name": "4th SU-76 Battery","pts": 0,"upgrades": [1,2,3]},			
+			
+			{"id": 507, "name": "SMG Company","pts": 0,"upgrades": [10,11,12,13]},
+			{"id": 508, "name": "Hero SMG Company","pts": 0,"upgrades": [20,21,12,13]},
+		]},
+
+	    {"name":"Support","formations":[
+	       {"id":550,"name":"KV-8 Flame Tank Company","pts": 0, "upgrades":[105]},	     
+	       {"id":551,"name":"OT-34 Flame Tank Company","pts": 0, "upgrades":[100,101]},	     
+	       {"id":552,"name":"BA-64 Armoured Car Platoon","pts": 0, "upgrades":[110,111,112,113]},	     
+	       {"id":553,"name":"Light Tank-Killer Company","pts": 0, "upgrades":[120,121]},	     
+	       {"id":554,"name":"Heavy Tank-Killer Company","pts": 0, "upgrades":[125,126,127,128]},
+	       {"id":555,"name":"Light Tank-Killer Company","pts": 0, "upgrades":[120,121]},	     
+	       {"id":556,"name":"Heavy Tank-Killer Company","pts": 0, "upgrades":[125,126,127,128]},	     
+	       {"id":557,"name":"100mm Tank-Killer Company","pts": 0, "upgrades":[130,131]},	     
+	       {"id":558,"name":"76mm Artillery Battery","pts": 0, "upgrades":[135,136]},
+	       {"id":559,"name":"122mm Artillery Battery","pts": 0, "upgrades":[140,141]},	
+	       {"id":560,"name":"76mm Artillery Battery","pts": 0, "upgrades":[136,136]},	     	     
+	       {"id":561,"name":"Katyusha Guards Rocket Battery","pts": 0, "upgrades":[150,151]},	     
+	       {"id":562,"name":"Katyusha Guards Rocket Battery","pts": 0, "upgrades":[150,151]},	     
+	       {"id":563,"name":"152mm Artillery Battery","pts": 0, "upgrades":[155,156]},	     
+	       {"id":564,"name":"BA-64 Observation Post","pts": 1, "units": "1 x BA-64 OP"},	     
+	       {"id":565,"name":"IL-2 Shturmovik Assault Company","pts": 7, "units": "2 x IL-2 Shturmovik"},	     
+	       {"id":566,"name":"IL-2 Shturmovik (37mm) Assault Company","pts": 10, "units": "2 x IL-2 Shturmovik (37mm)"},	     
+	       {"id":567,"name":"ZSU M17 AA Platoon","pts": 3, "units": "3 x ZSU M17 AA"},	     
+	       {"id":568,"name":"Wildcard","pts": 0, "units": "Future Expansion"},	     
+	       {"id":569,"name":"Formation Support","pts": 0, "units": "Black Box Units from other Soviet Formations, points varies"}	     
+	    ]}
+
+	],
+
+	"upgrades": [
+
+		{"id": 1, "name": "3x SU-76", "pts": 8},
+		{"id": 2, "name": "4x SU-76", "pts": 10},
+		{"id": 3, "name": "5x SU-76", "pts": 13},
+
+
+      	{"id": 10, "name": "22 x PPSh SMG Teams", "pts": 24},
+      	{"id": 11, "name": "15 x PPSh SMG Teams", "pts": 17},
+      	{"id": 12, "name": "1 x Komissar Team", "pts": 0},
+      	{"id": 13, "name": "1 x Flamethrower Team", "pts": 2},
+
+      	{"id": 20, "name": "7 x PPSh SMG Teams", "pts": 7},
+      	{"id": 21, "name": "5 x PPSh SMG Teams", "pts": 5},
+
+
+      	{"id": 100, "name": "OT-34/76", "pts": 2.5},
+      	{"id": 101, "name": "OT-34/85", "pts": 4.5},
+
+      	{"id": 105, "name": "KV-8", "pts": 5},
+
+      	{"id": 110, "name": "3 x BA-64", "pts": 2},
+      	{"id": 111, "name": "5 x BA-64", "pts": 3},
+      	{"id": 112, "name": "7 x BA-64", "pts": 4},
+      	{"id": 113, "name": "Replace 2 BA-64 MGs with PTRD AT Rifles", "pts": 0},
+
+      	{"id": 120, "name": "2 x 45mm AT Guns", "pts": 4},
+      	{"id": 121, "name": "4 x 45mm AT Guns", "pts": 8},
+
+      	{"id": 125, "name": "2 x 57mm AT Guns", "pts": 6},
+      	{"id": 126, "name": "4 x 57mm AT Guns", "pts": 12},
+      	{"id": 127, "name": "2 x 76mm AT Guns", "pts": 5},
+      	{"id": 128, "name": "4 x 76mm AT Guns", "pts": 10},
+
+      	{"id": 130, "name": "2 x 100mm AT Guns", "pts": 5},
+      	{"id": 131, "name": "4 x 100mm AT Guns", "pts": 11},
+
+      	{"id": 135, "name": "2 x 76mm Guns", "pts": 4},
+      	{"id": 136, "name": "4 x 76mm Guns", "pts": 8},
+
+      	{"id": 140, "name": "2 x 122mm Howitzers", "pts": 4},
+      	{"id": 141, "name": "4 x 122mm Howitzers", "pts": 8},
+
+      	{"id": 150, "name": "2 x Katyusha", "pts": 4},
+      	{"id": 151, "name": "4 x Katyusha", "pts": 8},
+
+      	{"id": 155, "name": "2 x 152mm Howitzers", "pts": 6},
+      	{"id": 156, "name": "4 x 152mm Howitzers", "pts": 12}
+	],
+
+
+   	"formationConstraints": [
+    	{"max": 1, "min": 1, "from": [501]},
+    	{"max": 1, "min": 1, "from": [502]},
+    	{"max": 1, "min": 1, "from": [503]},
+    	{"max": 1, "min": 0, "from": [504]},
+    	{"max": 1, "min": 0, "from": [505]},
+    	{"max": 1, "min": 0, "from": [507,508]},
+
+    	{"max": 1, "min": 0, "from": [550,551]},
+    	{"max": 1, "min": 0, "from": [552]},
+    	{"max": 1, "min": 0, "from": [553,554]},
+    	{"max": 1, "min": 0, "from": [555,556,557]},
+    	{"max": 2, "min": 0, "from": [558]},
+    	{"max": 2, "min": 0, "from": [559,560]},
+    	{"max": 1, "min": 0, "from": [561]},
+    	{"max": 1, "min": 0, "from": [562,563]},
+    	{"max": 1, "min": 0, "from": [564]},
+    	{"max": 1, "min": 0, "from": [565,566]},
+    	{"max": 1, "min": 0, "from": [567]},
+    	{"max": 1, "min": 0, "from": [568]},
+    	{"max": 1, "min": 0, "from": [569]}
+    ],
+
+
+
+   "upgradeConstraints": [      
+    	{"max": 1, "min": 1, "from": [1,2,3], "appliesTo": [502,503,504,505]},
+   	    {"max": 1, "min": 1, "from": [10,11], "appliesTo": [507]},
+   	    {"max": 1, "min": 1, "from": [12], "appliesTo": [507,508]},
+   	    {"max": 2, "min": 0, "from": [13], "appliesTo": [507,508]},
+   	    {"max": 1, "min": 1, "from": [20,21], "appliesTo": [508]},
+
+   	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
+   	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [551]},
+    	{"max": 1, "min": 1, "from": [110,111,112], "appliesTo": [552]},
+    	{"max": 1, "min": 0, "from": [113], "appliesTo": [552]},
+    	{"max": 1, "min": 1, "from": [120,121], "appliesTo": [553,555]},
+    	{"max": 1, "min": 1, "from": [125,126,127,128], "appliesTo": [554,556]},
+    	{"max": 1, "min": 1, "from": [130,131], "appliesTo": [557]},
+    	{"max": 1, "min": 1, "from": [135,136], "appliesTo": [558,560]},
+    	{"max": 1, "min": 1, "from": [140,141], "appliesTo": [559]},
+    	{"max": 1, "min": 1, "from": [150,151], "appliesTo": [561,562]},
+    	{"max": 1, "min": 1, "from": [155,156], "appliesTo": [563]}
+   ]
+}
