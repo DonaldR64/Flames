@@ -66,11 +66,11 @@
       	{"id": 31, "name": "14 x PPSh SMG Teams, 1 x DP MG Team", "pts": 18},
       	{"id": 32, "name": "8 x PPSh SMG Teams", "pts": 9},
       	
-      	{"id": 40, "name": "Equip All PPSh SMG Teams with Panzerfausts", "pts": 2},
-      	{"id": 41, "name": "Replace a PPSh Team with a PTRD AT Rifle Team", "pts": 0},
-      	{"id": 42, "name": "Replace a PPSh Team with a Maxim HMG Team", "pts": 0},
-      	{"id": 43, "name": "Replace a PPSh Team with a Flamethrower Team", "pts": 0},
-      	{"id": 44, "name": "Replace a PPSh Team with a 82mm Mortar Team", "pts": 0},
+       	{"id": 40, "name": "Equip All PPSh SMG Teams with Panzerfausts", "pts": 2},
+      	{"id": 41, "name": "Replace a PPSh Team with a PTRD AT Rifle Team (max 2)", "pts": 0},
+      	{"id": 42, "name": "Replace a PPSh Team with a Maxim HMG Team (max 2)", "pts": 0},
+      	{"id": 43, "name": "Replace a PPSh Team with a Flamethrower Team (max 2)", "pts": 0},
+      	{"id": 44, "name": "Replace a PPSh Team with a 82mm Mortar Team (max 2)", "pts": 0},
 
       	{"id": 100, "name": "OT-34/76", "pts": 2.5},
       	{"id": 101, "name": "OT-34/85", "pts": 4.5},
