@@ -5,7 +5,7 @@
 	"notes": ["For BA-64 OP Must Field Artillery Unit"],
 	"sections": [
 		{"name": "Core", "formations": [
-			{"id": 501, "name": "HQ Unit","pts": 1, "units": "1 x T-70"},
+			{"id": 501, "name": "HQ Unit","pts": 2, "units": "2x PPSh SMG Teams"},
 			
 			{"id": 502, "name": "1st Enginner-Sapper Company","pts": 0,"upgrades": [30,31,32,40,41,42,43,44]},			
 			{"id": 503, "name": "2nd Engineer-Sapper Company","pts": 0,"upgrades": [30,31,32,40,41,42,43,44]},			
