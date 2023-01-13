@@ -49,6 +49,7 @@
       	{"id": 10, "name": "5 x PPSh SMG Teams", "pts": 5},
       	{"id": 11, "name": "7 x PPSh SMG Teams", "pts": 7},
       	{"id": 12, "name": "Komissar Team", "pts": 0},
+      	{"id": 13, "name": "Add a Flamethrower Team", "pts": 2},
 
       	{"id": 15, "name": "3x 82mm Mortar Teams", "pts": 2},
       	{"id": 16, "name": "6x 82mm Mortar Teams", "pts": 4},
@@ -138,6 +139,7 @@
 
     	{"max": 1, "min": 1, "from": [10,11], "appliesTo": [506]},    	
     	{"max": 1, "min": 1, "from": [12], "appliesTo": [506]},
+    	{"max": 1, "min": 0, "from": [13], "appliesTo": [506]},
 
     	{"max": 1, "min": 1, "from": [15,16,17], "appliesTo": [507]},    	
     	{"max": 1, "min": 1, "from": [20,21], "appliesTo": [508]},    	
