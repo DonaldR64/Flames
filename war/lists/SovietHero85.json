@@ -8,7 +8,7 @@
 			{"id": 501, "name": "HQ Unit","pts": 8, "units": "1 x T-34/85"},
 			{"id": 502, "name": "Hero T-34/85 Tank Company","pts": 0,"upgrades": [1,2]},			
 		
-			{"id": 505, "name": "ZSU M17 Anti-Aircraft Platoon","units": "3xZSU M17", "pts": 0},
+			{"id": 505, "name": "ZSU M17 Anti-Aircraft Platoon","units": "3xZSU M17", "pts": 3},
 			{"id": 506, "name": "Hero SMG Company","pts": 0,"upgrades": [10,11,12,13]},
 			{"id": 507, "name": "82mm Mortar Company","pts": 0,"upgrades": [15,16,17]},
 			{"id": 508, "name": "45mm Anti-Tank Company","pts": 0,"upgrades": [20,21]},
