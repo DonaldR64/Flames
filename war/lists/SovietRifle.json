@@ -12,12 +12,12 @@
 			{"id": 503, "name": "Rifle Company","pts": 0,"upgrades": [1,2,3,10,11,12]},			
 			{"id": 504, "name": "Penal Company","pts": 0,"upgrades": [15,16,3]},
 
-			{"id": 506, "name": "SMG Company","pts": 0,"upgrades": []},		
-			{"id": 510, "name": "Maksim Machine-Gun Company","pts": 0,"upgrades": []},
-			{"id": 511, "name": "82mm Mortar Company","pts": 0,"upgrades": []},
-			{"id": 512, "name": "120mm Mortar Company","pts": 0,"upgrades": []},
-			{"id": 513, "name": "Scout Platoon","pts": 0,"upgrades": []},
-			{"id": 514, "name": "45mm AT Company","pts": 0,"upgrades": []}
+			{"id": 506, "name": "SMG Company","pts": 0,"upgrades": [15,16]},		
+			{"id": 510, "name": "Maksim Machine-Gun Company","pts": 0,"upgrades": [50,51,52]},
+			{"id": 511, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
+			{"id": 512, "name": "120mm Mortar Company","pts": 0,"upgrades": [60,61,62]},
+			{"id": 513, "name": "Scout Platoon","pts": 0,"upgrades": [70,71,72]},
+			{"id": 514, "name": "45mm AT Company","pts": 0,"upgrades": [65,66]}
 		]},
 
 	    {"name":"Support","formations":[
