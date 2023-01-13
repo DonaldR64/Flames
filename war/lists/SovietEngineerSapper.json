@@ -35,7 +35,7 @@
 	       {"id":565,"name":"IL-2 Shturmovik Assault Company","pts": 7, "units": "2 x IL-2 Shturmovik"},	     
 	       {"id":566,"name":"IL-2 Shturmovik (37mm) Assault Company","pts": 10, "units": "2 x IL-2 Shturmovik (37mm)"},	     
 	       {"id":567,"name":"ZSU M17 AA Platoon","pts": 3, "units": "3 x ZSU M17 AA"},	     
-	       {"id":568,"name":"Wildcard","pts": 0, "units": "Future Expansion"},	     
+	       {"id":568,"name":"Wildcard Units","pts": 0, "upgrades": [200]},	     
 	       {"id":569,"name":"Formation Support","pts": 0, "units": "Black Box Units from other Soviet Formations, points varies"}	     
 	    ]}
 
@@ -101,7 +101,10 @@
       	{"id": 151, "name": "4 x Katyusha", "pts": 8},
 
       	{"id": 155, "name": "2 x 152mm Howitzers", "pts": 6},
-      	{"id": 156, "name": "4 x 152mm Howitzers", "pts": 12}
+      	{"id": 156, "name": "4 x 152mm Howitzers", "pts": 12},
+
+      	{"id": 200, "name": "KV-5 Tank", "pts": 16}
+
 	],
 
 
@@ -110,7 +113,7 @@
     	{"max": 1, "min": 1, "from": [502]},
     	{"max": 1, "min": 1, "from": [503]},
     	{"max": 1, "min": 0, "from": [504]},
-    	{"max": 1, "min": 0, "from": [505,506,507]},
+    	{"max": 1, "min": 0, "from": [505,506]},
 
     	{"max": 1, "min": 0, "from": [550,551]},
     	{"max": 1, "min": 0, "from": [552]},
@@ -148,6 +151,10 @@
     	{"max": 1, "min": 1, "from": [135,136], "appliesTo": [558,560]},
     	{"max": 1, "min": 1, "from": [140,141], "appliesTo": [559]},
     	{"max": 1, "min": 1, "from": [150,151], "appliesTo": [561,562]},
-    	{"max": 1, "min": 1, "from": [155,156], "appliesTo": [563]}
+    	{"max": 1, "min": 1, "from": [155,156], "appliesTo": [563]},
+    	{"max": 5, "min": 1, "from": [200], "appliesTo": [568]}
+
+
+
    ]
 }
