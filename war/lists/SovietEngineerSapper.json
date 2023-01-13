@@ -10,8 +10,9 @@
 			{"id": 502, "name": "1st Enginner-Sapper Company","pts": 0,"upgrades": [30,31,32,40,41,42,43,44]},			
 			{"id": 503, "name": "2nd Engineer-Sapper Company","pts": 0,"upgrades": [30,31,32,40,41,42,43,44]},			
 			{"id": 504, "name": "3rd Engineer-Sapper Company","pts": 0,"upgrades": [30,31,32,40,41,42,43,44]},			
-			{"id": 505, "name": "4th Armour Company","pts": 0,"upgrades": [1,2,3,10,11,12,13,15,16,17,18,19]},
-			{"id": 506, "name": "4th Armour Company - OT-34 Flame Tanks","pts": 0,"upgrades": [100,101]}
+			{"id": 505, "name": "4th Armour Company - IS-2 Tanks","pts": 0,"upgrades": [1,2,3]},
+			{"id": 506, "name": "4th Armour Company - ISU Tanks","pts": 0,"upgrades": [10,11,12,13,15,16,17,18,19]},
+			{"id": 507, "name": "4th Armour Company - OT-34 Flame Tanks","pts": 0,"upgrades": [100,101]}
 
 		]},
 
@@ -132,9 +133,10 @@
    	    {"max": 1, "min": 1, "from": [30,31,32], "appliesTo": [502,503,504]},   	    
    	    {"max": 1, "min": 0, "from": [40], "appliesTo": [502,503,504]},
    	    {"max": 6, "min": 0, "from": [41,42,43,44], "appliesTo": [502,503,504]},
-   	    {"max": 1, "min": 1, "from": [1,2,3,10,11,12,13,15,16,17,18], "appliesTo": [505]},   	    
-   	    {"max": 1, "min": 0, "from": [19], "appliesTo": [505]},
-   	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [506]},
+   	    {"max": 1, "min": 1, "from": [1,2,3], "appliesTo": [505]},   
+   	    {"max": 1, "min": 1, "from": [10,11,12,13,15,16,17,18], "appliesTo": [506]},   	   
+   	    {"max": 1, "min": 0, "from": [19], "appliesTo": [506]},
+   	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [507]},
 
    	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
    	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [551]},
