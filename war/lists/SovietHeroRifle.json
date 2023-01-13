@@ -201,21 +201,23 @@
 
    		{"max": 1, "min": 1, "from": [50,51,52], "appliesTo": [508]},
    		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [509]},
+   		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [510]},
+   		{"max": 1, "min": 1, "from": [45,46,47], "appliesTo": [511]},
 
-    	{"max": 1, "min": 0, "from": [20,21], "appliesTo": [512]},    	
-    	{"max": 1, "min": 0, "from": [22,23], "appliesTo": [513]},    	
-    	{"max": 1, "min": 0, "from": [24,25], "appliesTo": [514]},    	
+    	{"max": 1, "min": 1, "from": [20,21], "appliesTo": [512]},    	
+    	{"max": 1, "min": 1, "from": [22,23], "appliesTo": [513]},    	
+    	{"max": 1, "min": 1, "from": [24,25], "appliesTo": [514]},    	
 
-    	{"max": 1, "min": 0, "from": [30,31], "appliesTo": [516]},    	
+    	{"max": 1, "min": 1, "from": [30,31], "appliesTo": [516]},    	
     	
-    	{"max": 1, "min": 0, "from": [35,36,37,38], "appliesTo": [515]},    	
+    	{"max": 1, "min": 1, "from": [35,36,37,38], "appliesTo": [515]},    	
 
 
-   	    {"max": 1, "min": 0, "from": [60,61], "appliesTo": [506]},
-   	    {"max": 1, "min": 0, "from": [70,71,72,73,74,75], "appliesTo": [504]},
-   	    {"max": 1, "min": 0, "from": [80,81], "appliesTo": [503]},
+   	    {"max": 1, "min": 1, "from": [60,61], "appliesTo": [506]},
+   	    {"max": 1, "min": 1, "from": [70,71,72,73,74,75], "appliesTo": [504]},
+   	    {"max": 1, "min": 1, "from": [80,81], "appliesTo": [503]},
 
-   	    {"max": 1, "min": 0, "from": [90,91,92], "appliesTo": [517]},
+   	    {"max": 1, "min": 1, "from": [90,91,92], "appliesTo": [517]},
    	    {"max": 2, "min": 0, "from": [93], "appliesTo": [517]},
 
 
