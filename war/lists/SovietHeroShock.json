@@ -10,7 +10,7 @@
 			{"id": 502, "name": "Hero Shock Rifle Company","pts": 0,"upgrades": [1,2,3,10,11,12]},			
 			
 			{"id": 503, "name": "Hero Shock Rifle Company","pts": 0,"upgrades": [1,2,3,10,11,12]},			
-			{"id": 504, "name": "Storm Group","pts": 0,"upgrades": [20,21,22,23,24]},					
+			{"id": 504, "name": "Storm Group","pts": 0,"upgrades": [20,21,22,23,24,25,26]},					
 			
 			{"id": 510, "name": "Maksim Machine-Gun Company","pts": 0,"upgrades": [50,51,52]},
 			{"id": 511, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
@@ -59,7 +59,8 @@
       	{"id": 22, "name": "1x PTRD AT Rifle Team", "pts": 1},
       	{"id": 23, "name": "1x Maksim HMG Team", "pts": 1},
       	{"id": 24, "name": "1x 82mm Mortar Team", "pts": 1},
-
+      	{"id": 25, "name": "Add a Maksim HMG Team", "pts": 1},
+      	{"id": 26, "name": "Add a Flamethrower Team", "pts": 2},
 
       	{"id": 50, "name": "3x Maksim HMG", "pts": 2},
       	{"id": 51, "name": "6x Maksim HMG", "pts": 4},
@@ -157,8 +158,8 @@
    		{"max": 1, "min": 1, "from": [22], "appliesTo": [504]},
    		{"max": 1, "min": 1, "from": [23], "appliesTo": [504]},
    		{"max": 1, "min": 1, "from": [24], "appliesTo": [504]},
-   		{"max": 1, "min": 0, "from": [11], "appliesTo": [504]},
-   		{"max": 1, "min": 0, "from": [12], "appliesTo": [504]},
+   		{"max": 1, "min": 0, "from": [25], "appliesTo": [504]},
+   		{"max": 1, "min": 0, "from": [26], "appliesTo": [504]},
 
    		{"max": 1, "min": 1, "from": [50,51,52], "appliesTo": [510]},
    		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [511]},
