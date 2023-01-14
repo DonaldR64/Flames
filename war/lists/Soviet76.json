@@ -7,8 +7,8 @@
 		{"name": "Core", "formations": [
 			{"id": 501, "name": "HQ Unit","pts": 0,"upgrades": [1,2]},
 			{"id": 502, "name": "T-34 Tank Company (only half of a company can be T-34/85s)","pts": 0,"upgrades": [1,2]},	
-			{"id": 503, "name": "T-70 Tank Company","pts": 0,"upgrades": []},	
-			{"id": 504, "name": "Valentine Tank Company","pts": 0,"upgrades": []},	
+			{"id": 503, "name": "T-70 Tank Company","pts": 0,"upgrades": [60]},	
+			{"id": 504, "name": "Valentine Tank Company (only half of a company can have 6pdr guns)","pts": 0,"upgrades": [61,62]},	
 
 			{"id": 505, "name": "ZSU M17 Anti-Aircraft Platoon","units": "3xZSU M17", "pts": 3},
 			{"id": 511, "name": "SMG Company","pts": 0,"upgrades": [30,31,32,33]},
@@ -49,8 +49,10 @@
 		{"id": 1, "name": "T-34/76", "pts": 3},
 		{"id": 2, "name": "T-34/85", "pts": 5},
 
+		{"id": 60, "name": "T-70", "pts": 1},
 
-
+		{"id": 61, "name": "Valentine (2pdr)", "pts": 1.5},
+		{"id": 62, "name": "Valentine (6pdr)", "pts": 2.5},
 
       	{"id": 10, "name": "5 x PPSh SMG Teams", "pts": 5},
       	{"id": 11, "name": "7 x PPSh SMG Teams", "pts": 7},
@@ -148,6 +150,9 @@
    "upgradeConstraints": [      
     	{"max": 1, "min": 1, "from": [1,2], "appliesTo": [501]},
     	{"max": 10, "min": 5, "from": [1,2], "appliesTo": [502]},
+
+    	{"max": 7, "min": 4, "from": [60], "appliesTo": [503]},
+    	{"max": 7, "min": 4, "from": [61,62], "appliesTo": [504]},
 
     	{"max": 1, "min": 1, "from": [10,11], "appliesTo": [506]},    	
     	{"max": 1, "min": 1, "from": [12], "appliesTo": [506]},
