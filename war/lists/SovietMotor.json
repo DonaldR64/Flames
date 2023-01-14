@@ -13,6 +13,11 @@
 			{"id": 505, "name": "T-70 Tank Company","pts": 0,"upgrades": [62]},			
 			{"id": 506, "name": "Valentine Tank Company (only half of a company can have 6pdr guns)","pts": 0,"upgrades": [63,64]},		
 
+			{"id": 507, "name": "SMG Company","pts": 0,"upgrades": [10,11,12,13]},
+			{"id": 508, "name": "Maxsim MG Company","pts": 0,"upgrades": [50,51,52]},
+			{"id": 509, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
+
+
 
 			{"id": 518, "name": "ZSU M17 Anti-Aircraft Platoon","units": "3xZSU M17", "pts": 3}
 
@@ -151,7 +156,9 @@
     	{"max": 3, "min": 2, "from": [502]},
     	{"max": 1, "min": 0, "from": [503,504,505,506]},
 
-
+    	{"max": 1, "min": 0, "from": [507]},
+    	{"max": 1, "min": 0, "from": [508]},
+    	{"max": 1, "min": 0, "from": [509]},
 
     	{"max": 1, "min": 0, "from": [518]},
 
@@ -184,6 +191,12 @@
    	    {"max": 7, "min": 4, "from": [62], "appliesTo": [505]},
    	    {"max": 7, "min": 4, "from": [63,64], "appliesTo": [506]},
 
+    	{"max": 1, "min": 1, "from": [10,11], "appliesTo": [507]},    	
+    	{"max": 1, "min": 1, "from": [12], "appliesTo": [507]},
+    	{"max": 2, "min": 0, "from": [13], "appliesTo": [507]},
+
+   		{"max": 1, "min": 1, "from": [50,51,52], "appliesTo": [508]},
+   		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [509]},
 
 
    	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
