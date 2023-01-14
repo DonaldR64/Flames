@@ -10,7 +10,7 @@
 
 			{"id": 503, "name": "T-34/85 Tank Company","pts": 0, "upgrades": [81,82,83,84,85,86]},
 			{"id": 504, "name": "T-34 Tank Company (only half of a company can be T-34/85s)","pts": 0, "upgrades": [60,61]},
-			{"id": 505, "name": "T-70 Tank Company","pts": 3,"upgrades": [62]},			
+			{"id": 505, "name": "T-70 Tank Company","pts": 0,"upgrades": [62]},			
 			{"id": 506, "name": "Valentine Tank Company (only half of a company can have 6pdr guns)","pts": 0,"upgrades": [63,64]},			
 
 			{"id": 507, "name": "SMG Company","pts": 0,"upgrades": [10,11,12,13]},
