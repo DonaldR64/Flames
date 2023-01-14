@@ -8,28 +8,6 @@
 			{"id": 501, "name": "HQ Unit","pts": 2, "units": "2x PPSh SMG Teams"},
 			{"id": 502, "name": "Motor Rifle Company","pts": 0, "upgrades": [1,2,3,4,5,6]},
 
-			{"id": 503, "name": "T-34/85 Tank Company","pts": 0, "upgrades": [81,82,83,84,85,86]},
-			{"id": 504, "name": "T-34 Tank Company (only half of a company can be T-34/85s)","pts": 0, "upgrades": [60,61]},
-			{"id": 505, "name": "T-70 Tank Company","pts": 0,"upgrades": [62]},			
-			{"id": 506, "name": "Valentine Tank Company (only half of a company can have 6pdr guns)","pts": 0,"upgrades": [63,64]},			
-
-			{"id": 507, "name": "SMG Company","pts": 0,"upgrades": [10,11,12,13]},
-			{"id": 508, "name": "Maxsim MG Company","pts": 0,"upgrades": [50,51,52]},
-			{"id": 509, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
-
-			{"id": 510, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
-			{"id": 511, "name": "120mm Mortar Company","pts": 0,"upgrades": [45,46,47]},
-
-			{"id": 512, "name": "45mm AT Company","pts": 0,"upgrades": [20,21]},
-			{"id": 513, "name": "57mm AT Company","pts": 0,"upgrades": [22,23]},
-
-			{"id": 514, "name": "76mm AT Company","pts": 0,"upgrades": [24,25]},
-
-			{"id": 515, "name": "Armoured Recon Platoon","pts": 0,"upgrades": [35,36,37,38]},
-			{"id": 516, "name": "Recon Platoon","pts": 0,"upgrades": [30,31]},
-
-			{"id": 517, "name": "BA-64 Armoured Car Platoon","pts": 0,"upgrades": [90,91,92,93]},
-
 			{"id": 518, "name": "ZSU M17 Anti-Aircraft Platoon","units": "3xZSU M17", "pts": 3}
 
 
@@ -165,15 +143,7 @@
    	"formationConstraints": [
     	{"max": 1, "min": 0, "from": [501]},
     	{"max": 3, "min": 2, "from": [502]},
-    	{"max": 1, "min": 0, "from": [503,504,505,506]},
-    	{"max": 1, "min": 0, "from": [507]},
-    	{"max": 1, "min": 0, "from": [508]},
-    	{"max": 1, "min": 0, "from": [509]},
-    	{"max": 1, "min": 0, "from": [510,511]},
-    	{"max": 1, "min": 0, "from": [512,513]},
-    	{"max": 1, "min": 0, "from": [514]},
-    	{"max": 1, "min": 0, "from": [515,516]},
-    	{"max": 1, "min": 0, "from": [517]},
+
     	{"max": 1, "min": 0, "from": [518]},
 
 
@@ -200,33 +170,6 @@
    	    {"max": 3, "min": 0, "from": [5], "appliesTo": [502]},
    	    {"max": 2, "min": 0, "from": [6], "appliesTo": [502]},
 
-    	{"max": 1, "min": 1, "from": [10,11], "appliesTo": [507]},    	
-    	{"max": 1, "min": 1, "from": [12], "appliesTo": [507]},
-    	{"max": 2, "min": 0, "from": [13], "appliesTo": [507]},
-
-   		{"max": 1, "min": 1, "from": [50,51,52], "appliesTo": [508]},
-   		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [509]},
-   		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [510]},
-   		{"max": 1, "min": 1, "from": [45,46,47], "appliesTo": [511]},
-
-    	{"max": 1, "min": 1, "from": [20,21], "appliesTo": [512]},    	
-    	{"max": 1, "min": 1, "from": [22,23], "appliesTo": [513]},    	
-    	{"max": 1, "min": 1, "from": [24,25], "appliesTo": [514]},    	
-
-    	{"max": 1, "min": 1, "from": [30,31], "appliesTo": [516]},    	
-    	
-    	{"max": 1, "min": 1, "from": [35,36,37,38], "appliesTo": [515]},    	
-
-   	    {"max": 1, "min": 1, "from": [60,61], "appliesTo": [506]},
-   	    {"max": 1, "min": 1, "from": [70,71,72,73,74,75], "appliesTo": [504]},
-
-   	    {"max": 1, "min": 1, "from": [81,82,83,84,85,86], "appliesTo": [503]},
-   	    {"max": 10, "min": 5, "from": [60,61], "appliesTo": [504]},
-   	    {"max": 7, "min": 4, "from": [62], "appliesTo": [505]},
-   	    {"max": 7, "min": 4, "from": [63,64], "appliesTo": [506]},
-
-   	    {"max": 1, "min": 1, "from": [90,91,92], "appliesTo": [517]},
-   	    {"max": 2, "min": 0, "from": [93], "appliesTo": [517]},
 
    	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
    	    {"max": 10, "min": 5, "from": [100,101], "appliesTo": [551]},
