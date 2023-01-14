@@ -148,8 +148,6 @@
    "upgradeConstraints": [      
     	{"max": 1, "min": 1, "from": [1,2], "appliesTo": [501]},
     	{"max": 10, "min": 5, "from": [1,2], "appliesTo": [502]},
-		{"maxPercent":50, "name":"T34/85s", "from":[2], "appliesTo": [502]},
-
 
     	{"max": 1, "min": 1, "from": [10,11], "appliesTo": [506]},    	
     	{"max": 1, "min": 1, "from": [12], "appliesTo": [506]},
