@@ -67,8 +67,8 @@
       	{"id": 24, "name": "2x 76mm AT Gun", "pts": 4},
       	{"id": 25, "name": "4x 76mm AT Gun", "pts": 8},
 
-      	{"id": 30, "name": "20 x PPSh SMG Teams", "pts": 24},
-      	{"id": 31, "name": "15 x PPSh SMG Teams", "pts": 17},
+      	{"id": 30, "name": "15 x PPSh SMG Teams", "pts": 17},
+      	{"id": 31, "name": "20 x PPSh SMG Teams", "pts": 24},
       	{"id": 32, "name": "Komissar Team", "pts": 0},
       	{"id": 33, "name": "Add a Flamethrower Team", "pts": 2},
 
