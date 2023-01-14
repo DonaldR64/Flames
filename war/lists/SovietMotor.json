@@ -64,7 +64,7 @@
 	"upgrades": [
       	{"id": 1, "name": "28x DP MG Team", "pts": 15},
       	{"id": 2, "name": "19x DP MG Team", "pts": 26},
-      	{"id": 2, "name": "10x DP MG Team", "pts": 37},
+      	{"id": 3, "name": "10x DP MG Team", "pts": 37},
       	{"id": 4, "name": "Komissar Team", "pts": 0},
 
       	{"id": 5, "name": "Add a PTRD AT Rifle Team", "pts": 1},
