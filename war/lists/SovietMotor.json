@@ -16,7 +16,14 @@
 			{"id": 507, "name": "SMG Company","pts": 0,"upgrades": [10,11,12,13]},
 			{"id": 508, "name": "Maxsim MG Company","pts": 0,"upgrades": [50,51,52]},
 			{"id": 509, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
+			
+			{"id": 510, "name": "82mm Mortar Company","pts": 0,"upgrades": [55,56,57]},
+			{"id": 511, "name": "120mm Mortar Company","pts": 0,"upgrades": [45,46,47]},
 
+			{"id": 512, "name": "45mm AT Company","pts": 0,"upgrades": [20,21]},
+			{"id": 513, "name": "57mm AT Company","pts": 0,"upgrades": [22,23]},
+
+			{"id": 514, "name": "76mm AT Company","pts": 0,"upgrades": [24,25]},
 
 
 			{"id": 518, "name": "ZSU M17 Anti-Aircraft Platoon","units": "3xZSU M17", "pts": 3}
@@ -160,6 +167,13 @@
     	{"max": 1, "min": 0, "from": [508]},
     	{"max": 1, "min": 0, "from": [509]},
 
+    	{"max": 1, "min": 0, "from": [510,511]},
+    	{"max": 1, "min": 0, "from": [512,513]},
+    	{"max": 1, "min": 0, "from": [514]},
+
+
+
+
     	{"max": 1, "min": 0, "from": [518]},
 
 
@@ -197,6 +211,13 @@
 
    		{"max": 1, "min": 1, "from": [50,51,52], "appliesTo": [508]},
    		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [509]},
+
+   		{"max": 1, "min": 1, "from": [55,56,57], "appliesTo": [510]},
+   		{"max": 1, "min": 1, "from": [45,46,47], "appliesTo": [511]},
+
+    	{"max": 1, "min": 1, "from": [20,21], "appliesTo": [512]},    	
+    	{"max": 1, "min": 1, "from": [22,23], "appliesTo": [513]},    	
+    	{"max": 1, "min": 1, "from": [24,25], "appliesTo": [514]},    
 
 
    	    {"max": 5, "min": 3, "from": [105], "appliesTo": [550]},
