@@ -10,31 +10,43 @@
 
 
 	    {"name":"Support","formations":[
-	       {"id":550,"name":"Jagpanzer IV Platoon","pts": 0, "upgrades":[100,101,102]},	     
-	       {"id":551,"name":"7.5cm Tank-Hunter Platoon","pts": 0, "upgrades":[105,106,107]},	     
+	       {"id":570,"name":"Marder Platoon","pts": 0, "upgrades":[160,161,162]},	     	     	    	
+	       {"id":550,"name":"Jagpanzer IV Platoon","pts": 0, "upgrades":[100,101,102]},	  
+	       {"id":571,"name":"Hornisse Platoon","pts": 0, "upgrades":[180,181,182]},	     	     
+	       {"id":572,"name":"Elefant Platoon","pts": 0, "upgrades":[170,171,172,173]},	
 	       {"id":552,"name":"8.8cm Tank-Hunter Platoon","pts": 0, "upgrades":[110,111,112]},	     
+
+	       {"id":551,"name":"7.5cm Tank-Hunter Platoon","pts": 0, "upgrades":[105,106,107]},
+
 	       {"id":553,"name":"Puma Scout Troop","pts": 0,"upgrades":[210,211]},	     
 	       {"id":554,"name":"SdKfz 221 & 222 Scout Troop","pts": 3, "units": "2x SdKfz 222 (2cm) & 1x SdKfz 221 (MG)", "upgrades":[115]},
 	       {"id":570,"name":"SdKfz 250 Scout Troop","pts": 3, "units": "2x SdKfz 250/9 (2cm) & 1x SdKfz 250 (MG)"},	     
+	       
 	       {"id":556,"name":"10.5cm Artillery Battery","pts": 0, "upgrades":[120,121]},	     
-	       {"id":557,"name":"Wespe Artillery Battery","pts": 0, "upgrades":[125,126]},	     
+	       {"id":557,"name":"Wespe Artillery Battery","pts": 0, "upgrades":[125,126]},	
+
 	       {"id":558,"name":"Hummel Artillery Battery","pts": 0, "upgrades":[130,131]},
+
 	       {"id":559,"name":"SdKfz 10/4 Light AA Platoon","pts": 0, "upgrades":[135,136]},	
-	       {"id":560,"name":"SdKfz 7/1 Quad AA Platoon", "pts": 0, "upgrades":[140,141]},	     	     
-	       {"id":561,"name":"8.8cm Heavy AA Platoon","pts": 0, "upgrades":[150,151]},	     
-	       {"id":562,"name":"15cm Nebelwerfer Battery","pts": 0, "upgrades":[155,156]},	     
+	       {"id":560,"name":"SdKfz 7/1 Quad AA Platoon", "pts": 0, "upgrades":[140,141]},
+	       {"id":565,"name":"2cm Light AA Platoon","pts": 0, "upgrades":[145,146]},	     	     
+
+	       {"id":573,"name":"Panzerwerfer 42 Battery","pts": 0, "upgrades":[190,191]},	 
+	       {"id":562,"name":"15cm Nebelwerfer Battery","pts": 0, "upgrades":[155,156]},
+
 	       {"id":563,"name":"Panzer III Observation Post","pts": 1, "units": "1x Panzer III OP"},	     
 	       {"id":564,"name":"SdKfz 250 Observation Post","pts": 1, "units": "1x SdKfz 250 OP"},	     
-	       {"id":565,"name":"2cm Light AA Platoon","pts": 0, "upgrades":[145,146]},	     	     
-	       {"id":568,"name":"Wildcard Units","pts": 0, "units": "Future Upgrades", "upgrades": []},	     
-	       {"id":569,"name":"Formation Support","pts": 0, "units": "Black Box Units from other German Formations, points varies"},   
-	       {"id":570,"name":"Marder Platoon","pts": 0, "upgrades":[160,161,162]},	     	     
-	       {"id":571,"name":"Hornisse Platoon","pts": 0, "upgrades":[180,181,182]},	     	     
-	       {"id":572,"name":"Elefant Platoon","pts": 0, "upgrades":[170,171,172,173]},	     	     
-	       {"id":573,"name":"Panzerwerfer 42 Battery","pts": 0, "upgrades":[190,191]},	 
+
+	       {"id":576,"name":"Brummbär Assault Platoon","pts": 0, "upgrades":[200,201,202]},
+
+	       {"id":561,"name":"8.8cm Heavy AA Platoon","pts": 0, "upgrades":[150,151]},	  
+
 	       {"id":574,"name":"JU-87 Stuka Dive Bomber Flight","pts": 8, "units": "2x JU-87 Stuka"},	     	     
-	       {"id":575,"name":"JU-87 Stuka Tank-Hunter Flight","pts": 9, "units": "2x JU-87 Stuka (3.7cm)"},	     	     
-	       {"id":576,"name":"Brummbär Assault Platoon","pts": 0, "upgrades":[200,201,202]}    	     
+	       {"id":575,"name":"JU-87 Stuka Tank-Hunter Flight","pts": 9, "units": "2x JU-87 Stuka (3.7cm)"},	    
+
+	       {"id":568,"name":"Wildcard Units","pts": 0, "units": "Future Upgrades", "upgrades": []},	     
+	       {"id":569,"name":"Formation Support","pts": 0, "units": "Black Box Units from other German Formations, points varies"}
+  	     
 	    ]}
 
 	],
