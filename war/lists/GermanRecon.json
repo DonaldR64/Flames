@@ -1,0 +1,158 @@
+{
+	"id": "Base",
+	"version": "FOWv4",
+	"by": "DR",
+	"notes": ["For any OP Must Field Artillery Unit"],
+	"sections": [
+
+
+
+
+
+	    {"name":"Support","formations":[
+	       {"id":550,"name":"Jagpanzer IV Platoon","pts": 0, "upgrades":[100,101,102]},	     
+	       {"id":551,"name":"7.5cm Tank-Hunter Platoon","pts": 0, "upgrades":[105,106,107]},	     
+	       {"id":552,"name":"8.8cm Tank-Hunter Platoon","pts": 0, "upgrades":[110,111,112]},	     
+	       {"id":553,"name":"Puma Scout Troop","pts": 0,"upgrades":[210,211]},	     
+	       {"id":554,"name":"SdKfz 221 & 222 Scout Troop","pts": 3, "units": "2x SdKfz 222 (2cm) & 1x SdKfz 221 (MG)", "upgrades":[115]},
+	       {"id":570,"name":"SdKfz 250 Scout Troop","pts": 3, "units": "2x SdKfz 250/9 (2cm) & 1x SdKfz 250 (MG)"},	     
+	       {"id":556,"name":"10.5cm Artillery Battery","pts": 0, "upgrades":[120,121]},	     
+	       {"id":557,"name":"Wespe Artillery Battery","pts": 0, "upgrades":[125,126]},	     
+	       {"id":558,"name":"Hummel Artillery Battery","pts": 0, "upgrades":[130,131]},
+	       {"id":559,"name":"SdKfz 10/4 Light AA Platoon","pts": 0, "upgrades":[135,136]},	
+	       {"id":560,"name":"SdKfz 7/1 Quad AA Platoon", "pts": 0, "upgrades":[140,141]},	     	     
+	       {"id":561,"name":"8.8cm Heavy AA Platoon","pts": 0, "upgrades":[150,151]},	     
+	       {"id":562,"name":"15cm Nebelwerfer Battery","pts": 0, "upgrades":[155,156]},	     
+	       {"id":563,"name":"Panzer III Observation Post","pts": 1, "units": "1x Panzer III OP"},	     
+	       {"id":564,"name":"SdKfz 250 Observation Post","pts": 1, "units": "1x SdKfz 250 OP"},	     
+	       {"id":565,"name":"2cm Light AA Platoon","pts": 0, "upgrades":[145,146]},	     	     
+	       {"id":568,"name":"Wildcard Units","pts": 0, "units": "Future Upgrades", "upgrades": []},	     
+	       {"id":569,"name":"Formation Support","pts": 0, "units": "Black Box Units from other German Formations, points varies"},   
+	       {"id":570,"name":"Marder Platoon","pts": 0, "upgrades":[160,161,162]},	     	     
+	       {"id":571,"name":"Hornisse Platoon","pts": 0, "upgrades":[180,181,182]},	     	     
+	       {"id":572,"name":"Elefant Platoon","pts": 0, "upgrades":[170,171,172,173]},	     	     
+	       {"id":573,"name":"Panzerwerfer 42 Battery","pts": 0, "upgrades":[190,191]},	 
+	       {"id":574,"name":"JU-87 Stuka Dive Bomber Flight","pts": 8, "units": "2x JU-87 Stuka"},	     	     
+	       {"id":575,"name":"JU-87 Stuka Tank-Hunter Flight","pts": 9, "units": "2x JU-87 Stuka (3.7cm)"},	     	     
+	       {"id":576,"name":"Brummbär Assault Platoon","pts": 0, "upgrades":[200,201,202]}    	     
+	    ]}
+
+	],
+
+	"upgrades": [
+
+
+
+
+
+
+
+      	{"id": 100, "name": "2x Jagpanzer IV", "pts": 11},
+      	{"id": 101, "name": "3x Jagpanzer IV", "pts": 17},
+      	{"id": 102, "name": "4x Jagpanzer IV", "pts": 23},
+
+      	{"id": 105, "name": "2x 7.5cm AT Gun", "pts": 7},
+      	{"id": 106, "name": "3x 7.5cm AT Gun", "pts": 11},
+      	{"id": 107, "name": "4x 7.5cm AT Gun", "pts": 15},
+
+      	{"id": 110, "name": "2x 8.8cm AT Gun", "pts": 9},
+      	{"id": 111, "name": "3x 8.8cm AT Gun", "pts": 13},
+      	{"id": 112, "name": "4x 8.8cm AT Gun", "pts": 18},
+
+      	{"id": 115, "name": "Replace the SdKfz 221 (MG) with SdKfz 221 (2.8cm)", "pts": 0},
+
+      	{"id": 120, "name": "2x 10.5cm Howitzers", "pts": 7},
+      	{"id": 121, "name": "4x 10.5cm Howitzers", "pts": 14},
+
+      	{"id": 125, "name": "3x Wespe", "pts": 9},
+      	{"id": 126, "name": "6x Wespe", "pts": 18},
+
+      	{"id": 130, "name": "3x Hummel", "pts": 12},
+      	{"id": 131, "name": "6x Hummel", "pts": 24},
+
+      	{"id": 135, "name": "2x SdKfz 10/4 (2cm)", "pts": 3},
+      	{"id": 136, "name": "4x SdKfz 10/4 (2cm)", "pts": 6},
+
+      	{"id": 140, "name": "2x SdKfz 7/1 (2cm Quad)", "pts": 4},
+      	{"id": 141, "name": "4x SdKfz 7/1 (2cm Quad)", "pts": 6},
+
+      	{"id": 145, "name": "2x 2cm AA Gun", "pts": 3},
+      	{"id": 146, "name": "4x 2cm AA Gun", "pts": 6},
+
+      	{"id": 150, "name": "2x 8.8cm AA Gun", "pts": 6},
+      	{"id": 151, "name": "4x 8.8cm AA Gun", "pts": 12},
+
+      	{"id": 155, "name": "3x 15cm Nebelwerfer", "pts": 9},
+      	{"id": 156, "name": "6x 15cm Nebelwerfer", "pts": 18}
+
+      	{"id": 160, "name": "2x Marder III", "pts": 8},
+      	{"id": 161, "name": "3x Marder III", "pts": 12},
+      	{"id": 162, "name": "4x Marder III", "pts": 16},
+
+      	{"id": 170, "name": "1x Elefant", "pts": 15},
+      	{"id": 171, "name": "2x Elefant", "pts": 29},
+      	{"id": 172, "name": "3x Elefant", "pts": 43},
+      	{"id": 173, "name": "4x Elefant", "pts": 57},
+
+      	{"id": 180, "name": "2x Hornisse", "pts": 16},
+      	{"id": 181, "name": "3x Hornisse", "pts": 24},
+      	{"id": 182, "name": "4x Hornisse", "pts": 32},
+
+      	{"id": 190, "name": "2x Panzerwerfer 42", "pts": 8},
+      	{"id": 191, "name": "4x Panzerwerfer 42", "pts": 16},
+
+      	{"id": 200, "name": "2x Brummbär", "pts": 14},
+      	{"id": 201, "name": "3x Brummbär", "pts": 21},
+      	{"id": 202, "name": "4x Brummbär", "pts": 28},
+
+      	{"id": 210, "name": "2x Puma", "pts": 3},
+      	{"id": 211, "name": "2x SdKfz 234 (2cm)", "pts": 4}
+	],
+
+
+   	"formationConstraints": [
+
+
+
+
+    	{"max": 1, "min": 0, "from": [570,550,571,572,552]},
+    	{"max": 1, "min": 0, "from": [551,552,570]},
+    	{"max": 2, "min": 0, "from": [553,570,554]},
+
+    	{"max": 1, "min": 0, "from": [556,557]},
+    	{"max": 1, "min": 0, "from": [556,558]},
+    	{"max": 1, "min": 0, "from": [573,562]},
+    	{"max": 1, "min": 0, "from": [563,564]},
+    	{"max": 1, "min": 0, "from": [576]},
+    	{"max": 1, "min": 0, "from": [559,560,565]},
+    	{"max": 1, "min": 0, "from": [561]},
+    	{"max": 1, "min": 0, "from": [574,575]}
+    ],
+
+
+
+   "upgradeConstraints": [      
+
+
+
+
+   	    {"max": 1, "min": 1, "from": [100,101,102], "appliesTo": [550]},
+   	    {"max": 1, "min": 1, "from": [105,106,107], "appliesTo": [551]},
+   	    {"max": 1, "min": 1, "from": [110,111,112], "appliesTo": [552]},
+   	    {"max": 1, "min": 0, "from": [115], "appliesTo": [554]},
+   	    {"max": 1, "min": 1, "from": [120,121], "appliesTo": [556]},
+   	    {"max": 1, "min": 1, "from": [125,126], "appliesTo": [557]},
+   	    {"max": 1, "min": 1, "from": [130,131], "appliesTo": [558]},
+   	    {"max": 1, "min": 1, "from": [135,136], "appliesTo": [559]},
+   	    {"max": 1, "min": 1, "from": [140,141], "appliesTo": [560]},
+   	    {"max": 1, "min": 1, "from": [145,146], "appliesTo": [565]},
+   	    {"max": 1, "min": 1, "from": [150,151], "appliesTo": [561]},
+   	    {"max": 1, "min": 1, "from": [155,156], "appliesTo": [562]},
+   	    {"max": 1, "min": 1, "from": [160,161,162], "appliesTo": [570]},
+   	    {"max": 1, "min": 1, "from": [170,171,172,173], "appliesTo": [572]},
+   	    {"max": 1, "min": 1, "from": [180,181,182], "appliesTo": [571]},
+   	    {"max": 1, "min": 1, "from": [190,191], "appliesTo": [573]},
+   	    {"max": 1, "min": 1, "from": [200,201,202], "appliesTo": [576]},
+   	    {"max": 1, "min": 1, "from": [210,211], "appliesTo": [553]}
+   ]
+}
