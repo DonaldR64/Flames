@@ -1,11 +1,11 @@
 {
-	"id": "Armoured Panzergrenadier Company",
+	"id": "Panzergrenadier Company",
 	"version": "FOWv4",
 	"by": "DR",
 	"notes": ["For any OP Must Field Artillery Unit"],
 	"sections": [
 		{"name": "Core", "formations": [
-			{"id": 501, "name": "HQ Unit","pts": 5,"units": "2x MP40 SMG teams with Panzerfausts, 1x SdKfz 251(MG)"},
+			{"id": 501, "name": "HQ Unit","pts": 4,"units": "2x MP40 SMG teams with Panzerfausts"},
 			{"id": 502, "name": "Armoured Panzergrenadier Platoon","pts": 0,"upgrades": [1,2,3,4]},
 			{"id": 503, "name": "Panzergrenadier Platoon","pts": 0,"upgrades": [40,41,42]},
 			{"id": 504, "name": "Recon Platoon","pts": 0,"upgrades": [50,51,52,53,54,55]},
@@ -28,7 +28,7 @@
 			{"id": 519, "name": "Armoured Flame-Thrower Platoon","pts": 0,"upgrades": [30,31,32]},
 			{"id": 520, "name": "7.5cm Tank-Hunter Platoon","pts": 0,"upgrades": [80,81,82]},
 			{"id": 521, "name": "SdKfz 10/4 Light AA","pts": 0,"upgrades": [135,136]},
-	        {"id": 530, "name": "2cm Light AA Platoon","pts": 0, "upgrades":[145,146]}	     	     
+	        {"id": 530, "name": "2cm Light AA Platoon","pts": 0, "upgrades":[145,146]},	     	     
 
 		]},
 
