@@ -1,34 +1,26 @@
 {
-	"id": "Panzergrenadier Company",
+	"id": "Reconnaissance Company",
 	"version": "FOWv4",
 	"by": "DR",
 	"notes": ["For any OP Must Field Artillery Unit"],
 	"sections": [
 		{"name": "Core", "formations": [
-			{"id": 501, "name": "HQ Unit","pts": 4,"units": "2x MP40 SMG teams with Panzerfausts"},
-			{"id": 502, "name": "Armoured Panzergrenadier Platoon","pts": 0,"upgrades": [1,2,3,4]},
+			{"id": 501, "name": "HQ Unit","pts": 0,"upgrades": [5,6]},
 			{"id": 503, "name": "Panzergrenadier Platoon","pts": 0,"upgrades": [40,41,42]},
+			{"id": 502, "name": "Armoured Panzergrenadier Platoon","pts": 0,"upgrades": [1,2,3,4]},
 			{"id": 504, "name": "Recon Platoon","pts": 0,"upgrades": [50,51,52,53,54,55]},
 
-			{"id": 505, "name": "Panther Platoon","pts": 0,"upgrades": [60,61,62]},
-			{"id": 506, "name": "Panzer IV Platoon","pts": 0,"upgrades": [65,66,67]},
-			{"id": 507, "name": "StuG Platoon","pts": 0,"upgrades": [70,71,72]},
-			{"id": 508, "name": "Panzer IV/70 Platoon","pts": 0,"upgrades": [75,76]},
+	       	{"id":505,"name":"Puma Scout Troop","pts": 0,"upgrades":[210,211]},	     
+	       	{"id":506,"name":"SdKfz 250 Scout Troop","pts": 3, "units": "2x SdKfz 250/9 (2cm) & 1x SdKfz 250 (MG)"},	  				       	
+	       	{"id":507,"name":"SdKfz 221 & 222 Light Scout Troop","pts": 3, "units": "2x SdKfz 222 (2cm) & 1x SdKfz 221 (MG)", "upgrades":[115]},
+			{"id":508,"name":"SdKfz 231 Heavy Scout Troop","pts": 3, "units": "2x SdKfz 231 (2cm)"},
 
-			{"id": 511, "name": "8cm Mortar Platoon","pts": 3,"units": "2x 8cm Mortar Teams"},
-			
-			{"id": 515, "name": "Armoured 7.5cm Gun Platoon","pts": 0,"upgrades": [25,26,27]},
-			{"id": 531, "name": "7.5cm Gun Platoon","pts": 0,"upgrades": [85,86]},
-			{"id": 532, "name": "12cm Mortar Platoon","pts": 0,"upgrades": [90,91]},
+	       	{"id":510,"name":"SdKfz 234(7.5cm) Gun Platoon","pts": 3, "upgrades":[20,21]},
 
-			{"id": 516, "name": "Grille Platoon","pts": 8,"units": "2x Grille"},			
-			{"id": 517, "name": "15cm Gun Platoon","pts": 8,"units": "2x 15cm Infantry Guns"},
-			
-			{"id": 518, "name": "Armoured sMG34 MG Platoon","pts": 0,"upgrades": [10,11,12,13]},
-			{"id": 519, "name": "Armoured Flame-Thrower Platoon","pts": 0,"upgrades": [30,31,32]},
+	       	{"id":511,"name": "Reconnaissance 8cm Mortar Section","pts": 0, "upgrades":[10,11]},
+	       	{"id":512,"name": "Reconnaissance 7.5cm Gun Platoon","pts": 0, "upgrades":[15,16]},
 			{"id": 520, "name": "7.5cm Tank-Hunter Platoon","pts": 0,"upgrades": [80,81,82]},
-			{"id": 521, "name": "SdKfz 10/4 Light AA","pts": 0,"upgrades": [135,136]},
-	        {"id": 530, "name": "2cm Light AA Platoon","pts": 0, "upgrades":[145,146]},	     	     
+			{"id": 515, "name": "Armoured 7.5cm Gun Platoon","pts": 0,"upgrades": [25,26,27]}
 
 		]},
 
@@ -86,21 +78,24 @@
       	{"id": 3, "name": "Replace one SdKfz 251(MG) with a SdKfz 251(3.7cm)", "pts": 0},
       	{"id": 4, "name": "Add a Panzerschreck Team", "pts": 2},
 
-      	{"id": 10, "name": "2x sMG34 HMG Teams", "pts": 3},
-      	{"id": 11, "name": "4x sMG34 HMG Teams", "pts": 6},
-      	{"id": 12, "name": "2x sMG34 HMG Teams, 1x SdKfz 251(MG)", "pts": 4},
-      	{"id": 13, "name": "4x sMG34 HMG Teams, 2x SdKfz 251(MG)", "pts": 7},
+      	{"id": 5, "name": "2x MP40 SMG Teams with Panzerfausts", "pts": 4},
+      	{"id": 6, "name": "2x MP40 SMG Teams with Panzerfausts, 2x SdKfz 250(MG)", "pts": 6},
+
+      	{"id": 10, "name": "2x SdKfz 250 (8cm)", "pts": 3},
+      	{"id": 11, "name": "3x SdKfz 250 (8cm)", "pts": 5},
+
+      	{"id": 15, "name": "2x SdKfz 250 (7.5cm)", "pts": 4},
+      	{"id": 16, "name": "3x SdKfz 250 (7.5cm)", "pts": 6},
+
+      	{"id": 20, "name": "2x SdKfz 234 (7.5cm)", "pts": 4},
+      	{"id": 21, "name": "3x SdKfz 234 (7.5cm)", "pts": 6},
 
       	{"id": 25, "name": "2x SdKfz 251(7.5cm)", "pts": 3},
       	{"id": 26, "name": "4x SdKfz 251(7.5cm)", "pts": 6},
       	{"id": 27, "name": "6x SdKfz 251(7.5cm)", "pts": 9},
 
-      	{"id": 30, "name": "2x SdKfz 251(Flame)", "pts": 4},
-      	{"id": 31, "name": "4x SdKfz 251(Flame)", "pts": 8},
-      	{"id": 32, "name": "6x SdKfz 251(Flame)", "pts": 12},
-
       	{"id": 40, "name": "5x MG42 Teams with Panzerfausts", "pts": 8},
-      	{"id": 41, "name": "5x MG42 Teams with Panzerfausts", "pts": 11},
+      	{"id": 41, "name": "7x MG42 Teams with Panzerfausts", "pts": 11},
       	{"id": 42, "name": "Add one Panzerschreck Team", "pts": 2},
 
       	{"id": 50, "name": "5x MG42 Teams", "pts": 7},
@@ -109,21 +104,6 @@
       	{"id": 53, "name": "7x MG42 Teams, 7x SdKfz 250(MG)", "pts": 14},
       	{"id": 54, "name": "Equip MG42 teams with Panzerfausts", "pts": 2},
       	{"id": 55, "name": "Replace one SdKfz 250(MG) with a SdKfz 250(3.7cm)", "pts": 0},
-
-      	{"id": 60, "name": "3x Panthers", "pts": 33},
-      	{"id": 61, "name": "4x Panthers", "pts": 44},
-      	{"id": 62, "name": "5x Panthers", "pts": 55},
-
-      	{"id": 65, "name": "3x Panzer IVs", "pts": 16},
-      	{"id": 66, "name": "4x Panzer IVs", "pts": 22},
-      	{"id": 67, "name": "5x Panzer IVs", "pts": 28},
-
-      	{"id": 70, "name": "3x StuGs", "pts": 17},
-      	{"id": 71, "name": "4x StuGs", "pts": 23},
-      	{"id": 72, "name": "5x StuGs", "pts": 29},
-
-      	{"id": 75, "name": "3x Panzer IV/70s", "pts": 27},
-      	{"id": 76, "name": "4x Panzer IV/70s", "pts": 36},
 
       	{"id": 80, "name": "2x 7.5cm AT Guns", "pts": 7},
       	{"id": 81, "name": "3x 7.5cm AT Guns", "pts": 11},
@@ -200,17 +180,18 @@
 
    	"formationConstraints": [
     	{"max": 1, "min": 1, "from": [501]},
-    	{"max": 3, "min": 2, "from": [502,503,504,505,506,507,508]},
-    	{"max": 1, "perArmy": 0, "from": [502,504]},
-    	{"max": 1, "perArmy": 0, "from": [505,506,507,508]},
+    	{"max": 3, "min": 2, "from": [503,502,504]},
+    	{"max": 2, "perArmy": 0, "from": [502,504]},
 
+    	{"max": 2, "min": 0, "from": [505,506,507,508]},
+    	{"max": 1, "perArmy": 0, "from": [507]},
+    	{"max": 1, "perArmy": 0, "from": [508]},
+
+    	{"max": 1, "min": 0, "from": [510]},
     	{"max": 1, "min": 0, "from": [511]},
-    	{"max": 1, "min": 0, "from": [515,531,532]},
-    	{"max": 1, "min": 0, "from": [516.517]},
-    	{"max": 1, "min": 0, "from": [518]},
-    	{"max": 1, "min": 0, "from": [519]},
+    	{"max": 1, "min": 0, "from": [512]},
     	{"max": 1, "min": 0, "from": [520]},
-    	{"max": 1, "min": 0, "from": [521,530]},
+    	{"max": 1, "min": 0, "from": [515]},
 
     	{"max": 1, "min": 0, "from": [570,550,571,572,552]},
     	{"max": 1, "min": 0, "from": [551,585,586]},
@@ -234,38 +215,31 @@
 
 
    "upgradeConstraints": [      
+   	   	{"max": 1, "min": 1, "from": [5,6], "appliesTo": [501]},
    	   	{"max": 1, "min": 1, "from": [1,2], "appliesTo": [502]},
    	   	{"max": 1, "min": 0, "from": [3], "appliesTo": [502]},
    	   	{"max": 1, "min": 0, "from": [4], "appliesTo": [502]},
-
-   	   	{"max": 1, "min": 1, "from": [10,11,12,13], "appliesTo": [518]},
-   	   	
-   	   	{"max": 1, "min": 1, "from": [25,26,27], "appliesTo": [515]},
-   	   	{"max": 1, "min": 1, "from": [85,86], "appliesTo": [531]},
-   	   	{"max": 1, "min": 1, "from": [90,91], "appliesTo": [532]},
-   	   	{"max": 1, "min": 1, "from": [30,31,32], "appliesTo": [519]},
-
-   	   	{"max": 1, "min": 1, "from": [40,41], "appliesTo": [503]},
-   	   	{"max": 1, "min": 0, "from": [42], "appliesTo": [503]},
    	   	{"max": 1, "min": 1, "from": [50,51,52,53], "appliesTo": [504]},
    	   	{"max": 1, "min": 0, "from": [54], "appliesTo": [504]},
    	   	{"max": 1, "min": 0, "from": [55], "appliesTo": [504]},
-   	   	{"max": 1, "min": 1, "from": [60,61,62], "appliesTo": [505]},
-   	   	{"max": 1, "min": 1, "from": [65,66,67], "appliesTo": [506]},
-   	   	{"max": 1, "min": 1, "from": [70,71,72], "appliesTo": [507]},
-   	   	{"max": 1, "min": 1, "from": [75,76], "appliesTo": [508]},
+   	   	{"max": 1, "min": 1, "from": [40,41], "appliesTo": [503]},
+   	   	{"max": 1, "min": 0, "from": [42], "appliesTo": [503]},
+   	   	{"max": 1, "min": 1, "from": [20,21], "appliesTo": [510]},
+   	   	{"max": 1, "min": 1, "from": [25,26,27], "appliesTo": [515]},
    	   	{"max": 1, "min": 1, "from": [80,81,82], "appliesTo": [520]},
+   	   	{"max": 1, "min": 1, "from": [10,11], "appliesTo": [511]},
+   	   	{"max": 1, "min": 1, "from": [15,16], "appliesTo": [512]},
 
    	    {"max": 1, "min": 1, "from": [100,101,102], "appliesTo": [550]},
    	    {"max": 1, "min": 1, "from": [105,106,107], "appliesTo": [551]},
    	    {"max": 1, "min": 1, "from": [110,111,112], "appliesTo": [552]},
-   	    {"max": 1, "min": 0, "from": [115], "appliesTo": [554]},
+   	    {"max": 1, "min": 0, "from": [115], "appliesTo": [507,554]},
    	    {"max": 1, "min": 1, "from": [120,121], "appliesTo": [556]},
    	    {"max": 1, "min": 1, "from": [125,126], "appliesTo": [557]},
    	    {"max": 1, "min": 1, "from": [130,131], "appliesTo": [558]},
-   	    {"max": 1, "min": 1, "from": [135,136], "appliesTo": [521,559]},
+   	    {"max": 1, "min": 1, "from": [135,136], "appliesTo": [559]},
    	    {"max": 1, "min": 1, "from": [140,141], "appliesTo": [560]},
-   	    {"max": 1, "min": 1, "from": [145,146], "appliesTo": [530,565]},
+   	    {"max": 1, "min": 1, "from": [145,146], "appliesTo": [565]},
    	    {"max": 1, "min": 1, "from": [150,151], "appliesTo": [561]},
    	    {"max": 1, "min": 1, "from": [155,156], "appliesTo": [562]},
    	    {"max": 1, "min": 1, "from": [160,161,162], "appliesTo": [570]},
@@ -273,6 +247,6 @@
    	    {"max": 1, "min": 1, "from": [180,181,182], "appliesTo": [571]},
    	    {"max": 1, "min": 1, "from": [190,191], "appliesTo": [573]},
    	    {"max": 1, "min": 1, "from": [200,201,202], "appliesTo": [576]},
-   	    {"max": 1, "min": 1, "from": [210,211], "appliesTo": [553]}
+   	    {"max": 1, "min": 1, "from": [210,211], "appliesTo": [505,553]}
    ]
 }
