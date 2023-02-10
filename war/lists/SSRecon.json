@@ -117,8 +117,8 @@
       	{"id": 145, "name": "2x 2cm AA Gun", "pts": 2},
       	{"id": 146, "name": "4x 2cm AA Gun", "pts": 4},
 
-      	{"id": 150, "name": "2x 8.8cm AA Gun", "pts": 2},
-      	{"id": 151, "name": "4x 8.8cm AA Gun", "pts": 4},
+      	{"id": 150, "name": "2x 8.8cm AA Gun", "pts": 5},
+      	{"id": 151, "name": "4x 8.8cm AA Gun", "pts": 10},
 
       	{"id": 155, "name": "3x 15cm Nebelwerfer", "pts": 7},
       	{"id": 156, "name": "6x 15cm Nebelwerfer", "pts": 14}
