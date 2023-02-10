@@ -28,7 +28,7 @@
 			{"id": 519, "name": "Armoured Flame-Thrower Platoon","pts": 0,"upgrades": [30,31,32]},
 			{"id": 520, "name": "7.5cm Tank-Hunter Platoon","pts": 0,"upgrades": [80,81,82]},
 			{"id": 521, "name": "SdKfz 10/4 Light AA","pts": 0,"upgrades": [135,136]},
-	        {"id": 530, "name": "2cm Light AA Platoon","pts": 0, "upgrades":[145,146]},	     	     
+	        {"id": 530, "name": "2cm Light AA Platoon","pts": 0, "upgrades":[145,146]}	     	     
 
 		]},
 
