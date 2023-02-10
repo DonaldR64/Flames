@@ -20,7 +20,7 @@
 
 	       {"id":553,"name":"Puma Scout Troop","pts": 0,"upgrades":[210,211]},	     
 	       {"id":554,"name":"SdKfz 221 & 222 Scout Troop","pts": 3, "units": "2x SdKfz 222 (2cm) & 1x SdKfz 221 (MG)", "upgrades":[115]},
-	       {"id":570,"name":"SdKfz 250 Scout Troop","pts": 3, "units": "2x SdKfz 250/9 (2cm) & 1x SdKfz 250 (MG)"},	     
+	       {"id":580,"name":"SdKfz 250 Scout Troop","pts": 3, "units": "2x SdKfz 250/9 (2cm) & 1x SdKfz 250 (MG)"},	     
 	       
 	       {"id":556,"name":"10.5cm Artillery Battery","pts": 0, "upgrades":[120,121]},	     
 	       {"id":557,"name":"Wespe Artillery Battery","pts": 0, "upgrades":[125,126]},	
@@ -129,7 +129,7 @@
 
     	{"max": 1, "min": 0, "from": [570,550,571,572,552]},
     	{"max": 1, "min": 0, "from": [551,552,570]},
-    	{"max": 2, "min": 0, "from": [553,570,554]},
+    	{"max": 2, "min": 0, "from": [553,554,580]},
 
     	{"max": 1, "min": 0, "from": [556,557]},
     	{"max": 1, "min": 0, "from": [556,558]},
