@@ -7,7 +7,6 @@
 		{"name": "Core", "formations": [
 			{"id": 501, "name": "HQ Unit","pts": 0,"upgrades": [1,2]},
 			{"id": 502, "name": "Panther Tank Platoon","pts": 0,"upgrades": [30,31,32]},
-			{"id": 503, "name": "Panther Tank Platoon","pts": 0,"upgrades": [30,31,32]},
 			{"id": 510, "name": "Panzer IV Tank Platoon","pts": 0,"upgrades": [40,41,42]},
 			{"id": 511, "name": "Panzer IV/70 Tank Platoon","pts": 0,"upgrades": [50,51]},
 			{"id": 512, "name": "Tiger Tank Platoon","pts": 0,"upgrades": [5,6,7]},
@@ -172,8 +171,11 @@
 
    	"formationConstraints": [
     	{"max": 1, "min": 1, "from": [501]},
-    	{"max": 2, "min": 1, "from": [502]},
-    	{"max": 1, "min": 0, "from": [503,510,511,512,513]},
+    	{"max": 3, "min": 1, "from": [502,510,511,512,513]},
+    	{"max": 1, "perArmy": 0, "from": [510]},
+    	{"max": 1, "perArmy": 0, "from": [511]},
+    	{"max": 1, "perArmy": 0, "from": [512]},
+    	{"max": 1, "perArmy": 0, "from": [513]},
 
     	{"max": 1, "min": 0, "from": [505,506,507,508]},
 
