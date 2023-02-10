@@ -202,7 +202,7 @@
     	{"max": 1, "min": 1, "from": [501]},
     	{"max": 3, "min": 2, "from": [502,503,504,505,506,507,508]},
     	{"max": 1, "perArmy": 0, "from": [502,504]},
-    	{"max": 1, "min": 0, "from": [505,506,507,508]},
+    	{"max": 1, "perArmy": 0, "from": [505,506,507,508]},
 
     	{"max": 1, "min": 0, "from": [511]},
     	{"max": 1, "min": 0, "from": [515,531,532]},
@@ -240,9 +240,11 @@
 
    	   	{"max": 1, "min": 1, "from": [10,11,12,13], "appliesTo": [518]},
    	   	
-   	   	{"max": 1, "min": 1, "from": [20,21], "appliesTo": [511]},
    	   	{"max": 1, "min": 1, "from": [25,26,27], "appliesTo": [515]},
+   	   	{"max": 1, "min": 1, "from": [85,86], "appliesTo": [531]},
+   	   	{"max": 1, "min": 1, "from": [90,91], "appliesTo": [532]},
    	   	{"max": 1, "min": 1, "from": [30,31,32], "appliesTo": [519]},
+
    	   	{"max": 1, "min": 1, "from": [40,41], "appliesTo": [503]},
    	   	{"max": 1, "min": 0, "from": [42], "appliesTo": [503]},
    	   	{"max": 1, "min": 1, "from": [50,51,52,53], "appliesTo": [504]},
@@ -261,9 +263,9 @@
    	    {"max": 1, "min": 1, "from": [120,121], "appliesTo": [556]},
    	    {"max": 1, "min": 1, "from": [125,126], "appliesTo": [557]},
    	    {"max": 1, "min": 1, "from": [130,131], "appliesTo": [558]},
-   	    {"max": 1, "min": 1, "from": [135,136], "appliesTo": [559]},
+   	    {"max": 1, "min": 1, "from": [135,136], "appliesTo": [521,559]},
    	    {"max": 1, "min": 1, "from": [140,141], "appliesTo": [560]},
-   	    {"max": 1, "min": 1, "from": [145,146], "appliesTo": [565]},
+   	    {"max": 1, "min": 1, "from": [145,146], "appliesTo": [530,565]},
    	    {"max": 1, "min": 1, "from": [150,151], "appliesTo": [561]},
    	    {"max": 1, "min": 1, "from": [155,156], "appliesTo": [562]},
    	    {"max": 1, "min": 1, "from": [160,161,162], "appliesTo": [570]},
