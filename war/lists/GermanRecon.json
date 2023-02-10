@@ -17,6 +17,8 @@
 	       {"id":552,"name":"8.8cm Tank-Hunter Platoon","pts": 0, "upgrades":[110,111,112]},	     
 
 	       {"id":551,"name":"7.5cm Tank-Hunter Platoon","pts": 0, "upgrades":[105,106,107]},
+	       {"id":585,"name":"8.8cm Tank-Hunter Platoon","pts": 0, "upgrades":[110,111,112]},	     
+	       {"id":586,"name":"Marder Platoon","pts": 0, "upgrades":[160,161,162]},	     	     	    	
 
 	       {"id":553,"name":"Puma Scout Troop","pts": 0,"upgrades":[210,211]},	     
 	       {"id":554,"name":"SdKfz 221 & 222 Scout Troop","pts": 3, "units": "2x SdKfz 222 (2cm) & 1x SdKfz 221 (MG)", "upgrades":[115]},
@@ -24,6 +26,8 @@
 	       
 	       {"id":556,"name":"10.5cm Artillery Battery","pts": 0, "upgrades":[120,121]},	     
 	       {"id":557,"name":"Wespe Artillery Battery","pts": 0, "upgrades":[125,126]},	
+
+	       {"id":590,"name":"10.5cm Artillery Battery","pts": 0, "upgrades":[120,121]},	     
 
 	       {"id":558,"name":"Hummel Artillery Battery","pts": 0, "upgrades":[130,131]},
 
@@ -126,22 +130,23 @@
 
 
     	{"max": 1, "min": 0, "from": [570,550,571,572,552]},
-    	{"max": 1, "min": 0, "from": [551,552,570]},
-    	{"max": 2, "perArmy": 0, "from": [570]},
-    	{"max": 2, "perArmy": 0, "from": [552]},
+    	{"max": 1, "min": 0, "from": [551,585,586]},
 
     	{"max": 2, "min": 0, "from": [553,554,580]},
 
     	{"max": 1, "min": 0, "from": [556,557]},
-    	{"max": 1, "min": 0, "from": [556,558]},
-    	{"max": 2, "perArmy": 0, "from": [556]},
+    	{"max": 1, "min": 0, "from": [590,558]},
 
     	{"max": 1, "min": 0, "from": [573,562]},
     	{"max": 1, "min": 0, "from": [563,564]},
     	{"max": 1, "min": 0, "from": [576]},
     	{"max": 1, "min": 0, "from": [559,560,565]},
     	{"max": 1, "min": 0, "from": [561]},
-    	{"max": 1, "min": 0, "from": [574,575]}
+    	{"max": 1, "min": 0, "from": [574,575]},
+    	{"max": 1, "min": 0, "from": [568]},
+    	{"max": 1, "min": 0, "from": [569]}
+
+
     ],
 
 
