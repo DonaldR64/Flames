@@ -766,7 +766,38 @@ const FOW4 = (() => {
         return corners
       }
 
+      const Name = (nat) => {
+        let num = randomInteger(25) - 1;
+        if (nat === "Canadian") {nat = "UK"};
+        if (nat.includes("SS")) {nat = "German"};
+        let names = {
+            German: ["Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann","Bauer","Richter","Klein","Wolf","Schroder","Neumann","Schwarz","Braun","Hofmann","Werner","Krause","Konig","Lang","Vogel","Frank","Beck"],
+            Soviet: ["Ivanov","Smirnov","Petrov","Sidorov","Popov","Vassiliev","Sokolov","Novikov","Volkov","Alekseev","Lebedev","Pavlov","Kozlov","Orlov","Makarov","Nikitin","Zaitsev","Golubev","Tarasov","Ilyin","Gusev","Titov","Kuzmin","Kiselyov","Belov"],
+            USA: ["Smith","Johnson","Williams","Brown","Jones","Wright","Miller","Davis","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin","Lee","Thompson","White","Harris","Clark","Lewis","Robinson","Walker","Young","Allen"],
+            UK: ["Smith","Jones","Williams","Taylor","Davies","Brown","Wilson","Evans","Thomas","Johnson","Roberts","Walker","Wright","Robinson","Thompson","White","Hughes","Edwards","Green","Lewis","Wood","Harris","Martin","Jackson","Clarke"],
+        }
+
+        let nameList = names[nat];
+        let surname = nameList[num];
+        return surname;
+    }
       
+    const RotateToken = (team1,team2,max) => {
+        let angle = team1.hex.angle(team2.hex);
+        let token = team1.token;
+        if (max) {
+            let curAngle = Angle(token.get("rotation"));
+            let delta = angle - curAngle;
+            if (Math.abs(delta) > max) {
+                angle = curAngle + (Math.sign(delta) * max);
+            }
+        }
+        token.set("rotation",angle);
+        team1.rotation = angle;
+    } 
+
+
+
     const PrintCard = (id) => {
         let output = "";
         if (id) {
@@ -1245,8 +1276,48 @@ log("Marker: " + unitMarker)
     }
 
 
+    const Facing = (id1,id2) => { //id2 is the target, id1 is the shooter - returns the facing of id 2
+        let facing = "Front";
+        let team1 = TeamArray[id1];
+        let vertices1 = TokenVertices(team1.token);
+        let team2 = TeamArray[id2];
+        let vertices2 = TokenVertices(team2.token);
+        //top corners of target, to define its front line
+        let A = vertices2[0];    //Upper left
+        let B = vertices2[1];    //Upper right
+        //  center of the target token
+        let C2 = team2.location;
+        let D = ((C2.x - A.x) * (B.y - A.y)) - ((C2.y - A.y) * (B.x - A.x)) //for the target - where front line is relative to centre
+        D = Math.sign(D)
+        //D will be (-) if on one side, (+) if on other of front line
+        // for reference use vertices of shooter
+        for (let i=0;i<4;i++) {
+            let C1 = vertices[i]
+            // https://math.stackexchange.com/questions/274712/calculate-on-which-side-of-a-straight-line-is-a-given-point-located
+            let E = ((C1.x - A.x) * (B.y - A.y)) - ((C1.y - A.y) * (B.x - A.x)) //for the shooter - where vertice is relative to front line of target
+            E = Math.sign(E)
+            //E will be (-) or (+) based on which side of front line, and if E is same sign as D is on same side as centre ie. behind front line
+            if (D===E || E === 0) {
+                facing = "Side/Rear"
+                break;
+            } 
+        }
+        return facing
+    }
 
 
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
