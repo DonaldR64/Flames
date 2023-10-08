@@ -73,7 +73,7 @@ const FOW4 = (() => {
         "#ffffff": {name: "Ridgeline",height: .25,bp: true,type: 1,group: "Hill"},
     }
 
-    const ConstructionInfo = {
+    const MapTokenInfo = {
         "wreck": {name: "Wreck",height: 0,bp: true,type: 1,group: "Obstacle"},
         "building 1": {name: "Building 1",height: 1,bp: true,type: 3,group: "Building"},
         "building 2": {name: "Building 2",height: 2,bp: true,type: 3,group: "Building"},
@@ -910,7 +910,7 @@ const FOW4 = (() => {
         //add tokens on map eg woods, crops
         let mta = findObjs({_pageid: Campaign().get("playerpageid"),_type: "graphic",_subtype: "token",layer: "map",});
         mta.forEach((token) => {
-            let truncName = token.get("name").replace(/[0-9]/g, '');
+            let truncName = token.get("name").toLowerCase();
             truncName = truncName.trim();
             let t = MapTokenInfo[truncName];
             if (!t) {return};
@@ -931,7 +931,7 @@ const FOW4 = (() => {
                 type: t.type,
                 group: t.group,
                 obstacle: t.obstacle,
-                linear: linear,
+                linear: false,
             };
             TerrainArray[id] = info;
         });
@@ -978,6 +978,45 @@ const FOW4 = (() => {
 
 
 
+    const handleInput = (msg) => {
+        if (msg.type !== "api") {
+            return;
+        }
+        let args = msg.content.split(";");
+        log(args);
+        switch(args[0]) {
+            case '!Dump':
+                log("STATE");
+                log(state.FOW4);
+                log("Terrain Array");
+                log(TerrainArray);
+                log("Hex Map");
+                log(hexMap);
+                log("Team Array");
+                log(TeamArray);
+                log("Unit Array");
+                log(UnitArray);
+                log("Formation Array");
+                log(FormationArray);
+                break;
+            case '!TokenInfo':
+                TokenInfo(msg);
+                break;
+            case '!CheckLOS':
+                CheckLOS(msg);
+                break;
+            case '!ClearState':
+                ClearState();
+                break;
+            case '!Roll':
+                RollD6(msg);
+                break;
+            case '!UnitCreation':
+                UnitCreation(msg);
+                break;
+
+        }
+    };
 
 
 
@@ -996,7 +1035,7 @@ const FOW4 = (() => {
 
 
     const registerEventHandlers = () => {
-        //on('chat:message', handleInput);
+        on('chat:message', handleInput);
         //on('change:graphic',changeGraphic);
         //on('destroy:graphic',destroyGraphic);
     };
@@ -1004,9 +1043,9 @@ const FOW4 = (() => {
     on('ready', () => {
         log("===> Flames of War v4 <===");
         log("===> Software Version: " + version + " <===");
-        //LoadPage();
-        // BuildMap();
-        //registerEventHandlers();
+        LoadPage();
+        BuildMap();
+        registerEventHandlers();
         sendChat("","API Ready, Map Loaded")
         log("On Ready Done")
     });
