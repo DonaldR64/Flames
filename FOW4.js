@@ -338,6 +338,230 @@ const FOW4 = (() => {
         return point;
     }
 
+    //core classes
+    class Formation {
+        constructor(player,nation,id,name){
+            if (!id) {
+                id = stringGen();
+            }
+            this.id = id;
+            this.name = name;
+            this.player = player;
+            this.nation = nation;
+            this.unitIDs = [];
+
+            FormationArray[id] = this;
+        }
+
+        add(unit) {
+            if (this.unitIDs.includes(unit.id) === false) {
+                this.unitIDs.push(unit.id);
+                unit.formationID = this.id;
+            }
+        }
+
+        remove(unit) {
+            let index = this.teamIDs.indexOf(team.id);
+            if (index > -1) {
+                this.teamIDs.splice(index,1);
+            }
+            if (this.teamIDs.length === 0) {
+                //Bad Thing
+            }
+        }
+    }
+
+    class Unit {
+        constructor(player,nation,id,name,formationID){
+            if (!id) {
+                id = stringGen();
+            }
+            this.id = id;
+            this.name = name;
+            this.player= player;
+            this.nation = nation;
+            this.formationID = formationID;
+            this.teamIDs = [];
+            this.symbol = "";
+            this.order= "";
+            this.hqUnit = false;
+            this.aircraft = false;
+
+            UnitArray[id] = this;
+        }
+
+        add(team) {
+            if (this.teamIDs.includes(model.id) === false) {
+                if (team.special.includes("Crew") || team.token.get("status_black-flag") === true) {
+                    this.teamIDs.unshift(team.id);
+                } else {
+                    this.teamIDs.push(team.id);
+                }
+                team.unitID = this.id;
+                if (team.special.includes("HQ")) {
+                    this.hqUnit = true;
+                }
+                if (team.type === "Aircraft") {
+                    this.aircraft = true;
+                }
+            }
+        }
+
+        remove(team) {
+            let index = this.teamIDs.indexOf(team.id);
+            if (index === 0) {
+
+            }
+            if (index > -1) {
+                this.teamIDs.splice(index,1);
+    //check if leader
+    //if leader dead, set new leader
+    //check if in command radius, if is then eligible
+    //defaults to 1st token if none in command radius
+
+
+            }
+            if (this.teamIDs.length === 0) {
+                //Bad Thing
+            }
+        }
+
+
+    }
+
+    class Team {
+        constructor(tokenID,formationID,unitID,existing) {
+            if (!existing) {existing = false};
+            let token = findObjs({_type:"graphic", id: tokenID})[0];
+            let char = getObj("character", token.get("represents")); 
+            let charName = char.get("name");
+            let attributeArray = AttributeArray(char.id);
+            let nation = attributeArray.nation;
+            let player = (Allies.includes(nation)) ? 0:1;
+            if (nation === "Neutral") {player = 2};
+
+            let type = attributeArray.type;
+
+            let location = new Point(token.get("left"),token.get("top"));
+            let hex = pointToHex(location);
+            let hexLabel = hex.label();
+
+            //weapons
+
+            //special
+            let special = attributeArray.special;
+            if (!special || special === "") {
+                special = " ";
+            }
+
+            let unique = attributeArray.unique;
+            if (unique === 0) {unique = false};
+
+            //armour
+            let front = parseInt(attributeArray.armourF);
+            let side = attributeArray.armourSR;
+            if (side) {side = parseInt(side)} else {side = 0};
+            let top = attributeArray.armourT;
+            if (top) {top = parseInt(top)} else {top = 0};
+
+            //passengers
+            let maxPass = 0;
+            if (type === "Tank") {
+                maxPass = 3;
+            }
+            if (special.includes("Transport")) {
+                if (!state.FOW4.transports[t.id]) {
+                    state.FOW4.transports[t.id] = [];
+                }
+                let px = Number(special.indexOf("Passengers")) + 11;
+                maxPass = parseInt(special.substring(px,(px+1)));
+            }
+
+            let name;
+            if (existing === false) {
+                name = "";
+            } else {
+                name = token.get("name");
+            }
+
+            this.id = t.id;
+            this.token = t;
+            this.name = name;
+            this.player = player;
+            this.nation = nation;
+            this.characterID = char.id;
+            this.unitID = unitID;
+            this.formationID = formationID;
+            this.type = type;    
+            this.location = location;
+            this.prev = location;
+
+            this.tactical = Number(attributeArray.tactical);
+            this.terraindash = Number(attributeArray.terrain);
+            this.countrydash = Number(attributeArray.country);
+            this.roaddash = Number(attributeArray.road);
+            this.cross = crossStat(attributeArray.cross);
+
+            this.armourF = front;
+            this.armourSR = side;
+            this.armourT = top;
+
+            this.motivation = parseStat(attributeArray.motivation);
+            this.komissar = parseStat(attributeArray.komissar);
+            this.laststand = parse2ndStat(attributeArray.laststand,this.motivation);
+            this.rally = parse2ndStat(attributeArray.rally,this.motivation);
+            this.counterattack = parse2ndStat(attributeArray.counterattack,this.motivation);
+            this.remount = parse2ndStat(attributeArray.remount,this.motivation);
+            this.skill = parseStat(attributeArray.skill);
+            this.assault = parse2ndStat(attributeArray.assault,this.skill);
+            this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
+            this.hit = parseStat(attributeArray.hit);
+            //this.artilleryFlag = artFlag;
+            //this.artillery = artillery;
+            this.spotAttempts = 0;
+            this.rangedInHex = {};
+
+
+            this.hex = hex; //axial
+            this.hexLabel = hexLabel; //doubled
+            this.rotation = t.get("rotation");
+            this.special = special;
+            this.unique = unique;
+            this.transport = "";
+            this.passengers = [];
+            //this.weaponArray = weaponArray;
+            this.hitArray = [];
+            this.maxPass = maxPass;
+
+            TeamArray[t.id] = this;
+            hexMap[label].tokenIDs.push(t.id);
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
 
 
 
@@ -937,8 +1161,6 @@ const FOW4 = (() => {
         });
     };
 
-
-
     const Linear = (polygon) => {
         //adds linear obstacles, eg Ridgelines, to hex map
         let vertices = polygon.vertices;
@@ -968,7 +1190,59 @@ const FOW4 = (() => {
         }
     }
 
+    const TA = () => {
+        //add tokens on map into various arrays
+        UnitArray = {};
+        TeamArray = {};
+        FormationArray = {};
+        //create an array of all tokens
+        let start = Date.now();
+        let tokens = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+            _subtype: "token",
+            layer: "objects",
+        });
 
+        let c = tokens.length;
+        let s = (1===c?'':'s');     
+        tokens.forEach((token) => {
+            let character = getObj("character", token.get("represents"));           
+            if (character === null || character === undefined) {return};
+            let nation = Attribute(character,"nation");
+            let info = decodeURIComponent(token.get("gmnotes")).toString();
+            if (!info) {return};
+            info = info.split(";");
+            let player = (Allies.includes(nation)) ? 0:1;
+            let formationName = info[1];
+            let formationID = info[2];
+            let formation = FormationArray[formationID];
+            let unitName = info[3];
+            let unitID = info[4];
+            let unit = UnitArray[unitID];
+
+            let statusmarkers = token.get("statusmarkers").split(",")
+log(token.get("name"))
+log(statusmarkers)
+            let unitMarker = returnCommonElements(statusmarkers,Platoonmarkers);
+
+log("Marker: " + unitMarker)
+
+            if (!Formation) {
+                formation = new Fornation(player,nation,formationID,formationName);
+            }
+            if (!unit) {
+                unit = new Unit(player,nation,unitID,unitName,formationID);
+                unit.symbol = unitMarker;
+                formation.add(unit);
+            }
+            let team = new Team(token.id,formationID,unitID,true);
+            unit.add(team);
+        });
+
+        let elapsed = Date.now()-start;
+        log(`${c} token${s} checked in ${elapsed/1000} seconds - ` + Object.keys(ModelArray).length + " placed in Model Array");
+    }
 
 
 
