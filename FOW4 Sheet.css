@@ -27,7 +27,7 @@ input[type="hidden"][name="attr_nation"] ~ .mysheet {
 input[type="hidden"][name="attr_nation"][value="USA"] ~ .mysheet {
     background-color: skyblue;;
 }
-input[type="hidden"][name="attr_nation"][value="German"] ~ .mysheet {
+input[type="hidden"][name="attr_nation"][value="Germany"] ~ .mysheet {
     background-color: #555C5F;
 }
 input[type="hidden"][name="attr_nation"][value="Soviet"] ~ .mysheet {

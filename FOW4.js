@@ -44,13 +44,13 @@ const FOW4 = (() => {
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
 
     const commandRadius = [6,8];
-    let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: [],};
-    const Axis = ["German","Italy","Japan","Waffen-SS"];
+    let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: []};
+    const Axis = ["Germany","Italy","Japan","Waffen-SS"];
     const Allies = ["Soviet","USA","UK","Canadian"];
     const lastStandCount = {"Infantry": 3,"Gun": 2,"Tank": 2,"Unarmoured Tank": 2,"Aircraft": 1,};
 
     const Ranks = {
-                "German": ["Major ","Hauptmann ","Oberleutnant ","Feldwebel "],
+                "Germany": ["Major ","Hauptmann ","Oberleutnant ","Feldwebel "],
                 "Waffen-SS": ["SS-Sturmbannführer ","SS-Hauptsturmführer ","SS-Obersturmführer ","SS-Oberscharführer "],
                 "Western": ["Major ","Captain ","Lieutenant ","Sergeant "],
                 "Soviet": ["Podpolkovnik ","Majór ","Kapitán ","Leytnant ","Serzhant "],
@@ -96,16 +96,16 @@ const FOW4 = (() => {
 
     const Nations = {
         "Soviet": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/304547168/fMk9mH9WMsr8VSQFg6AZew/thumb.png?1663171370",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877",
             "dice": "Soviet",
-            "backgroundColour": "#FFFF00",
+            "backgroundColour": "#FF0000",
             "titlefont": "Anton",
-            "fontColour": "#000000",
+            "fontColour": "#FFFF00",
             "borderColour": "#FF0000",
             "borderStyle": "5px ridge",
         },
         "Germany": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/324330922/vm_sbQZSkc81fR4CtQp57g/thumb.png?1674494502",
             "dice": "Germany",
             "backgroundColour": "#000000",
             "titlefont": "Bokor",
@@ -132,7 +132,7 @@ const FOW4 = (() => {
             "borderStyle": "5px double",
         },
         "Waffen-SS": {
-            "image": "https://i.imgur.com/I334Aan.jpg",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/324283125/RG-Yo1FkEWvzDprUsFl3Cg/thumb.png?1674447941",
             "backgroundColour": "#000000",
             "dice": "SS",
             "titlefont": "Bokor",
