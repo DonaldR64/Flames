@@ -100,14 +100,14 @@ const FOW4 = (() => {
             "dice": "Soviet",
             "backgroundColour": "#FF0000",
             "titlefont": "Anton",
-            "fontColour": "#FFFF00",
-            "borderColour": "#FF0000",
-            "borderStyle": "5px ridge",
+            "fontColour": "#000000",
+            "borderColour": "#FFFF00",
+            "borderStyle": "5px groove",
         },
         "Germany": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/324330922/vm_sbQZSkc81fR4CtQp57g/thumb.png?1674494502",
             "dice": "Germany",
-            "backgroundColour": "#000000",
+            "backgroundColour": "#555C5F",
             "titlefont": "Bokor",
             "fontColour": "#FFFFFF",
             "borderColour": "#000000",
@@ -768,9 +768,9 @@ const FOW4 = (() => {
       const Name = (nat) => {
         let num = randomInteger(25) - 1;
         if (nat === "Canadian") {nat = "UK"};
-        if (nat.includes("SS")) {nat = "German"};
+        if (nat.includes("SS")) {nat = "Germany"};
         let names = {
-            German: ["Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann","Bauer","Richter","Klein","Wolf","Schroder","Neumann","Schwarz","Braun","Hofmann","Werner","Krause","Konig","Lang","Vogel","Frank","Beck"],
+            Germany: ["Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann","Bauer","Richter","Klein","Wolf","Schroder","Neumann","Schwarz","Braun","Hofmann","Werner","Krause","Konig","Lang","Vogel","Frank","Beck"],
             Soviet: ["Ivanov","Smirnov","Petrov","Sidorov","Popov","Vassiliev","Sokolov","Novikov","Volkov","Alekseev","Lebedev","Pavlov","Kozlov","Orlov","Makarov","Nikitin","Zaitsev","Golubev","Tarasov","Ilyin","Gusev","Titov","Kuzmin","Kiselyov","Belov"],
             USA: ["Smith","Johnson","Williams","Brown","Jones","Wright","Miller","Davis","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin","Lee","Thompson","White","Harris","Clark","Lewis","Robinson","Walker","Young","Allen"],
             UK: ["Smith","Jones","Williams","Taylor","Davies","Brown","Wilson","Evans","Thomas","Johnson","Roberts","Walker","Wright","Robinson","Thompson","White","Hughes","Edwards","Green","Lewis","Wood","Harris","Martin","Jackson","Clarke"],
