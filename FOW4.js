@@ -14,6 +14,8 @@ const FOW4 = (() => {
     let SmokeArray = {};
     let FoxholeArray = {};
 
+    let unitCreationInfo = {}; //used during unit creation 
+    let unitMarkers = [0,0];
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -392,7 +394,7 @@ const FOW4 = (() => {
 
         add(team) {
             if (this.teamIDs.includes(model.id) === false) {
-                if (team.special.includes("Crew") || team.token.get("status_black-flag") === true) {
+                if (team.token.get("status_black-flag") === true) {
                     this.teamIDs.unshift(team.id);
                 } else {
                     this.teamIDs.push(team.id);
@@ -430,8 +432,7 @@ const FOW4 = (() => {
     }
 
     class Team {
-        constructor(tokenID,formationID,unitID,existing) {
-            if (!existing) {existing = false};
+        constructor(tokenID,formationID,unitID) {
             let token = findObjs({_type:"graphic", id: tokenID})[0];
             let char = getObj("character", token.get("represents")); 
             let charName = char.get("name");
@@ -477,18 +478,12 @@ const FOW4 = (() => {
                 maxPass = parseInt(special.substring(px,(px+1)));
             }
 
-            let name;
-            if (existing === false) {
-                name = "";
-            } else {
-                name = token.get("name");
-            }
-
             this.id = t.id;
             this.token = t;
-            this.name = name;
+            this.name = token.get("name");
             this.player = player;
             this.nation = nation;
+            this.characterName = charName;
             this.characterID = char.id;
             this.unitID = unitID;
             this.formationID = formationID;
@@ -795,6 +790,16 @@ const FOW4 = (() => {
         token.set("rotation",angle);
         team1.rotation = angle;
     } 
+
+    const Rank = (nat,j) => {
+        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};        
+        let rank = Ranks[nat][j];
+        return rank
+    }
+
+
+
+
 
 
 
@@ -1245,13 +1250,13 @@ const FOW4 = (() => {
             if (!info) {return};
             info = info.split(";");
             let player = (Allies.includes(nation)) ? 0:1;
-            let formationName = info[1];
-            let formationID = info[2];
+            let formationName = info[0];
+            let formationID = info[1];
             let formation = FormationArray[formationID];
-            let unitName = info[3];
-            let unitID = info[4];
+            let unitName = info[2];
+            let unitID = info[3];
             let unit = UnitArray[unitID];
-
+            unitMarkers[player]++;
             let statusmarkers = token.get("statusmarkers").split(",")
 log(token.get("name"))
 log(statusmarkers)
@@ -1260,7 +1265,7 @@ log(statusmarkers)
 log("Marker: " + unitMarker)
 
             if (!Formation) {
-                formation = new Fornation(player,nation,formationID,formationName);
+                formation = new Formation(player,nation,formationID,formationName);
             }
             if (!unit) {
                 unit = new Unit(player,nation,unitID,unitName,formationID);
@@ -1305,11 +1310,116 @@ log("Marker: " + unitMarker)
         return facing
     }
 
+    const UnitCreation = (msg) => {
+        let Tag = msg.content.split(";");
+        let unitName = Tag[1];
+        for (let i=0;i<msg.selected.length;i++) {
+            teamIDs.push(msg.selected[i]._id);
+        }
+        if (teamIDs.length === 0) {return};
+        let refToken = findObjs({_type:"graphic", id: teamIDs[0]})[0];
+        let refChar = getObj("character", refToken.get("represents")); 
+        let nation = Attribute(refChar,"nation");
+        let player = (Allies.includes(nation)) ? 0:1;
+
+        let formationKeys = Object.keys(FormationArray);
+        let newID = stringGen();
+        SetupCard("Unit Creation","",nation);
+        outputCard.body.push("Select Existing Formation or New");
+
+        ButtonInfo("New","!UnitCreation2;" + newID + ";?{Formation Name}");
+        for (let i=0;i<formationKeys.length;i++) {
+            let formation = FormationArray[formationKeys[i]];
+            if (formation.nation !== nation) {continue};
+            let action = "!UnitCreation2;" + formation.id;
+            ButtonInfo(formation.name,action);
+        }
+
+        PrintCard();
+
+        unitCreationInfo = {
+            nation: nation,
+            player: player,
+            newID: newID,
+            teamIDs: teamIDs,
+            unitName: unitName,
+        }
+    }
+
+    const UnitCreation2 = (msg) => {
+        let Tag = msg.content.split(";");
+        let unitName = unitCreationInfo.unitName;
+        let player = unitCreationInfo.player;
+        let nation = unitCreationInfo.nation;
+        let teamIDs = unitCreationInfo.teamIDs;
+        let formationID = Tag[1];
+        let formation = FormationArray[formationID];
+        if (!formation) {
+            formation = new Formation(player,nation,formationID,Tag[2]);
+        }
+        let unit = new Unit(player,nation,stringGen(),unitName,formationID);
+        let unitMarker = Platoonmarkers[unitMarkers[player]];
+        unitMarkers[player]++;
+        unit.symbol = unitMarker;
+        formation.add(unit);
+        let gmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id;
+        for (let i=0;i<teamIDs.length;i++) {
+            let team = new Team(teamIDs[i],formationID,unit.id,false);
+            unit.add(team);
+            let aura = "transparent";
+            if (i === 0) {
+                aura = Colours.green
+            };
+            team.name = Naming(team,i);
+
+            team.token.set({
+                name: team.name,
+                tint_color: "transparent",
+                aura1_color: aura,
+                aura1_radius: 0.25,
+                showname: true,
+                gmnotes: gmn,
+                statusmarkers: unitMarker,
+            })
+        }
 
 
 
 
 
+    }
+
+    const Naming = (team,i) => {
+        let name = team.characterName.replace(nation + " ","");
+        if (team.type.includes("Tank")) {
+            name = name.replace(team.nation + " ","");
+            let item = (unitMarkers[team.player]*100) + i
+            name += " " + item.toString();
+        } else if (type === "Infantry" || type === "Gun") {
+            name += (i+1);
+        } 
+    
+        let r;
+        if (team.special.includes("HQ")) {
+            r = Math.min(i,1);
+            unit.hqUnit = true;
+            name = Rank(nation,r) + Name(nation);
+        } else {
+            if (type === "Aircraft") {
+                r = 2;
+                unit.aircraft = true;
+                if (nation === "Soviet") {r=3};
+                name = Rank(nation,r) + Name(nation);
+            } else if (name.includes("Komissar")) {
+                name = "Komissar " + Name(nation);
+            } else if (i === 0) {
+                name = Rank(nation,2);
+            }
+        }
+        return name;
+    }
+
+   
 
 
 
