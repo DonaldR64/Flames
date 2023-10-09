@@ -791,15 +791,49 @@ const FOW4 = (() => {
         team1.rotation = angle;
     } 
 
-    const Rank = (nat,j) => {
-        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};        
-        let rank = Ranks[nat][j];
-        return rank
+
+    const ClearState = () => {
+        //clear arrays
+        UnitArray = {};
+        TeamArray = {};
+        FormationArray = {};
+
+        SmokeArray = {};
+        FoxholeArray = {};
+        
+        //clear token info
+        let tokens = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+            _subtype: "token",
+            layer: "objects",
+        });
+        tokens.forEach((token) => {
+            token.set({
+                name: "",
+                tint_color: "transparent",
+                aura1_color: "transparent",
+                aura1_radius: 0,
+                showname: true,
+                showplayers_aura1: true,
+                gmnotes: "",
+                statusmarkers: "",
+            });                
+        })
+
+        //RemoveDead("All");
+
+        state.FOW4 = {
+            nations: [[],[]],
+            players: {},
+            playerInfo: [[],[]],
+            lineArray: [],
+            labmode: false,
+            transports: {},
+            passengers: {},
+        }
+        sendChat("","Cleared State/Arrays");
     }
-
-
-
-
 
 
 
@@ -1313,6 +1347,7 @@ log("Marker: " + unitMarker)
     const UnitCreation = (msg) => {
         let Tag = msg.content.split(";");
         let unitName = Tag[1];
+        let teamIDs = [];
         for (let i=0;i<msg.selected.length;i++) {
             teamIDs.push(msg.selected[i]._id);
         }
@@ -1321,6 +1356,11 @@ log("Marker: " + unitMarker)
         let refChar = getObj("character", refToken.get("represents")); 
         let nation = Attribute(refChar,"nation");
         let player = (Allies.includes(nation)) ? 0:1;
+
+        let support = FormationArray[player];
+        if (!support) {
+            support = new Formation(player,nation,player,"Support");
+        }
 
         let formationKeys = Object.keys(FormationArray);
         let newID = stringGen();
