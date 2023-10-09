@@ -441,7 +441,6 @@ const FOW4 = (() => {
             if (nation === "Neutral") {player = 2};
 
             let type = attributeArray.type;
-
             let location = new Point(token.get("left"),token.get("top"));
             let hex = pointToHex(location);
             let hexLabel = hex.label();
@@ -478,6 +477,10 @@ const FOW4 = (() => {
                 maxPass = parseInt(special.substring(px,(px+1)));
             }
 */
+
+
+
+
             this.id = tokenID;
             this.token = token;
             this.name = token.get("name");
@@ -1298,6 +1301,7 @@ const FOW4 = (() => {
             let formation = FormationArray[formationID];
             let unitName = info[2];
             let unitID = info[3];
+            let rank = parseInt(info[4]);
             let unit = UnitArray[unitID];
             let statusmarkers = token.get("statusmarkers").split(",")
             let unitMarker = returnCommonElements(statusmarkers,Platoonmarkers);
@@ -1311,7 +1315,8 @@ const FOW4 = (() => {
                 unit.number = unitNumber;
                 formation.add(unit);
             }
-            let team = new Team(token.id,formationID,unitID,true);
+            let team = new Team(token.id,formationID,unitID);
+            team.rank = rank;
             unit.add(team);
         });
 
@@ -1405,21 +1410,19 @@ const FOW4 = (() => {
         let unit = new Unit(player,nation,stringGen(),unitName,formationID);
         unit.number = formation.unitIDs.length;
         let unitMarker = Platoonmarkers[unit.number];
-
-log(unit.number)
-log(unitMarker)
-
-
         formation.add(unit);
-        let gmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id;
+        let basegmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id + ";";
         for (let i=0;i<teamIDs.length;i++) {
-            let team = new Team(teamIDs[i],formationID,unit.id,false);
+            let team = new Team(teamIDs[i],formationID,unit.id);
             unit.add(team);
             let aura = "transparent";
             if (i === 0) {
                 aura = Colours.green
             };
-            team.name = Naming(team,i);
+            let info = NameAndRank(team,i);
+            team.name = info.name;
+            team.rank = info.rank;
+            gmn = basegmn + team.rank.toString();
 
             team.token.set({
                 name: team.name,
@@ -1433,40 +1436,41 @@ log(unitMarker)
         }
 
         sendChat("",unitName + " Added to " + formation.name)
-
-
-
     }
 
-    const Naming = (team,i) => {
+    const NameAndRank = (team,i) => {
         let name = team.characterName.replace(team.nation + " ","");
         let unit = UnitArray[team.unitID];
         if (team.type.includes("Tank")) {
             name = name.replace(team.nation + " ","");
-            let item = (unit.number * 100) + i
+            let item = ((unit.number+1) * 100) + i
             name += " " + item.toString();
         } else if (team.type === "Infantry" || team.type === "Gun") {
             name += i;
         } 
-    
-        let r;
+        let rank = Ranks[team.nation].length - 1;
         if (team.special.includes("HQ")) {
-            r = Math.min(i,1);
+            rank = Math.min(i,1);
             unit.hqUnit = true;
-            name = Rank(team.nation,r) + Name(team.nation);
+            name = Rank(team.nation,rank) + Name(team.nation);
         } else {
-            if (team.type === "Aircraft") {
-                r = 2;
+            if (team.type === "Aircraft" || i === 1) {
+                rank = 2;
                 unit.aircraft = true;
-                if (team.nation === "Soviet") {r=3};
-                name = Rank(team.nation,r) + Name(team.nation);
+                if (team.nation === "Soviet") {rank=3};
+                name = Rank(team.nation,rank) + Name(team.nation);
             } else if (name.includes("Komissar")) {
                 name = "Komissar " + Name(team.nation);
             } else if (i === 0) {
-                name = Rank(team.nation,2);
-            }
+                rank = 2;
+                name = Rank(team.nation,rank) + Name(team.nation);
+            } 
         }
-        return name;
+        let info = {
+            name: name,
+            rank: rank,
+        }
+        return info;
     }
 
     const TokenInfo = (msg) => {
