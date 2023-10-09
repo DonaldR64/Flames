@@ -1489,7 +1489,7 @@ log(unitMarker)
         let elevation = tokenHeight(team);
         let unit = UnitArray[team.unitID];
         outputCard.body.push("Terrain: " + terrain);
-        let covers = ["the Open","Short Terrain","Tall Terrain","A Building"];
+        let covers = ["the Open","Short Terrain","Tall Terrain","a Building"];
         outputCard.body.push(team.name + " is in " + covers[h.type]);
         if (h.bp === true) {
             outputCard.body.push("(Bulletproof Cover)");
@@ -1617,7 +1617,7 @@ log(unitMarker)
 
     const registerEventHandlers = () => {
         on('chat:message', handleInput);
-        //on('change:graphic',changeGraphic);
+        on('change:graphic',changeGraphic);
         //on('destroy:graphic',destroyGraphic);
     };
 
