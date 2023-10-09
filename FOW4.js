@@ -15,7 +15,6 @@ const FOW4 = (() => {
     let FoxholeArray = {};
 
     let unitCreationInfo = {}; //used during unit creation 
-    let unitMarkers = [0,0];
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -56,7 +55,7 @@ const FOW4 = (() => {
                 "Soviet": ["Podpolkovnik ","Majór ","Kapitán ","Leytnant ","Serzhant "],
     };
 
-    const Platoonmarkers = ["","A::5626909","B::5626910","C::5626911","D::5626912","E::5626913","F::5626914","G::5626915","H::5626916","I::5626917","J::5626918","K::5626919","L::5626920","M::5626921","N::5626922","O::5626923","P::5626924","Q::5626925","R::5626926","S::5626927","T::5626928","U::5626929","V::5626930","W::5626931","X::5626932","Y::5626933","Z::5626934","1::5626903","2::5626904","1::5626905","2::5626906","1::5626907","2::5626908"];
+    const Platoonmarkers = ["A::5626909","B::5626910","C::5626911","D::5626912","E::5626913","F::5626914","G::5626915","H::5626916","I::5626917","J::5626918","K::5626919","L::5626920","M::5626921","N::5626922","O::5626923","P::5626924","Q::5626925","R::5626926","S::5626927","T::5626928","U::5626929","V::5626930","W::5626931","X::5626932","Y::5626933","Z::5626934","1::5626903","2::5626904","1::5626905","2::5626906","1::5626907","2::5626908"];
 
 
 
@@ -384,10 +383,10 @@ const FOW4 = (() => {
             this.nation = nation;
             this.formationID = formationID;
             this.teamIDs = [];
-            this.symbol = "";
             this.order= "";
             this.hqUnit = false;
             this.aircraft = false;
+            this.number = 0;
 
             UnitArray[id] = this;
         }
@@ -1293,15 +1292,14 @@ const FOW4 = (() => {
             let unit = UnitArray[unitID];
             let statusmarkers = token.get("statusmarkers").split(",")
             let unitMarker = returnCommonElements(statusmarkers,Platoonmarkers);
+            let unitNumber = Platoonmarkers.indexOf(unitMarker);
 
             if (!formation) {
                 formation = new Formation(player,nation,formationID,formationName);
             }
             if (!unit) {
-                unitMarker = Platoonmarkers[unitMarkers[player]];
-                unitMarkers[player]++;
                 unit = new Unit(player,nation,unitID,unitName,formationID);
-                unit.symbol = unitMarker;
+                unit.number = unitNumber;
                 formation.add(unit);
             }
             let team = new Team(token.id,formationID,unitID,true);
@@ -1396,9 +1394,13 @@ const FOW4 = (() => {
             formation = new Formation(player,nation,formationID,Tag[2]);
         }
         let unit = new Unit(player,nation,stringGen(),unitName,formationID);
-        let unitMarker = Platoonmarkers[unitMarkers[player]];
-        unitMarkers[player]++;
-        unit.symbol = unitMarker;
+        unit.number = formation.unitIDs.length;
+        let unitMarker = Platoonmarkers[unit.number];
+
+log(unit.number)
+log(unitMarker)
+
+
         formation.add(unit);
         let gmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id;
         for (let i=0;i<teamIDs.length;i++) {
@@ -1432,7 +1434,7 @@ const FOW4 = (() => {
         let unit = UnitArray[team.unitID];
         if (team.type.includes("Tank")) {
             name = name.replace(team.nation + " ","");
-            let item = (unitMarkers[team.player]*100) + i
+            let item = (unit.number * 100) + i
             name += " " + item.toString();
         } else if (team.type === "Infantry" || team.type === "Gun") {
             name += i;
@@ -1458,7 +1460,40 @@ const FOW4 = (() => {
         return name;
     }
 
-   
+    const TokenInfo = (msg) => {
+        if (!msg.selected) {
+            sendChat("","No Token Selected");
+            return;
+        };
+        let id = msg.selected[0]._id;
+        let team = TeamArray[id];
+        if (!team) {
+            sendChat("","Not in Team Array Yet");
+            return;
+        };
+        let nation  = team.nation;
+        if (!nation) {nation = "Neutral"};
+        SetupCard(team.name,"Hex: " + team.hexLabel,nation);
+        let h = hexMap[team.hexLabel];
+        let terrain = h.terrain;
+        terrain = terrain.toString();
+        let elevation = modelHeight(model);
+        let unit = UnitArray[team.unitID];
+        outputCard.body.push("Terrain: " + terrain);
+        let covers = ["the Open","Short Terrain","Tall Terrain","A Building"];
+        outputCard.body.push(model.name + " is in " + covers[h.type]);
+        if (h.bp === true) {
+            outputCard.body.push("(Bulletproof Cover)");
+        }
+        outputCard.body.push("Elevation: " + elevation + " Feet");
+        outputCard.body.push("[hr]");
+        outputCard.body.push("Unit: " + unit.name);
+        for (let i=0;i<team.modelIDs.length;i++) {
+            let m = ModelArray[team.modelIDs[i]];
+            outputCard.body.push(m.name);
+        }
+        PrintCard();
+    }
 
 
 
