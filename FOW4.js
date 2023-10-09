@@ -1762,21 +1762,14 @@ const FOW4 = (() => {
                 outputCard.body.push("Bulletproof Cover: " + losResult.bulletproof);
             }
             outputCard.body.push("Smoke: " + losResult.smoke);
+            if (team2.type === "Tank") {
+                outputCard.body.push(team2.name + " Facing: " + losResult.facing);
+            }
         } else {
             outputCard.body.push(losResult.losReason);
         }
-        if (team2.type === "Tank") {
-            outputCard.body.push(team2.name + " Facing: " + losResult.facing);
-        }
-     
-    
-    
     
         PrintCard();
-    
-    
-    
-    
     }
 
 
