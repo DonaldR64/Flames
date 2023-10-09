@@ -791,6 +791,15 @@ const FOW4 = (() => {
         team1.rotation = angle;
     } 
 
+    const tokenHeight = (team) => {
+        //height of token based on terrain, with additional based on type
+        let hex = hexMap[team.hexLabel];
+        let height = parseInt(hex.elevation);
+        if (team.type === "Infantry" && hex.terrain.includes("Building")) {
+            height = parseInt(hex.height) - 1;
+        } 
+        return height;
+    }
 
     const ClearState = () => {
         //clear arrays
@@ -1477,19 +1486,19 @@ log(unitMarker)
         let h = hexMap[team.hexLabel];
         let terrain = h.terrain;
         terrain = terrain.toString();
-        let elevation = modelHeight(model);
+        let elevation = tokenHeight(team);
         let unit = UnitArray[team.unitID];
         outputCard.body.push("Terrain: " + terrain);
         let covers = ["the Open","Short Terrain","Tall Terrain","A Building"];
-        outputCard.body.push(model.name + " is in " + covers[h.type]);
+        outputCard.body.push(team.name + " is in " + covers[h.type]);
         if (h.bp === true) {
             outputCard.body.push("(Bulletproof Cover)");
         }
         outputCard.body.push("Elevation: " + elevation + " Feet");
         outputCard.body.push("[hr]");
         outputCard.body.push("Unit: " + unit.name);
-        for (let i=0;i<team.modelIDs.length;i++) {
-            let m = ModelArray[team.modelIDs[i]];
+        for (let i=0;i<unit.teamIDs.length;i++) {
+            let m = TeamArray[unit.teamIDs[i]];
             outputCard.body.push(m.name);
         }
         PrintCard();
