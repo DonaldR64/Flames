@@ -1505,6 +1505,46 @@ log(unitMarker)
     }
 
 
+    const changeGraphic = (tok,prev) => {
+        if (tok.get('subtype') === "token") {
+            //RemoveLines();
+            log(tok.get("name") + " moving");
+            if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
+                let team = TeamArray[tok.id];
+                if (!team) {return};
+                let oldHex = team.hex;
+                let oldHexLabel = team.hexLabel;
+                let newLocation = new Point(tok.get("left"),tok.get("top"));
+                let newHex = pointToHex(newLocation);
+                let newHexLabel = newHex.label();
+                newLocation = hexToPoint(newHex); //centres it in hex
+                let newRotation = oldHex.angle(newHex);
+                tok.set({
+                    left: newLocation.x,
+                    top: newLocation.y,
+                    rotation: newRotation,
+                });
+                team.hex = newHex;
+                team.hexLabel = newHexLabel;
+                team.location = newLocation;
+                let index = hexMap[oldHexLabel].tokenIDs.indexOf(tok.id);
+                if (index > -1) {
+                    hexMap[oldHexLabel].tokenIDs.splice(index,1);
+                }
+                hexMap[newHexLabel].tokenIDs.push(tok.id);
+               
+            };
+/*
+            if ((tok.get("height") !== prev.height || tok.get("width") !== prev.width) && state.CoC.labmode === false) {
+                let team = TeamArray[tok.id];
+                if (!team) {return};
+                tok.set("height",prev.height);
+                tok.set("width",prev.width);
+            }
+*/
+
+        };
+    };
 
 
 
