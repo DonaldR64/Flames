@@ -794,7 +794,7 @@ const FOW4 = (() => {
         team1.rotation = angle;
     } 
 
-    const tokenHeight = (team) => {
+    const teamHeight = (team) => {
         //height of token based on terrain, with additional based on type
         let hex = hexMap[team.hexLabel];
         let height = parseInt(hex.elevation);
@@ -1490,7 +1490,7 @@ const FOW4 = (() => {
         let h = hexMap[team.hexLabel];
         let terrain = h.terrain;
         terrain = terrain.toString();
-        let elevation = tokenHeight(team);
+        let elevation = teamHeight(team);
         let unit = UnitArray[team.unitID];
         outputCard.body.push("Terrain: " + terrain);
         let covers = ["the Open","Short Terrain","Tall Terrain","a Building"];
@@ -1507,6 +1507,240 @@ const FOW4 = (() => {
         }
         PrintCard();
     }
+
+    const LOS = (id1,id2,special) => {
+        if (!special) {special = " "}; 
+        let team1 = TeamArray[id1];
+        let team2 = TeamArray[id2];
+        let distanceT1T2 = team1.hex.distance(team2.hex);
+    
+        let facing = Facing(id1,id2);
+        if (special.includes("Defensive")) {facing = "Side/Back"};
+        let shooterFace = Facing(id2,id1);
+    
+        let team1Height = teamHeight(team1);
+        let team2Height = teamHeight(team2);
+    
+        let interHexes = team1.hex.linedraw(team2.hex); //hexes from shooter (hex 0) to target (hex at end)
+        let team1Hex = hexMap[team1.hexLabel];
+        let team2Hex = hexMap[team2.hexLabel];
+    
+        let hexesWithBuild = 0;
+        let hexesWithTall = 0;
+        let concealed = false;
+        let bulletproof = false;
+        let smoke = false;
+        let los = true;
+        let hillStart = 0;
+        let hillElevation = team1Height;
+    
+        if (team2Hex.type === "Flat" && team2Hex.bp === true && team2.type.includes("Tank") === false) {
+            //this catches foxholes, craters and similar
+            concealed = true;
+            bulletproof = true;
+        }
+    
+        if (team1.type === "Aircraft" || team2.type === "Aircraft") {
+            if (team1.type === "Aircraft") {
+                let st = Math.max(interHexes.length - 5,0); //4 hexes before target plus target hex
+                for (let i=st;i<interHexes.length;i++) {
+                    let qrs = interHexes[i];
+                    let interHex = hexMap[qrs.label()];
+    log(interHex)
+                    if (interHex.type === "Tall" || interHex.type === "Building") {
+                        concealed = true;
+                    }
+                    if (interHex.smoke === true) {smoke = true};
+                }
+            } else {
+                let en = Math.min(interHexes.length,5); //4 hexes from shooter plus shooters hex
+                for (let i=0;i<en;i++) {
+                    let qrs = interHexes[i];
+                    let interHex = hexMap[qrs.label()];
+                    if (interHex.type === "Tall" || interHex.type === "Building") {
+                        concealed = true;
+                    }                
+                    if (interHex.smoke === true) {smoke = true};
+                }
+            }
+        } else {
+            if (team1Hex.terrainIDs === team2Hex.terrainIDs && team1Hex.type === "Building") {
+                // team 1 and 2 are in same building/room
+                concealed = true;
+                bulletproof = true;
+            } else {
+                //not in same building
+                let buildingFlag = false;
+                let deltaHeight = team1Height - team2Height; //will be + if shooter higher than target
+                let baseLevel = Math.min(team1Height,team2Height);
+        log("Delta: " + deltaHeight)
+    
+                for (let i=0;i<interHexes.length;i++) {
+        log("I: " + i)
+                    let qrs = interHexes[i];
+                    let interHex = hexMap[qrs.label()];
+                    if (interHex.smoke === true) {smoke = true};
+                    if (interHex.smokescreen === true) {
+                        if (distanceT1T2 > 6) {
+                            los = false;
+                            break;
+                        } else {
+                            smoke = true;
+                        }
+                    }
+                    let interHexHeight = parseInt(interHex.height) - baseLevel;
+        log(interHex)
+                    let terCheck = findCommonElements(interHex.terrainIDs,team1Hex.terrainIDs);
+                    if (terCheck === true && i < 2) {continue};
+                    if (interHex.elevation > team1Height && deltaHeight >= 0) {
+                        //deltaHeight will be negative if shooter is below target ie. looking up, hence elevation can change
+                        los = false;
+                        break;
+                    } else {
+                        if (interHex.elevation > team1Height && interHex.elevation > hillElevation) {
+                            //higher hill, place flag for distance between edge of hill and target hex as hillStart
+                            //if hits another higher hill, re-flag
+                            hillStart = (distanceT1T2 - i);
+                            hillElevation = interHex.elevation;
+                        }
+                        if (interHex.type === "Building") {
+                            if (deltaHeight !== 0) {
+                                let intHeight = InterHeight(deltaHeight,i,distanceT1T2);
+                                if (interHexHeight  <= intHeight) {continue};
+                                //looking over building
+                            }
+                            hexesWithBuild++;
+                            if (hexesWithBuild > 2) {
+                                los = false;
+                                break;
+                            }
+                            buildingFlag = true;
+                            concealed = true;
+                            bulletproof = true;
+                        } else {
+                            if (buildingFlag === true) {
+                                los = false;
+                                break;
+                            }
+                            if (interHex.type === "Flat") {
+                                if (interHex.tokenIDs.length > 0 && i>0 && i<(interHexes.length - 1) && special !== "Overhead") {
+    log("Unit in way")
+                                    concealed = true; //unit in way
+                                }
+                                continue
+                            };
+                            if (interHex.type === "Short" && i > 1 && deltaHeight <= 0 && special !== "Overhead") {
+                                let intHeight = InterHeight(deltaHeight,i,distanceT1T2);
+                                if (interHexHeight <= intHeight) {continue};
+                                //looking over short terrain
+                                if (interHex.bp === true) {
+                                    bulletproof = true;
+                                }
+                                concealed = true;
+                            } else if (interHex.type === "Tall") {
+                                if (deltaHeight !== 0) {
+                                    let intHeight = InterHeight(deltaHeight,i,distanceT1T2);
+                                    if (interHexHeight  <= intHeight) {continue};
+                                    //looking over tall terrain
+                                }
+                                hexesWithTall++;
+                                concealed = true;
+                                if (interHex.bp === true) {
+                                    bulletproof = true;
+                                }                            
+                                if (hexesWithTall > 2 && distanceT1T2 > 6) {
+                                    los = false;
+                                    break;
+                                } 
+                            }
+                        }
+                    }
+                }
+            }
+            if (team2.type === "Infantry" && team2.token.get(sm.moved) === false && team2.token.get(sm.dash) === false && special !== "Sneak") {
+                log("Infantry in Open, didnt move")
+                concealed = true //infantry teams that didnt move are concealed to all but Aircraft
+            }
+            if (los === true && concealed === false && hillStart > 0) {
+                //check for hull down if not already concealed
+                let extend = team2.hex.subtract(team1.hex);
+                let newH = team2.hex.add(extend); //note, this may be offmap
+                let extendHexes = team2.hex.linedraw(newH);
+                let hillEnd = 0;
+                for (let i=1;i<extendHexes.length;i++) {
+                    let extendHex = hexMap[extendHexes[i].label()];
+                    if (!extendHex) {
+                        //end of map, no hex
+                        break;
+                    }
+                    if (extendHex.elevation < team2Height) {
+                        //end of hill team2 is on
+                        hillEnd = i-1; //-1 to exclude hex target is in
+                        break;
+                    }
+                    if (extendHex.elevation > team2Height) {
+                        //team2 is on lower elevation of stacked hills
+                        hillEnd = hillStart + 1; 
+                        break;
+                    }
+                }
+                if (hillEnd < hillStart) {
+                    concealed = true;
+                }
+            }
+    
+    
+        }
+    
+    
+        //Gun Shield - if shot from front, isnt artillery fire and didnt move at dash last turn
+        if (team2.special.includes("Gun Shield") && facing === "Front" && special.includes("Artillery") === false && team2.token.get(sm.dash) === false) {
+            bulletproof = true;
+        }
+    
+        //Redemption
+        if (team2.special.includes("Redemption")) {
+            bulletproof = false;
+        }
+    
+        if (special.includes("Defensive")) {bulletproof = false};
+    
+        let result = {
+            los: los,
+            concealed: concealed,
+            bulletproof: bulletproof,
+            smoke: smoke,
+            facing: facing,
+            shooterface: shooterFace,
+            distance: distanceT1T2,
+        }
+        return result;
+    }
+
+//put into LOS above
+    const InterHeight = (deltaHeight,distanceT1Int,distanceT1T2) => {
+        log("Delta: " + deltaHeight)
+        log("Dist to Int: " + distanceT1Int)
+        log("Dist to Target: " + distanceT1T2)
+            let tH = Math.abs(deltaHeight);
+            let intHeight = (tH * distanceT1Int)/distanceT1T2;
+            if (deltaHeight > 0) {
+                //above inverted the triangle for - delta, this subtracts to bring to height
+                //above 'baseline' of T2
+                intHeight = Math.abs(deltaHeight) - intHeight;
+            }
+        log("Solving for X: " + intHeight) 
+            return intHeight;
+    }
+
+
+
+
+
+
+
+
+
 
 
     const changeGraphic = (tok,prev) => {
