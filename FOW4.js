@@ -8,7 +8,7 @@ const FOW4 = (() => {
     const rowLabels = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA","BB","CC","DD","EE","FF","GG","HH","II","JJ","KK","LL","MM","NN","OO","PP","QQ","RR","SS","TT","UU","VV","WW","XX","YY","ZZ","AAA","BBB","CCC","DDD","EEE","FFF","GGG","HHH","III","JJJ","KKK","LLL","MMM","NNN","OOO","PPP","QQQ","RRR","SSS","TTT","UUU","VVV","WWW","XXX","YYY","ZZZ"];
 
     let TerrainArray = {};
-    let TeamArray = {}; //Individual Models, Tanks etc
+    let TeamArray = {}; //Individual Squads, Tanks etc
     let UnitArray = {}; //Units of Teams eg. Platoon
     let FormationArray = {}; //to track formations
     let SmokeArray = {};
@@ -44,7 +44,7 @@ const FOW4 = (() => {
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
 
     const commandRadius = [6,8];
-    const outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: [],};
+    let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: [],};
     const Axis = ["German","Italy","Japan","Waffen-SS"];
     const Allies = ["Soviet","USA","UK","Canadian"];
     const lastStandCount = {"Infantry": 3,"Gun": 2,"Tank": 2,"Unarmoured Tank": 2,"Aircraft": 1,};
@@ -393,7 +393,7 @@ const FOW4 = (() => {
         }
 
         add(team) {
-            if (this.teamIDs.includes(model.id) === false) {
+            if (this.teamIDs.includes(team.id) === false) {
                 if (team.token.get("status_black-flag") === true) {
                     this.teamIDs.unshift(team.id);
                 } else {
@@ -470,16 +470,17 @@ const FOW4 = (() => {
             if (type === "Tank") {
                 maxPass = 3;
             }
+/*
             if (special.includes("Transport")) {
-                if (!state.FOW4.transports[t.id]) {
-                    state.FOW4.transports[t.id] = [];
+                if (!state.FOW4.transports[tokenID]) {
+                    state.FOW4.transports[tokenID] = [];
                 }
                 let px = Number(special.indexOf("Passengers")) + 11;
                 maxPass = parseInt(special.substring(px,(px+1)));
             }
-
-            this.id = t.id;
-            this.token = t;
+*/
+            this.id = tokenID;
+            this.token = token;
             this.name = token.get("name");
             this.player = player;
             this.nation = nation;
@@ -519,7 +520,7 @@ const FOW4 = (() => {
 
             this.hex = hex; //axial
             this.hexLabel = hexLabel; //doubled
-            this.rotation = t.get("rotation");
+            this.rotation = token.get("rotation");
             this.special = special;
             this.unique = unique;
             this.transport = "";
@@ -528,8 +529,8 @@ const FOW4 = (() => {
             this.hitArray = [];
             this.maxPass = maxPass;
 
-            TeamArray[t.id] = this;
-            hexMap[label].tokenIDs.push(t.id);
+            TeamArray[tokenID] = this;
+            hexMap[hexLabel].tokenIDs.push(tokenID);
 
         }
 
@@ -657,22 +658,22 @@ const FOW4 = (() => {
         }
     };
 
-    const FX = (fxname,model1,model2) => {
-        //model2 is target, model1 is shooter
-        //if its an area effect, model1 isnt used
+    const FX = (fxname,team1,team2) => {
+        //team2 is target, team1 is shooter
+        //if its an area effect, team1 isnt used
         if (fxname.includes("System")) {
             //system fx
             fxname = fxname.replace("System-","");
             if (fxname.includes("Blast")) {
                 fxname = fxname.replace("Blast-","");
-                spawnFx(model2.location.x,model2.location.y, fxname);
+                spawnFx(team2.location.x,team2.location.y, fxname);
             } else {
-                spawnFxBetweenPoints(model1.location, model2.location, fxname);
+                spawnFxBetweenPoints(team1.location, team2.location, fxname);
             }
         } else {
             let fxType =  findObjs({type: "custfx", name: fxname})[0];
             if (fxType) {
-                spawnFxBetweenPoints(model1.location, model2.location, fxType.id);
+                spawnFxBetweenPoints(team1.location, team2.location, fxType.id);
             }
         }
     }
@@ -1154,7 +1155,7 @@ const FOW4 = (() => {
         let elapsed = Date.now()-startTime;
         log("Hex Map Built in " + elapsed/1000 + " seconds");
         //add tokens to hex map, rebuild Team/Unit Arrays
-        //TA();
+        TA();
     }
 
     const BuildTerrainArray = () => {
@@ -1290,18 +1291,15 @@ const FOW4 = (() => {
             let unitName = info[2];
             let unitID = info[3];
             let unit = UnitArray[unitID];
-            unitMarkers[player]++;
             let statusmarkers = token.get("statusmarkers").split(",")
-log(token.get("name"))
-log(statusmarkers)
             let unitMarker = returnCommonElements(statusmarkers,Platoonmarkers);
 
-log("Marker: " + unitMarker)
-
-            if (!Formation) {
+            if (!formation) {
                 formation = new Formation(player,nation,formationID,formationName);
             }
             if (!unit) {
+                unitMarker = Platoonmarkers[unitMarkers[player]];
+                unitMarkers[player]++;
                 unit = new Unit(player,nation,unitID,unitName,formationID);
                 unit.symbol = unitMarker;
                 formation.add(unit);
@@ -1311,7 +1309,7 @@ log("Marker: " + unitMarker)
         });
 
         let elapsed = Date.now()-start;
-        log(`${c} token${s} checked in ${elapsed/1000} seconds - ` + Object.keys(ModelArray).length + " placed in Model Array");
+        log(`${c} token${s} checked in ${elapsed/1000} seconds - ` + Object.keys(TeamArray).length + " placed in Team Array");
     }
 
 
@@ -1359,7 +1357,7 @@ log("Marker: " + unitMarker)
 
         let support = FormationArray[player];
         if (!support) {
-            support = new Formation(player,nation,player,"Support");
+            support = new Formation(player,nation,(player+1),"Support");
         }
 
         let formationKeys = Object.keys(FormationArray);
@@ -1423,37 +1421,38 @@ log("Marker: " + unitMarker)
             })
         }
 
-
+        sendChat("",unitName + " Added to " + formation.name)
 
 
 
     }
 
     const Naming = (team,i) => {
-        let name = team.characterName.replace(nation + " ","");
+        let name = team.characterName.replace(team.nation + " ","");
+        let unit = UnitArray[team.unitID];
         if (team.type.includes("Tank")) {
             name = name.replace(team.nation + " ","");
             let item = (unitMarkers[team.player]*100) + i
             name += " " + item.toString();
-        } else if (type === "Infantry" || type === "Gun") {
-            name += (i+1);
+        } else if (team.type === "Infantry" || team.type === "Gun") {
+            name += i;
         } 
     
         let r;
         if (team.special.includes("HQ")) {
             r = Math.min(i,1);
             unit.hqUnit = true;
-            name = Rank(nation,r) + Name(nation);
+            name = Rank(team.nation,r) + Name(team.nation);
         } else {
-            if (type === "Aircraft") {
+            if (team.type === "Aircraft") {
                 r = 2;
                 unit.aircraft = true;
-                if (nation === "Soviet") {r=3};
-                name = Rank(nation,r) + Name(nation);
+                if (team.nation === "Soviet") {r=3};
+                name = Rank(team.nation,r) + Name(team.nation);
             } else if (name.includes("Komissar")) {
-                name = "Komissar " + Name(nation);
+                name = "Komissar " + Name(team.nation);
             } else if (i === 0) {
-                name = Rank(nation,2);
+                name = Rank(team.nation,2);
             }
         }
         return name;
@@ -1508,6 +1507,9 @@ log("Marker: " + unitMarker)
                 break;
             case '!UnitCreation':
                 UnitCreation(msg);
+                break;
+            case '!UnitCreation2':
+                UnitCreation2(msg);
                 break;
 
         }
