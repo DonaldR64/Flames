@@ -1,0 +1,646 @@
+<input type="hidden" class="sheet-tabstoggle" name="attr_sheetTab"  value="display"  />
+<div>
+    <button type="action" name="act_input" >Input</button>
+    <button type="action" name="act_display" >Display</button>
+</div>
+
+<div class="sheet-input">
+    <div class="2colrow">
+        <div class="col">
+            <h3>Team Information</h3>
+            <label>Name:</label><input type="text" name="attr_character_name">
+            <br>
+            <label for="attr_type">Type:</label>
+            <select name="attr_type">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Infantry">Infantry</option>
+                <option value="Tank">Tank</option>
+                <option value="Gun">Gun</option>
+                <option value="Aircraft">Aircraft</option>
+                <option value="Unarmoured Tank">Unarmoured Tank</option>
+                <option value="System Unit">System Unit</option>                
+            </select>
+            <br>
+            <label for="attr_nation">Nation:</label>
+            <select name="attr_nation">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="USA">USA</option>
+                <option value="German">Germany</option>
+                <option value="Waffen-SS">Waffen SS</option>
+                <option value="Soviet">Soviet Union</option>
+                <option value="UK">United Kingdom</option>
+                <option value="Canada">Canada</option>
+            </select>
+        </div>
+        <div class="col">
+            <h3>Attributes</h3>
+            <label for="attr_motivation">Motivation:</label>
+            <select name="attr_motivation">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Confident 4+">Confident 4+</option>
+                <option value="Fearless 3+">Fearless 3+</option>
+                <option value="Reluctant 5+">Reluctant 5+</option>
+                <option value="SS Tiger 2+">SS Tiger 2+</option>
+            </select>
+            <br>
+            <label for="attr_komissar">Komissar:</label>
+            <select name="attr_komissar">
+                <option value=""selected="selected">(nil)</option>
+                <option value="Komissar 2+">Kommissar 2+</option>                
+                <option value="Komissar 3+">Kommissar 3+</option>
+            </select>
+            <br>
+
+            <label>Last Stand Name:</label><input type="text" name="attr_laststandflavour">
+            <label for="attr_laststand">Last Stand:</label>
+            <select name="attr_laststand">
+                <option value=""selected="selected">(nil)</option>
+                <option value="Last Stand 2+">Last Stand 2+</option>                
+                <option value="Last Stand 3+">Last Stand 3+</option>
+                <option value="Last Stand 4+">Last Stand 4+</option>
+                <option value="Last Stand 5+">Last Stand 5+</option>
+            </select>
+            <br>
+
+            <label>Rally Name:</label><input type="text" name="attr_rallyflavour">
+            <label for="attr_rally">Rally:</label>
+            <select name="attr_rally">
+                <option value=""selected="selected">(nil)</option>
+                <option value="Rally 3+">Rally 3+</option>
+                <option value="Rally 4+">Rally 4+</option>
+                <option value="Rally 5+">Rally 5+</option>
+            </select>
+            <br>
+
+            <label>Counterattack Name:</label><input type="text" name="attr_counterattackflavour">
+            <label for="attr_counterattack">Counterattack:</label>
+            <select name="attr_counterattack">
+                <option value=""selected="selected">(nil)</option>
+                <option value="Counterattack 3+">Counterattack 3+</option>
+                <option value="Counterattack 4+">Counterattack 4+</option>
+                <option value="Counterattack 5+">Counterattack 5+</option>
+                <option value="Counterattack 6">Counterattack 6</option>
+            </select>
+            <br>
+
+            <label for="attr_counterattackmounted">Counterattack Mounted Assault:</label>
+            <select name="attr_counterattackmounted">
+                <option value=""selected="selected">(nil)</option>
+                <option value="Mounted Counterattack 3+">Mounted Counterattack 3+</option>
+                <option value="Mounted Counterattack 4+">Mounted Counterattack 4+</option>
+                <option value="Mounted Counterattack 5+">Mounted Counterattack 5+</option>
+            </select>
+            <br>
+
+
+
+            <label>Remount Name:</label><input type="text" name="attr_remountflavour">
+            <label for="attr_remount">Remount:</label>
+            <select name="attr_remount">
+                <option value=""selected="selected">(nil)</option> 
+                <option value="Remount 2+">Remount 2+</option>
+                <option value="Remount 3+">Remount 3+</option>
+                <option value="Remount 4+">Remount 4+</option>
+                <option value="Remount 5+">Remount 5+</option>
+            </select>
+
+            <br>
+            <label for="attr_skill">Skill:</label>
+            <select name="attr_skill">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Trained 4+">Trained 4+</option>
+                <option value="Veteran 3+">Veteran 3+</option>
+                <option value="Green 5+">Green 5+</option>
+            </select>
+
+            <label>Assault Name:</label><input type="text" name="attr_assaultflavour">
+            <label for="attr_assault">Assault:</label>
+            <select name="attr_assault">
+                <option value=""selected="selected">(nil)</option>   
+                <option value="Assault 2+">Assault 2+</option>
+                <option value="Assault 3+">Assault 3+</option>
+                <option value="Assault 4+">Assault 4+</option>
+                <option value="Assault 5+">Assault 5+</option>
+                <option value="Assault 6">Assault 6</option>                                
+            </select>
+
+            <label for="attr_mountedassault">Mounted Assault:</label>
+            <select name="attr_mountedassault">
+                <option value=""selected="selected">(nil)</option>   
+                <option value="Mounted Assault: 1P/4+, 2P/3+">Mounted Assault: 1P/4+, 2P/3+</option>
+            </select>
+
+            <label>Tactics Name:</label><input type="text" name="attr_tacticsflavour">
+            <label for="attr_tactics">Tactics:</label>
+            <select name="attr_tactics">
+                <option value=""selected="selected">(nil)</option>                
+                <option value="Tactics 3+">Tactics 3+</option>
+                <option value="Tactics 4+">Tactics 4+</option>
+                <option value="Tactics 5+">Tactics 5+</option>     
+                <option value="Tactics 6">Tactics 6</option>                
+            </select>
+
+
+            <br>
+            <label for="attr_hit">Is Hit On:</label>
+            <select name="attr_hit">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Aggressive 3+">Aggressive 3+</option>
+                <option value="Reckless 2+">Reckless 2+</option>
+                <option value="Careful 4+">Careful 4+</option>
+                <option value="Aircraft 5+">Aircraft 5+</option>
+                <option value="Flying Tank 4+">Flying Tank 4+</option>                
+            </select>
+            <br>
+        </div>
+    </div>    
+
+    <div class="2colrow">
+        <div class="col">
+                <h3>Armour</h3>
+                <label>Front Armour/Main Save:</label><input type="text" name="attr_armourF">
+                <label>Side/Back Armour:</label><input type="text" name="attr_armourSR">
+                <label>Top Armour:</label><input type="text" name="attr_armourT">
+        </div>
+
+        <div class="col">
+                <h3>Movement</h3>  
+                <label>Tactical:</label><input type="number" name="attr_tactical">
+                <label>Terrain Dash:</label><input type="number" name="attr_terrain">
+                <label>Cross Country Dash:</label><input type="number" name="attr_country">
+                <label>Road Dash:</label><input type="number" name="attr_road">
+                <label>Cross On:</label><input type="text" name="attr_cross">
+        </div>        
+    </div>
+
+    <div class="row">
+        <h3>Weapons</h3>
+
+    <div class="weapons">
+        <table>
+          <thead>
+            <tr>
+              <th>Weapon</th>
+              <th>Range</th>
+              <th>ROF Halted</th>
+              <th>ROF Moving</th>
+              <th>Antitank</th>
+              <th>Firepower</th>
+              <th>Notes</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+                <td><input type="text" name="attr_weapon1name"></td>
+                <td><input type="text" name="attr_weapon1range"></td>
+                <td>
+                    <select name="attr_weapon1halted">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="attr_weapon1moving">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td><input type="number" name="attr_weapon1at"></td>
+                <td><input type="text" name="attr_weapon1fp"></td>
+                <td><input type="text" name="attr_weapon1notes"></td>
+                <td>
+                    <select name="attr_weapon1type">
+                        <option selected="selected" value="Small Arms">Small Arms</option>
+                        <option value="Crew Served MG">Crew Served MG</option>
+                        <option value="Vehicle MG">Vehicle MG</option>
+                        <option value="Flamethrower">Flamethrower</option>              
+                        <option value="Gun">Gun</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Handheld AT">Handheld AT</option>                    
+                    </select>
+                </td>
+            </tr>
+             <tr>
+                <td><input type="text" name="attr_weapon2name"></td>
+                <td><input type="text" name="attr_weapon2range"></td>
+                <td>
+                    <select name="attr_weapon2halted">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="attr_weapon2moving">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td><input type="number" name="attr_weapon2at"></td>
+                <td><input type="text" name="attr_weapon2fp"></td>
+                <td><input type="text" name="attr_weapon2notes"></td>
+                <td>
+                    <select name="attr_weapon2type">
+                        <option selected="selected" value="Small Arms">Small Arms</option>
+                        <option value="Crew Served MG">Crew Served MG</option>
+                        <option value="Vehicle MG">Vehicle MG</option>
+                        <option value="Flamethrower">Flamethrower</option>              
+                        <option value="Gun">Gun</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Handheld AT">Handheld AT</option>                    
+                    </select>
+                <td>
+            </tr>
+            <tr>
+                <td><input type="text" name="attr_weapon3name"></td>
+                <td><input type="text" name="attr_weapon3range"></td>
+                <td>
+                    <select name="attr_weapon3halted">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="attr_weapon3moving">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td><input type="number" name="attr_weapon3at"></td>
+                <td><input type="text" name="attr_weapon3fp"></td>
+                <td><input type="text" name="attr_weapon3notes"></td>
+                <td>
+                    <select name="attr_weapon3type">
+                        <option selected="selected" value="Small Arms">Small Arms</option>
+                        <option value="Crew Served MG">Crew Served MG</option>
+                        <option value="Vehicle MG">Vehicle MG</option>
+                        <option value="Flamethrower">Flamethrower</option>              
+                        <option value="Gun">Gun</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Handheld AT">Handheld AT</option>                    
+                    </select>
+                <td>
+            </tr>
+            <tr>
+                <td><input type="text" name="attr_weapon4name"></td>
+                <td><input type="text" name="attr_weapon4range"></td>
+                <td>
+                    <select name="attr_weapon4halted">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="attr_weapon4moving">
+                        <option value=""selected="selected">(nil)</option>   
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Salvo">Salvo</option>
+                    </select>
+                </td>
+                <td><input type="number" name="attr_weapon4at"></td>
+                <td><input type="text" name="attr_weapon4fp"></td>
+                <td><input type="text" name="attr_weapon4notes"></td>
+                <td>
+                    <select name="attr_weapon4type">
+                        <option selected="selected" value="Small Arms">Small Arms</option>
+                        <option value="Crew Served MG">Crew Served MG</option>
+                        <option value="Vehicle MG">Vehicle MG</option>
+                        <option value="Flamethrower">Flamethrower</option>              
+                        <option value="Gun">Gun</option>
+                        <option value="Artillery">Artillery</option>
+                        <option value="Handheld AT">Handheld AT</option>                    
+                    </select>
+                <td>
+            </tr>
+          </tbody>
+        </table>    
+     </div>    
+
+    </div>    
+
+
+    <div class="row">
+            <h3>Special</h3>
+            <input type="text" name="attr_special">
+            <br>
+            <h3>Mistaken Target</h3>
+            <input type="checkbox" id="unique" name="attr_unique" value="true">
+            <label for="unique">Unique Marker</label>
+    </div>
+</div>
+
+
+
+<div class="sheet-display">
+    <input type="hidden" name="attr_nation"/>
+
+    <div class="mysheet">
+      <div class="attributes">
+
+        <main>
+          <section class="header f-center">
+            <h1><span name="attr_character_name"></span></h1>
+            <h3><span>&#8226; </span><span name="attr_type"></span><span> Unit &#8226;</span></h3>
+            <h3><span name="attr_special"></span></h3>
+          </section>
+
+          <section class="common">
+            <div class="f-center">
+              <img alt="Character Avatar" name="attr_character_avatar" style="width:400px;height:auto; bottom: 0;"/>
+            </div>
+          </section>
+
+          <section class="motive f-col">
+            <h3>Motivation</h3>
+            <div class="info">
+              <h2><span name="attr_motivation"></span></h2>
+              <h2><span name="attr_komissar"></span></h2>
+              <h3 style="font-style: italic;"><span name="attr_laststandflavour"></span></h3>
+              <h2><span name="attr_laststand"></span></h3>
+              <h3 style="font-style: italic;"><span name="attr_rallyflavour"></span></h3>
+              <h2><span name="attr_rally"></span></h3>
+              <h3 style="font-style: italic;"><span name="attr_counterattackflavour"></span></h3>
+              <h2><span name="attr_counterattack"></span></h3>
+              <h2><span name="attr_counterattackmounted"></span></h3>
+              <h3 style="font-style: italic;"><span name="attr_remountflavour"></span></h3>
+              <h2><span name="attr_remount"></span></h3>          
+            </div>  
+          </section>
+
+          <section class="armour f-col">
+            <input type="hidden" name="attr_type" class="toggle">
+            <div class="armvehicle">
+                <h3>Armour</h3>
+                <h2>Front:  <span name="attr_armourF"></span></h2>
+                <h2>Side/Rear:  <span name="attr_armourSR"></span></h2>
+                <h2>Top:  <span name="attr_armourT"></span></h2>
+            </div>    
+            <div class="infantry">
+                <h3>Save</h3>
+                <h2><span name="attr_armourF"></span></h2>
+            </div>   
+            <div class="gun">
+                <h3>Save</h3>
+                <h2><span name="attr_armourF"></span></h2>
+            </div>   
+            <div class="aircraft">
+                <h3>Save</h3>
+                <h2><span name="attr_armourF"></span></h2>
+            </div>   
+            <div class="unarmoured">
+                <h3>Save</h3>
+                <h2><span name="attr_armourF"></span></h2>
+            </div>   
+          </section>
+
+          <section class="move">
+            <h3>Movement</h3>
+            <input type="hidden" name="attr_movementtype" value = "Other" class="togglemove">
+            <div class="movement">
+              <span>Tactical</span>
+              <span>Terrain Dash</span>
+              <span>Cross Country Dash</span>
+              <span>Road Dash</span>
+              <span>Cross</span>
+              <h4><span name="attr_tactical"></span><span>"</span></h4>
+              <h4><span name="attr_terrain"></span><span>"</span></h4>
+              <h4><span name="attr_country"></span><span>"</span></h4>
+              <h4><span name="attr_road"></span><span>"</span></h4>                 
+              <h4><span name="attr_cross"></span></h4>
+            </div>
+            <div class="airmove">
+                <span>Movement</span>
+                <span>Cross</span>
+                <h4>Unlimited</h4>
+                <h4>Auto</h4>
+            </div>
+          </section>
+
+          <section class="skill">
+            <h3>Skill</h3>
+            <div class="info">
+              <h2><span name="attr_skill"></span></h2>
+              <h3 style="font-style: italic;"><span name="attr_assaultflavour"></span></h3>
+              <h2><span name="attr_assault"></span></h3>
+              <h2><span name="attr_mountedassault"></span></h3>
+              <h3 style="font-style: italic;"><span name="attr_tacticsflavour"></span></h3>              
+              <h2><span name="attr_tactics"></span></h3>
+            </div>  
+          </section>
+
+          <section class="hit">
+            <h3>Is Hit On</h3>
+            <div class="info">
+              <h2><span name="attr_hit"></span></h2>
+            </div>
+          </section>
+
+          <section class="flag">
+            <img name="attr_nationimage">
+          </section>
+          
+          <section class="flag2">
+            <img name="attr_nationimage">
+          </section>
+
+          <section class="weapon">
+            <h3>Weapons</h3>
+            <div class="weaponinfo">
+                <div class="box1"><span>Weapon</span></div>
+                <div class="box2"><span>Range</span></div>
+                <div class="box3"><span>ROF</span></div>
+                <div class="box4"><span>Antitank</span></div>
+                <div class="box5"><span>Firepower</span></div>
+                <div class="box6"><span>Notes</span></div>
+                <div class="box"><span>Halted</span></div>
+                <div class="box"><span>Moving</span></div>
+                <h4><span name="attr_weapon1name"></span></h4>
+                <h4><span name="attr_weapon1range"></span></h4>
+                <h4><span name="attr_weapon1halted"></span></h4>
+                <h4><span name="attr_weapon1moving"></span></h4>
+                <h4><span name="attr_weapon1at"></span></h4>
+                <h4><span name="attr_weapon1fp"></span></h4>
+                <h4><span name="attr_weapon1notes"></span></h4>
+                <h4><span name="attr_weapon2name"></span></h4>
+                <h4><span name="attr_weapon2range"></span></h4>
+                <h4><span name="attr_weapon2halted"></span></h4>
+                <h4><span name="attr_weapon2moving"></span></h4>
+                <h4><span name="attr_weapon2at"></span></h4>
+                <h4><span name="attr_weapon2fp"></span></h4>
+                <h4><span name="attr_weapon2notes"></span></h4>
+                <h4><span name="attr_weapon3name"></span></h4>
+                <h4><span name="attr_weapon3range"></span></h4>
+                <h4><span name="attr_weapon3halted"></span></h4>
+                <h4><span name="attr_weapon3moving"></span></h4>
+                <h4><span name="attr_weapon3at"></span></h4>
+                <h4><span name="attr_weapon3fp"></span></h4>
+                <h4><span name="attr_weapon3notes"></span></h4>
+                <h4><span name="attr_weapon4name"></span></h4>
+                <h4><span name="attr_weapon4range"></span></h4>
+                <h4><span name="attr_weapon4halted"></span></h4>
+                <h4><span name="attr_weapon4moving"></span></h4>
+                <h4><span name="attr_weapon4at"></span></h4>
+                <h4><span name="attr_weapon4fp"></span></h4>
+                <h4><span name="attr_weapon4notes"></span></h4>    
+            </div>         
+          </section>
+        </main>
+      </div>
+    </div>    
+</div>
+
+
+
+
+<script type="text/worker">
+    const buttonlist = ["input","display"];
+    buttonlist.forEach(button => {
+        on(`clicked:${button}`, function() {
+            setAttrs({
+                sheetTab: button
+            });
+        });
+    });
+
+    on("sheet:opened", function() {
+        setAttrs({sheetTab:"display"});
+    });
+
+    on("change:attrs sheet:opened", function() { 
+        getAttrs(["type","nation","motivation","skill","hit","special","unique","tactical","terrain","country","road","cross"], function(values) {
+            let nationImage;
+            let nation = values.nation;
+            let special = values.special;
+            if (!special) {special = " "};
+            let unique = values.unique;
+            if (!unique) {unique = false};
+            let tohit = values.hit;
+            if (!values.hit) {tohit = "Aggressive 3+"};
+            let motivation = values.motivation;
+            if (!values.motivation) {motivation = "Confident 4+"};
+            let skill = values.skill;
+            if (!values.skill) {skill = "Trained 4+"};
+            let type = values.type;
+            if (nation === "German") {
+                if (special.includes("HQ")) {
+                    nationImage = "https://s3.amazonaws.com/files.d20.io/images/324330655/b8mmk83gXpFPcuSgpsoccg/thumb.png?1674494392";
+                } else {
+                    nationImage = "https://s3.amazonaws.com/files.d20.io/images/324330922/vm_sbQZSkc81fR4CtQp57g/thumb.png?1674494502";
+                }           
+            }
+            if (nation === "Waffen-SS") {
+                if (special.includes("HQ")) {
+                    nationImage = "https://s3.amazonaws.com/files.d20.io/images/324283135/h_J6ptR-Lf9kODLrQX8Rwg/thumb.png?1674447951";
+                } else {
+                    nationImage = "https://s3.amazonaws.com/files.d20.io/images/324283125/RG-Yo1FkEWvzDprUsFl3Cg/thumb.png?1674447941";
+                }           
+            }
+            if (nation === "Soviet") {
+                if (special.includes("HQ")) {
+                    nationImage = "https://s3.amazonaws.com/files.d20.io/images/324267137/QO0gtQEEluVALFjLU0Slyg/thumb.png?1674439581";
+                } else {
+                    nationImage = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
+                }
+            }
+            if (nation === "UK") {
+                nationImage = "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/1200px-Flag_of_the_United_Kingdom.svg.png";
+            }
+            if (nation === "USA") {
+                nationImage = "https://wallpapercave.com/wp/j4XbVE2.jpg";
+            }
+            if (nation === "Canadian") {
+                nationImage = "https://i.imgur.com/L6KtEgH.png";
+            }
+            let tact = values.tactical;
+            let ter = values.terrain;
+            let count = values.country;
+            let road = values.road;
+            let cross = values.cross;
+
+            let move = "Other";
+            if (type === "Aircraft") {
+                move = "Aircraft";
+            } 
+            if (type === "Infantry" && special.includes("Heavy Weapon") === false) {
+                tact = '4';
+                ter = '4';
+                count = '6';
+                road = '6';
+                cross = "AUTO";
+            }
+
+            setAttrs({
+                "nationimage": nationImage,
+                "hit": tohit,
+                "skill": skill,
+                "motivation": motivation,
+                "movementtype": move,
+                "unique": unique,
+                "tactical": tact,
+                "terrain": ter,
+                "country": count,
+                "road": road,
+                "cross": cross,
+            })
+        });    
+    });  
+
+
+
+
+</script>
