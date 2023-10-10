@@ -156,6 +156,15 @@ section {
   color: white;
 }
 
+input[type="hidden"][name="attr_nation"][value="Germany"] ~ .header h1 {
+  color: black;
+}
+input[type="hidden"][name="attr_nation"][value="Germany"] ~ .header h3 {
+  color: black;
+}
+
+
+
 .motive {
   grid-area: motive;
   background-color: lightgray;
@@ -174,6 +183,14 @@ section {
 .common {
   grid-area: common;
   background-color: white;
+}
+
+.common > img {
+  object-fit: contain;
+  width: 100%;
+  max-height: 100%;
+  align-self: center;
+  justify-self: center;
 }
 
 .armour {
