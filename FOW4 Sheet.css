@@ -105,11 +105,11 @@ section {
 }
 .charsheet h2{
   text-align: center;
-  color:  darkred;
+  color:  black;
 }
 .charsheet h3{
   text-align: center;
-  color: black;
+  color: darkred;
 }
 
 .charsheet h4{
@@ -194,6 +194,11 @@ section {
   background-color: lightgray;
 }
 
+.move h3{
+  text-align: center;
+  color: black;
+}
+
 .air {
   grid-area: move;
   background-color: lightgray;
@@ -202,6 +207,11 @@ section {
 .weapon {
   grid-area: weapon;
   background-color:  lightgray;
+}
+
+.weapon h3{
+  text-align: center;
+  color: black;
 }
 
 .toggle:not([value="Tank"]) ~ .armvehicle {
