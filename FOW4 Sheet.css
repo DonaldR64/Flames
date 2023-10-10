@@ -261,11 +261,6 @@ section {
   text-align: center;
 }
 
-.info h3{
-  text-align: center;
-  color: darkred;
-}
-
 .weaponinfo{
   grid-area: weaponinfo;
   display: grid;
