@@ -628,6 +628,33 @@ const FOW4 = (() => {
         return aa;
     }
 
+    const AttributeSet = (characterID,attributename,newvalue,max) => {
+        if (!max) {max = false};
+        let attributeobj = findObjs({type:'attribute',characterid: characterID, name: attributename})[0]
+        if (attributeobj) {
+            if (max === true) {
+                attributeobj.set("max",newvalue)
+            } else {
+                attributeobj.set("current",newvalue)
+            }
+        } else {
+            if (max === true) {
+                createObj("attribute", {
+                    name: attributename,
+                    current: newvalue,
+                    max: newvalue,
+                    characterid: characterID,
+                });            
+            } else {
+                createObj("attribute", {
+                    name: attributename,
+                    current: newvalue,
+                    characterid: characterID,
+                });            
+            }
+        }
+    }
+
     const ButtonInfo = (phrase,action) => {
         let info = {
             phrase: phrase,
@@ -1820,16 +1847,6 @@ const FOW4 = (() => {
         };
     };
 
-
-
-
-
-    
-
-
-
-
-
     const handleInput = (msg) => {
         if (msg.type !== "api") {
             return;
@@ -1871,6 +1888,9 @@ const FOW4 = (() => {
                 break;
             case '!TestLOS':
                 TestLOS(msg);
+                break;
+            case '!Germany':
+                Germany();
                 break;
 
         }
