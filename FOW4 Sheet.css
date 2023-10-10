@@ -156,15 +156,6 @@ section {
   color: white;
 }
 
-input[type="hidden"][name="attr_nation"][value="Germany"] ~ .header h1 {
-  color: black;
-}
-input[type="hidden"][name="attr_nation"][value="Germany"] ~ .header h3 {
-  color: black;
-}
-
-
-
 .motive {
   grid-area: motive;
   background-color: lightgray;
