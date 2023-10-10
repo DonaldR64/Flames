@@ -1889,9 +1889,6 @@ const FOW4 = (() => {
             case '!TestLOS':
                 TestLOS(msg);
                 break;
-            case '!Germany':
-                Germany();
-                break;
 
         }
     };
