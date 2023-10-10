@@ -875,6 +875,11 @@ const FOW4 = (() => {
             transports: {},
             passengers: {},
             darkness: false,
+            turn: 0,
+            gametype: "",
+            currentPlayer: "",
+            timeOfDay: "",
+            startingPlayer: "",
         }
         sendChat("","Cleared State/Arrays");
     }
@@ -1466,6 +1471,11 @@ const FOW4 = (() => {
                 statusmarkers: unitMarker,
             })
         }
+        if (state.FOW4.nations[player].includes(nation) === false) {
+            state.FOW4.nations[player].push(nation);
+        }
+
+
 
         sendChat("",unitName + " Added to " + formation.name)
     }
@@ -1799,8 +1809,54 @@ const FOW4 = (() => {
         PrintCard();
     }
 
+    const SetupGame = (msg) => {
+        state.FOW4.turn = 0;
+        let Tag = msg.content.split(";");
+        let gametype = Tag[1];
+        let startingPlayer = Number(Tag[2]);
+        let timeOfDay = Tag[3];
+        if (timeOfDay === "Random") {
+            let roll = randomInteger(6);
+            if (roll < 3) {timeOfDay = "Dawn"};
+            if (roll === 3 || roll === 4) {timeOfDay = "Daylight"};
+            if (roll > 4) {timeOfDay = "Dusk"};
+        }
+    
+        state.FOW4.gametype = gametype;
+        state.FOW4.currentPlayer = startingPlayer;
+        state.FOW4.timeOfDay = timeOfDay;
+        state.FOW4.darkness = false;
+        if (timeOfDay === "Dawn" || timeOfDay === "Night") {
+            state.FOW4.darkness = true;
+        }
+        state.FOW4.startingPlayer = startingPlayer;
+        let nat = state.FOW4.nations[startingPlayer][0];
 
+        //let side = ["Warsaw Pact","NATO"];
+        //if (state.FOW4.nations[startingPlayer].length > 1) {
+        //    nat = side[startingPlayer];
+        //}
 
+        SetupCard("Setup New Game","","Neutral");
+        outputCard.body.push("Game Type: " + gametype);
+        outputCard.body.push("First Player: " + nat);
+        outputCard.body.push("Time of Day: " + timeOfDay);
+        PrintCard();
+    }
+    
+    const GM = () => {
+        SetupCard("GM Functions","","Neutral");
+        ButtonInfo("Add Abilities","!AddAbilities");
+        ButtonInfo("Clear State","!ClearState");
+        ButtonInfo("Change Phase","!ChangePhase;?{New Phase|Start|Movement|Shooting|Assault}");
+        //ButtonInfo("Kill Selected Team","!!KillTeam;@{selected|token_id}");
+        ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Allies,0|Axis,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
+        //ButtonInfo("Test LOS","!TestLOS;@{selected|token_id};@{target|token_id}");
+        //ButtonInfo("Unit Creation","!UnitCreation;?{Unit Name};?{Formation Name};?{Support|No|Yes};");
+        //ButtonInfo("Team Unit Info","!TeamInfo");
+        PrintCard();
+    }
+    
 
 
 
@@ -1888,6 +1944,12 @@ const FOW4 = (() => {
                 break;
             case '!TestLOS':
                 TestLOS(msg);
+                break;
+            case '!SetupGame':
+                SetupGame(msg);
+                break;
+            case '!GM':
+                GM();
                 break;
 
         }
