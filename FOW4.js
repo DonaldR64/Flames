@@ -34,11 +34,13 @@ const FOW4 = (() => {
 
     const SM = {
         "gtg": "status_brown",
-        "dash": "status_Fast-or-Haste::2006485",
+        "dash": "status_Fast::5868456",
         "fired": "status_Shell::5553215",
-        "moved": "status_Advantage-or-Up::2006462",
+        "tactical": "status_Advantage-or-Up::2006462",
+        "hold": "status_Shield::2006495",
+        "assault": "status_grenade",
         "mounted": "status_Mounted-Transparent::2006522",
-        "flare": "status_up", //change to the weapon fire
+        "flare": "status_Flare::5867553",
     }
 
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
@@ -1856,7 +1858,189 @@ const FOW4 = (() => {
         //ButtonInfo("Team Unit Info","!TeamInfo");
         PrintCard();
     }
+
+    const ActivateUnit = (msg) => {
+        //RemoveLines();
+        let Tag = msg.content.split(";");
+        let teamID = msg.selected[0]._id;
+        let team = TeamArray[teamID];
+        let order = Tag[1];
+        let unit = UnitArray[team.unitID];
+        let unitLeader = TeamArray[unit.teamIDs[0]];
+        SetupCard(unit.name,order,unit.nation);
+        let sms = [SM.tactical,SM.dash,SM.hold,SM.assault];
+        for (let i=0;i<sms.length;i++) {
+            unitLeader.token.set(sms[i],false);
+        }
+
+        if (order.includes("Tactical")) {
+            outputCard.body.push("Teams can move at Tactical Speed, and may fire at their Moving ROF");
+            outputCard.body.push('Teams cannot move within 2" of visible enemies');
+            unitLeader.token.set(SM.tactical,true);
+        } else if (order.includes("Dash")) {
+            outputCard.body.push("Teams can move at Dash Speed, but may not fire");
+            outputCard.body.push('Teams cannot move within 8" of visible enemies');
+            unitLeader.token.set(SM.dash,true);
+        } else if (order.includes("Hold")) {
+            outputCard.body.push("Teams stay in place, and may fire at their Halted ROF");
+            outputCard.body.push("Teams not firing are Gone to Ground");
+            unitLeader.token.set(SM.hold,true);
+        } else if (order.includes("Assault")) {
+            outputCard.body.push('Teams can move at Tactical Speed to a Max of 10", and may fire at their Moving ROF');
+            outputCard.body.push('Teams must target an enemy within 8" of the Team it will charge into');
+            outputCard.body.push("Eligible Teams can complete the charge");
+            unitLeader.token.set(SM.assault,true);
+        } else if (order.includes("Aircraft")) {
+            outputCard.body.push('Aircraft may move anywhere on Battlefield');
+            unitLeader.token.set(SM.tactical,true);
+        }
+
+        PrintCard();
+    }
+
     
+
+    const AddAbilities = (msg) => {
+        if (!msg) {return}
+        let id = msg.selected[0]._id;
+        if (!id) {return};
+        let token = findObjs({_type:"graphic", id: id})[0];
+        let char = getObj("character", token.get("represents"));
+
+        let abilArray = findObjs({  _type: "ability", _characterid: char.id});
+        //clear old abilities
+        for(let a=0;a<abilArray.length;a++) {
+            abilArray[a].remove();
+        } 
+
+        let type = Attribute(char,"type");
+        let cross = crossStat(Attribute(char,"cross"));
+        let special = Attribute(char,"special");
+        if (special === "") {special = " "};
+
+        if (special.includes("Passengers")) {
+            abilityName = "Dismount Passengers";
+            action = "!DismountPassengers";
+            AddAbility(abilityName,action,char.id);        
+        }
+
+        if (type === "Aircraft") {
+            abilityName = "Arrive ?";
+            action = "!EnterAircraft";
+            AddAbility(abilityName,action,char.id);
+        }
+
+        if (char.get("name").includes("Mine") && type === "System Unit") {
+            abilityName = "Minefield Check";
+            action = "!MinefieldCheck;@{selected|token_id};@{target|token_id}";
+            AddAbility(abilityName,action,char.id);
+        }
+
+/*
+        abilityName = "Spot";
+        action = "!CreateBarrages;@{selected|token_id}";
+        AddAbility(abilityName,action,char.id);
+
+        abilityName = "Targets";
+        action = "!Targetting";
+        AddAbility(abilityName,action,char.id);
+*/
+        if (type === "Infantry") {
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault}";
+        } else if (type === "Gun") {
+            action = "!Activate;?{Order|Tactical|Dash|Hold}";
+        } else if (type === "Tank") {
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault}";
+        } else if (type === "Unarmoured Tank") {
+            action = "!Activate;?{Order|Tactical|Dash|Hold}";
+        } else if (type === "Aircraft") {
+            action = "!Activate;Aircraft";
+        }
+        abilityName = "Orders";
+        AddAbility(abilityName,action,char.id);
+
+        let specOrders;
+        if (type === "Infantry") {
+             specOrders = "!SpecialOrders;?{Special Order|Blitz|Dig In|Follow Me|Shoot and Scoot|Clear Minefield"
+        } else if (type === "Gun") {
+            specOrders = "!SpecialOrders;?{Special Order|Blitz|Dig In|Follow Me|Shoot and Scoot"
+        } else if (type === "Tank") {
+            specOrders = "!SpecialOrders;?{Special Order|Blitz|Cross Here|Follow Me|Shoot and Scoot";
+            if (special.includes("Mine")) {
+                specOrders += "|Clear Minefield";
+            }
+        } else if (type === "Unarmoured Tank") {
+            specOrders = "!SpecialOrders;?{Special Order|Blitz|Cross Here|Follow Me|Shoot and Scoot";
+        } 
+
+        specOrders += "}";
+
+        if (type !== "Aircraft" && type !== "System Unit") {
+            abilityName = "Special Orders";
+            AddAbility(abilityName,specOrders,char.id);
+        }
+
+        let team = TeamArray[id];
+        if (!team) {return};
+        //below relies on using addabilites while token is added to TeamArray
+
+        if (type === "Infantry") {
+            abilityName = "Mount/Dismount";
+            AddAbility(abilityName,"!MountDismount;@{selected|token_id};@{target|Transport|token_id}",char.id);
+        }
+
+/*
+
+        let mgNums = [];
+        for (let i=0;i<team.weaponArray.length;i++) {
+            let weapon = team.weaponArray[i];
+            if (weapon.name.includes("Krasnopol")) {continue}; //only fired by observer
+            let wNum = i+1;
+            if (weapon.type === "Artillery" || weapon.type === "Rockets") {
+                if (type === "Aircraft" || type === "Helicopter") {
+                    //??
+                } else {
+                    abilityName = "Preplan";
+                    AddAbility(abilityName,"!PlaceRangedIn",char.id);
+                }
+                continue;
+            }
+            if (weapon.type.includes("MG")) {
+                mgNums.push(wNum);
+                continue;
+            }
+            let shellType = "Regular";
+            if (weapon.notes.includes("Smoke") && weapon.type !== "Artillery") {
+                shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
+            }
+            abilityName = "Fire: " + weapon.name;
+            action = "!Shooting;@{selected|token_id};@{target|token_id};" + wNum + ";" + shellType;
+            AddAbility(abilityName,action,char.id);
+        }
+        if (mgNums.length > 0) {
+            abilityName = "Fire: Machine Guns";
+            mgNums = mgNums.toString();
+            action = "!Shooting;@{selected|token_id};@{target|token_id};" + mgNums;
+            AddAbility(abilityName,action,char.id);
+        }
+*/
+
+
+
+    }
+
+    const AddAbility = (abilityName,action,charID) => {
+        createObj("ability", {
+            name: abilityName,
+            characterid: charID,
+            action: action,
+            istokenaction: true,
+        })
+    }
+
+
+
+
 
 
 
@@ -1950,6 +2134,15 @@ const FOW4 = (() => {
                 break;
             case '!GM':
                 GM();
+                break;
+            case '!Activate':
+                ActivateUnit(msg);
+                break;
+            case '!SpecialOrders':
+                SpecialOrders(msg);
+                break;
+            case '!AddAbilities':
+                AddAbilities(msg);
                 break;
 
         }
