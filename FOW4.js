@@ -386,7 +386,7 @@ const FOW4 = (() => {
             this.nation = nation;
             this.formationID = formationID;
             this.teamIDs = [];
-            this.order= "";
+            this.order = "";
             this.hqUnit = false;
             this.aircraft = false;
             this.number = 0;
@@ -1543,6 +1543,12 @@ const FOW4 = (() => {
             outputCard.body.push("(Bulletproof Cover)");
         }
         outputCard.body.push("Elevation: " + (elevation * 25) + " Feet");
+        if (unit.order === "") {
+            outputCard.body.push("No Order this Turn");
+        } else {
+            outputCard.body.push("Order: " + unit.order);
+        }
+
         outputCard.body.push("[hr]");
         outputCard.body.push("Unit: " + unit.name);
         for (let i=0;i<unit.teamIDs.length;i++) {
@@ -1872,7 +1878,6 @@ const FOW4 = (() => {
         for (let i=0;i<sms.length;i++) {
             unitLeader.token.set(sms[i],false);
         }
-
         if (order.includes("Tactical")) {
             outputCard.body.push("Teams can move at Tactical Speed, and may fire at their Moving ROF");
             outputCard.body.push('Teams cannot move within 2" of visible enemies');
@@ -1894,7 +1899,7 @@ const FOW4 = (() => {
             outputCard.body.push('Aircraft may move anywhere on Battlefield');
             unitLeader.token.set(SM.tactical,true);
         }
-
+        unit.order = order;
         PrintCard();
     }
 
