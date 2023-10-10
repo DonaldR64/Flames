@@ -270,6 +270,11 @@ input[type="hidden"][name="attr_nation"][value="Germany"] ~ .header h3 {
   text-align: center;
 }
 
+.info h3{
+  text-align: center;
+  color: darkred;
+}
+
 .weaponinfo{
   grid-area: weaponinfo;
   display: grid;
