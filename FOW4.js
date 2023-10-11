@@ -502,6 +502,7 @@ const FOW4 = (() => {
             this.prev = location;
 
             this.order = "";
+            this.specialorder = "";
 
             this.tactical = Number(attributeArray.tactical);
             this.terraindash = Number(attributeArray.terrain);
@@ -2073,6 +2074,13 @@ const FOW4 = (() => {
             AddAbility(abilityName,"!MountDismount;@{selected|token_id};@{target|Transport|token_id}",char.id);
         }
 
+        if (team.cross > 1) {
+            abilityName = "Cross";
+            AddAbility(abilityName,"!Cross",char.id);
+        }
+
+
+
 /*
 
         let mgNums = [];
@@ -2122,7 +2130,27 @@ const FOW4 = (() => {
         })
     }
 
-
+    const Cross = (msg) => {
+        if (!msg) {return}
+        let id = msg.selected[0]._id;
+        if (!id) {return};
+        let team = TeamArray[id];
+        SetupCard(team.name,"Cross",team.nation);
+        let roll = randomInteger(6);
+        let cross = team.cross;
+        if (team.specialorder === "Cross Here") {
+            cross--;
+        }
+        SetupCard(team.name,"vs. " + cross + "+",team.nation);
+        outputCard.body.push("Roll: " + DisplayDice(roll,team.nation,24));
+        if (roll >= cross) {
+            outputCard.body.push("Success");
+        } else {
+            outputCard.body.push("Failure!<br>The Team stops where it is");
+        }
+//Leader Team Option to swap
+        PrintCard();
+    }
 
 
 
@@ -2226,6 +2254,9 @@ const FOW4 = (() => {
                 break;
             case '!AddAbilities':
                 AddAbilities(msg);
+                break;
+            case '!Cross':
+                Cross(msg);
                 break;
 
         }
