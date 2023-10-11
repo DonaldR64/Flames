@@ -41,6 +41,7 @@ const FOW4 = (() => {
         "assault": "status_grenade",
         "mounted": "status_Mounted-Transparent::2006522",
         "flare": "status_Flare::5867553",
+        "radio": "status_green", //change
     }
 
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
