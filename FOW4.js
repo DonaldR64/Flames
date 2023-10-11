@@ -1905,12 +1905,17 @@ const FOW4 = (() => {
         PrintCard();
     }
 
+
     const ActivateUnit = (msg) => {
         //RemoveLines();
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
-        let team = TeamArray[teamID];
         let order = Tag[1];
+        ActivateUnitTwo(teamID,order);
+    }
+
+    const ActivateUnitTwo = (teamID,order) => {
+        let team = TeamArray[teamID];
         let unit = UnitArray[team.unitID];
         let inCommand = team.inCommand();
         let unitLeader = TeamArray[unit.teamIDs[0]];
@@ -1961,6 +1966,18 @@ const FOW4 = (() => {
                 extraLine = "It should move towards the Unit Leader";
             } 
         }
+
+        if (targetTeam.specialorder === "Failed Blitz" && order === "Dash") {
+            outputCard.body.push("Team defaults to a Tactical Order");
+            order = "Tactical";
+        }
+        if (targetTeam.specialorder === "Cross Here" && order !== "Dash") {
+            outputCard.body.push("Team defaults to a Dash Order");
+            order = "Tactical";
+        }
+
+
+
 
 /*
         if (order === "Assault") {
@@ -2267,7 +2284,7 @@ const FOW4 = (() => {
                 }
                 break;
             case "Cross Here":
-                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 3”  of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1. Teams using this order cannot Shoot or Assault this turn.");
+                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 3 hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1. Teams using this order cannot Shoot or Assault this turn.");
                 break;
             case "Dig In":
                 stat = unitLeader.skill;
@@ -2276,8 +2293,9 @@ const FOW4 = (() => {
                     DigIn(unit);
                 } else {
                     outputCard.body.push("The Unit failed to Dig In");
+                    specialorder = "Failed Dig In";
+
                 }
-                specialorder = "Failed Dig In";
                 outputCard.body.push("The Teams can fire at their moving ROF (but cannot fire a Bombardment)");
                 outputCard.body.push("If they do not Shoot or Assault, they are Gone to Ground");
                 break;
