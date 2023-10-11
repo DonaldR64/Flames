@@ -1955,18 +1955,18 @@ const FOW4 = (() => {
         let marker;
         if (order.includes("Tactical")) {
             outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
-            outputCard.body.push(noun + 'cannot move within 2" of visible enemies');
+            outputCard.body.push(noun + 'cannot move next to enemies');
             marker = SM.tactical
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
-            outputCard.body.push(noun + ' cannot move within 8" of visible enemies');
+            outputCard.body.push(noun + ' cannot move within 4" of visible enemies');
             marker = SM.dash
         } else if (order.includes("Hold")) {
             outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
             outputCard.body.push(noun + verb + "Gone to Ground if not Firing");
             marker = SM.hold;
         } else if (order.includes("Assault")) {
-            outputCard.body.push('Teams can move at Tactical Speed to a Max of 10", and may fire at their Moving ROF');
+            outputCard.body.push('Teams can move at Tactical Speed to a Max of 5", and may fire at their Moving ROF');
             outputCard.body.push('Teams must target an enemy within 8" of the Team it will charge into');
             outputCard.body.push("Eligible Teams can complete the charge");
             marker = SM.assault;
