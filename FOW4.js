@@ -1999,8 +1999,10 @@ const FOW4 = (() => {
 
         let marker;
         if (order.includes("Tactical")) {
-            outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
-            outputCard.body.push(noun + 'cannot move next to enemies');
+            if (team.specialorder.includes("Dig In") === false) {
+                outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
+                outputCard.body.push(noun + 'cannot move next to enemies');
+            }
             marker = SM.tactical
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
@@ -2244,7 +2246,7 @@ const FOW4 = (() => {
         }
         if (specialorder === "Clear Minefield") {
             if (movedFlag === true) {
-                errorMsg.push("Team has alread Moved or Fired");
+                errorMsg.push("Team has already Moved");
             }
         }
 
@@ -2255,17 +2257,24 @@ const FOW4 = (() => {
             PrintCard();
             return;
         }
-
-        if (specialorder !== "Cross Here" && specialorder !== "Clear Minefield") {
-            outputCard.body.push(DisplayDice(roll,unitLeader.nation,24));
+        let line = DisplayDice(roll,unitLeader.nation,24) + " vs. ";
+        if (specialorder === "Cross Here" || specialorder === "Clear Minefield") {
+            line = "Auto";
+        } else if (specialorder === "Follow Me") {
+            stat = unitLeader.courage;
+            line = stat + "+";
+        } else {
+            stat = unitLeader.skill;
+            line = stat + "+";
         }
 
+        unit.specialorder = specialorder;
+
         switch (specialorder) {
-            case "Blitz":
-                stat = unitLeader.skill;
+            case "Blitz & Move":
                 if (roll >= stat) {
                     outputCard.body.push("Success");
-                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 2 hexes<br>It may be issued a normal order.");
+                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 2 hexes before making a normal Tactical Move");
                     if (unitLeader.token.get(sm.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
@@ -2277,14 +2286,39 @@ const FOW4 = (() => {
                             }
                         }
                     }
-                } else {
+                } else {    
                     outputCard.body.push("Failure");
                     outputCard.body.push("Teams from the Unit can only Move at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
                     specialorder = "Failed Blitz";
                 }
+                ActivateUnitTwo(unitLeader.id,"Tactical");
+                break;
+            case "Blitz & Hold":
+                if (roll >= stat) {
+                    outputCard.body.push("Success");
+                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 2 hexes and then take up a Hold Order");
+                    if (unitLeader.token.get(sm.mounted) === true) {
+                        outputCard.body.push("The Unit dismounts as part of this Blitz Move");
+                        for (let i=0;i<unit.inCommandIDs.length;i++) {
+                            let id = unit.inCommandIDs[i];
+                            if (TeamArray[id].token.get(sm.mounted) === true) {
+                                let transID = state.FOW4.passengers[id];
+                                RemovePassenger(id);
+                                DismountPassengersTwo(id,transID);
+                            }
+                        }
+                    }
+                    ActivateUnitTwo(unitLeader.id,"Hold");
+                } else {    
+                    outputCard.body.push("Failure");
+                    outputCard.body.push("Teams from the Unit count as Moving at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
+                    specialorder = "Failed Blitz";
+                    ActivateUnitTwo(unitLeader.id,"Tactical");
+                }
                 break;
             case "Cross Here":
-                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 3 hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1. Teams using this order cannot Shoot or Assault this turn.");
+                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 3 hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1. Teams using this order cannot Shoot or Assault this turn but may Dash Move");
+                ActivateUnitTwo(unitLeader.id,"Dash");
                 break;
             case "Dig In":
                 stat = unitLeader.skill;
@@ -2294,10 +2328,10 @@ const FOW4 = (() => {
                 } else {
                     outputCard.body.push("The Unit failed to Dig In");
                     specialorder = "Failed Dig In";
-
                 }
                 outputCard.body.push("The Teams can fire at their moving ROF (but cannot fire a Bombardment)");
                 outputCard.body.push("If they do not Shoot or Assault, they are Gone to Ground");
+                ActivateUnitTwo(unitLeader.id,"Tactical")
                 break;
             case "Follow Me":
                 stat = unitLeader.courage;
@@ -2310,6 +2344,7 @@ const FOW4 = (() => {
                     specialorder = "Failed Follow Me";
                 }
                 outputCard.body.push("Teams may not fire");
+                PrintCard();
                 break;
             case "Shoot and Scoot":
                 stat = unitLeader.skill;
@@ -2320,18 +2355,17 @@ const FOW4 = (() => {
                     outputCard.body.push("Failure");
                     outputCard.body.push("Teams remain where they are")
                 }
+                PrintCard();
                 break;
             case "Clear Minefield":
                 outputCard.body.push('The Team is ordered to clear an adjacent Minefield');
                 outputCard.body.push("That Team counts as having Moved, and cannot Shoot or Assault");
                 outputCard.body.push("The Minefield can be removed immediately");
                 outputCard.body.push("Other Teams may be given the same order");
-                team.token.set(sm.clearmine,true);
+                team.token.set(sm.dash,true);
+                PrintCard();
                 break;
         }
-        unit.specialorder = specialorder;
-        if (stat > 1) {outputCard.subtitle = stat + "+"} else {outputCard.subtitle = "AUTO"};
-        PrintCard();
     }
 
 
