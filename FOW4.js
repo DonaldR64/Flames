@@ -388,6 +388,7 @@ const FOW4 = (() => {
             this.name = name;
             this.player= player;
             this.order = "";
+            this.specialorder = "";
             this.nation = nation;
             this.formationID = formationID;
             this.teamIDs = [];
@@ -432,6 +433,15 @@ const FOW4 = (() => {
             if (this.teamIDs.length === 0) {
                 //Bad Thing
             }
+        }
+
+        pinned() {
+            let pinned = false;
+            let leaderTeam = TeamArray[this.teamIDs[0]];
+            if ((leaderTeam.type === "Infantry" || leaderTeam.type === "Gun") && (leaderTeam.token.get("aura1_color") === Colours.yellow)) {
+                pinned = true;
+            }
+            return pinned;
         }
 
 
@@ -1952,6 +1962,24 @@ const FOW4 = (() => {
             } 
         }
 
+/*
+        if (order === "Assault") {
+            if (unit.pinned() === true) {
+                errorMsg.push("Team is Pinned, cannot Assault");
+            }
+            //shot at aircraft prev turn here
+            if (unitLeader.token.get(sm.radio) === true || team.token.get(sm.radio) === true) {
+                errorMsg.push("Unit/Team called in Artillery");
+            }
+            if (unitLeader.token.get(sm.oppfire) === true) {
+                errorMsg.push("Unit fired Opportunity Fire and cannot Assault");
+            }
+        }
+*/
+
+
+
+
         let marker;
         if (order.includes("Tactical")) {
             outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
@@ -2151,6 +2179,167 @@ const FOW4 = (() => {
 //Leader Team Option to swap
         PrintCard();
     }
+
+    const SpecialOrders = (msg) => {
+        //RemoveLines();
+        //!Orders;?{Order|Blitz|Cross Here|Dig In|Follow Me|Shoot and Scoot} - and which varies by team type
+        let Tag = msg.content.split(";");
+        let teamID = msg.selected[0]._id;
+        let order = Tag[1];
+        let team = TeamArray[teamID];
+        let unit = UnitArray[team.unitID];
+        let unitLeader = TeamArray[unit.teamIDs[0]];
+        SetupCard(unit.name,order,team.nation);
+        let errorMsg = [];
+        
+        let roll = randomInteger(6);
+        let stat = 1;
+
+        if (order === "Clear Minefield") {
+            targetTeam = team;
+        } else {
+            targetTeam = unitLeader;
+        }
+
+        if (targetTeam.specialorder !== "") {
+            errorMsg.push("Teams can only have one Special Order per turn");
+        }
+
+        let movedFlag = (targetTeam.token.get(SM.dash) === true || targetTeam.token.get(SM.tactical) === true) ? true:false;
+        
+        if (order === "Blitz") {
+            if (movedFlag === true) {
+                errorMsg.push("Blitz Order must be given before movement");
+            }
+        }
+        if (order === "Shoot and Scoot") {
+            if (movedFlag === true) {
+                errorMsg.push("Unit has Moved and so cannot be given a Shoot and Scoot Order");
+            }
+        }
+        if (order === "Dig In") {
+            if (movedFlag === true) {
+                errorMsg.push("Unit has Moved and so cannot be given a Dig In Order");
+            }        
+        }
+        if (targetTeam.token.get(SM.fired) === true && order !== "Shoot and Scoot") {
+            errorMsg.push("Unit has Fired this turn, cannot be given that Order");
+        }
+        if (order === "Clear Minefield") {
+            if (movedFlag === true) {
+                errorMsg.push("Team has alread Moved or Fired");
+            }
+        }
+
+        if (errorMsg.length > 0) {
+            for (let i=0;i<errorMsg.length;i++) {
+                outputCard.body.push(errorMsg[i]);
+            }
+            PrintCard();
+            return;
+        }
+
+        if (order !== "Cross Here" && order !== "Clear Minefield") {
+            outputCard.body.push(DisplayDice(roll,unitLeader.nation,24));
+        }
+
+        switch (order) {
+            case "Blitz":
+                stat = unitLeader.skill;
+                if (roll >= stat) {
+                    outputCard.body.push("Success");
+                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 2 hexes before making a normal Tactical Move. If a Team Moves using Blitz Move, but does not Move any further, it is not considered to have Moved and can Shoot at its Halted ROF");
+                    if (unitLeader.token.get(sm.mounted) === true) {
+                        outputCard.body.push("The Unit dismounts as part of this Blitz Move");
+                        for (let i=0;i<unit.inCommandIDs.length;i++) {
+                            let id = unit.inCommandIDs[i];
+                            if (TeamArray[id].token.get(sm.mounted) === true) {
+                                let transID = state.FOW4.passengers[id];
+                                RemovePassenger(id);
+                                DismountPassengersTwo(id,transID);
+                            }
+                        }
+                    }
+                } else {
+                    outputCard.body.push("Failure");
+                    outputCard.body.push("Teams from the Unit can only Move at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
+                    order = "Failed Blitz";
+                }
+                break;
+            case "Cross Here":
+                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 6”/15cm of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1. Teams using this order cannot Shoot or Assault this turn.");
+                break;
+            case "Dig In":
+                stat = unitLeader.skill;
+                if (roll >= stat) {
+                    outputCard.body.push("In Command Infantry Teams Dig In");
+                    DigIn(unit);
+                } else {
+                    outputCard.body.push("The Unit failed to Dig In");
+                }
+                order = "Failed Dig In";
+                outputCard.body.push("The Teams can fire at their moving ROF (but cannot fire a Bombardment)");
+                outputCard.body.push("If they do not Shoot or Assault, they are Gone to Ground");
+                break;
+            case "Follow Me":
+                stat = unitLeader.courage;
+                if (roll >= stat) {
+                    outputCard.body.push("Success");
+                    outputCard.body.push("In Command Teams may immediately Move directly forward up to an additional 4 hexes, remaining In Command.")
+                } else {
+                    outputCard.body.push("Failure");
+                    outputCard.body.push("Teams remain where they are")
+                    order = "Failed Follow Me";
+                }
+                outputCard.body.push("Teams may not fire");
+                break;
+            case "Shoot and Scoot":
+                stat = unitLeader.skill;
+                if (roll >= stat) {
+                    outputCard.body.push("Success");
+                    outputCard.body.push("The Leader and any Teams that are In Command and did not Move in the Movement Step may immediately Move up to 4 hexes");
+                } else {
+                    outputCard.body.push("Failure");
+                    outputCard.body.push("Teams remain where they are")
+                }
+                break;
+            case "Land":
+                outputCard.body.push("Teams Land at the end of their movement");
+                SetStatus(unit.inCommandIDs,sm.landed,true);
+                break;
+            case "Lift Off":
+                outputCard.body.push("Teams Lift Off and can then Move if appropriate");
+                SetStatus(unit.inCommandIDs,sm.landed,false);
+                break;
+            case "Clear Minefield":
+                outputCard.body.push('The Team is ordered to clear a Minefield within 2"');
+                outputCard.body.push("That Team counts as having Moved, and cannot Shoot or Assault");
+                outputCard.body.push("The Minefield can be removed immediately");
+                outputCard.body.push("Other Teams may be given the same order");
+                team.token.set(sm.clearmine,true);
+                break;
+            case "Assault":
+                outputCard.body.push('Eligible Teams can Charge 4" in the Assault Phase');
+                outputCard.body.push('In the Shooting Phase they will shoot at their moving ROF')
+                outputCard.body.push('And cannot fire barrages');
+                break;
+        }
+        unit.order = order;
+        if (stat > 1) {outputCard.subtitle = stat + "+"} else {outputCard.subtitle = "AUTO"};
+        PrintCard();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
