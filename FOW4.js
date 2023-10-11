@@ -12,7 +12,7 @@ const FOW4 = (() => {
     let UnitArray = {}; //Units of Teams eg. Platoon
     let FormationArray = {}; //to track formations
     let SmokeArray = {};
-    let FoxholeArray = {};
+    let FoxholeArray = [];
 
     let unitCreationInfo = {}; //used during unit creation 
 
@@ -873,7 +873,7 @@ const FOW4 = (() => {
         FormationArray = {};
 
         SmokeArray = {};
-        FoxholeArray = {};
+        FoxholeArray = [];
         
         //clear token info
         let tokens = findObjs({
