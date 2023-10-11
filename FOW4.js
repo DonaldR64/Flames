@@ -2344,7 +2344,7 @@ const FOW4 = (() => {
             case "Dig In":
                 if (roll >= stat) {
                     outputCard.body.push("In Command Infantry Teams Dig In");
-                    //DigIn(unit);
+                    DigIn(unit);
                 } else {
                     outputCard.body.push("The Unit failed to Dig In");
                     specialorder = "Failed Dig In";
@@ -2383,8 +2383,58 @@ const FOW4 = (() => {
         }
     }
 
-
-
+    const DigIn = (unit) => {
+        for (let i=0;i<unit.teamIDs.length;i++) {
+            let team = TeamArray[unit.teamIDs[i]];
+            if (team.type !== "Infantry") {continue};
+            if (team.inCommand() === false) {continue};
+            let hex = hexMap[team.hexLabel];
+            if (hex.terrain.includes("Building") || hex.terrain.includes("Foxholes")) {continue};
+            if (hex.terrain.includes("Offboard") || hex.terrain.includes("Reserves")) {continue};
+            let dimensions = Math.max(team.token.get("height"), team.token.get("width")) + 25
+            let newToken = createObj("graphic", {   
+                left: team.location.x,
+                top: team.location.y,
+                width: dimensions, 
+                height: dimensions,
+                name: "Foxholes",  
+                rotation: 30,
+                isdrawing: true,
+                pageid: team.token.get("pageid"),
+                imgsrc: "https://s3.amazonaws.com/files.d20.io/images/253100240/1FOuKa7fU3YYi0Gf_Yz8DQ/thumb.png?1635623427",
+                layer: "map",
+                gmnotes: "GM"
+            });
+            toFront(newToken);
+            hexMap[team.hexLabel].terrain.push("Foxholes")
+            let fInfo = {
+                hexLabel: team.hexLabel,
+                id: newToken.id, //id of the Foxholes token, can be used to remove later
+            }
+            FoxholeArray.push(fInfo);
+        }
+    }
+    
+    const RemoveFoxholes = () => {
+        let newFoxholes = [];
+        for (let i=0;i<FoxholeArray.length;i++) {
+            let foxhole = FoxholeArray[i];
+            if (hexMap[foxhole.hexLabel].tokenIDs.length === 0) {
+                let index = hexMap[foxhole.hexLabel].terrain.indexOf("Foxholes");
+                if (index > -1) {
+                    hexMap[foxhole.hexLabel].terrain.splice(index,1);
+                }
+                let tok = findObjs({_type:"graphic", id: foxhole.id})[0];
+                if (tok) {
+                    tok.remove();
+                }
+            } else {
+                newFoxholes.push(foxhole);
+            }
+        }
+        FoxholeArray = newFoxholes;
+    }
+    
 
 
 
