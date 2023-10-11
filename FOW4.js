@@ -1903,8 +1903,6 @@ const FOW4 = (() => {
         PrintCard();
     }
 
-    
-
     const AddAbilities = (msg) => {
         if (!msg) {return}
         let id = msg.selected[0]._id;
@@ -1968,7 +1966,7 @@ const FOW4 = (() => {
         if (type === "Infantry") {
              specOrders = "!SpecialOrders;?{Special Order|Blitz|Dig In|Follow Me|Shoot and Scoot|Clear Minefield"
         } else if (type === "Gun") {
-            specOrders = "!SpecialOrders;?{Special Order|Blitz|Dig In|Follow Me|Shoot and Scoot"
+            specOrders = "!SpecialOrders;?{Special Order|Dig In|Cross Here"
         } else if (type === "Tank") {
             specOrders = "!SpecialOrders;?{Special Order|Blitz|Cross Here|Follow Me|Shoot and Scoot";
             if (special.includes("Mine")) {
