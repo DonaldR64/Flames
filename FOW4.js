@@ -450,7 +450,9 @@ const FOW4 = (() => {
     class Team {
         constructor(tokenID,formationID,unitID) {
             let token = findObjs({_type:"graphic", id: tokenID})[0];
+            if (!token) {sendChat("","No Token?"); return}
             let char = getObj("character", token.get("represents")); 
+            if (!char) {sendChat("","No Character?"); return}
             let charName = char.get("name");
             let attributeArray = AttributeArray(char.id);
             let nation = attributeArray.nation;
@@ -1410,7 +1412,7 @@ const FOW4 = (() => {
         //D will be (-) if on one side, (+) if on other of front line
         // for reference use vertices of shooter
         for (let i=0;i<4;i++) {
-            let C1 = vertices[i]
+            let C1 = vertices1[i]
             // https://math.stackexchange.com/questions/274712/calculate-on-which-side-of-a-straight-line-is-a-given-point-located
             let E = ((C1.x - A.x) * (B.y - A.y)) - ((C1.y - A.y) * (B.x - A.x)) //for the shooter - where vertice is relative to front line of target
             E = Math.sign(E)
@@ -1436,17 +1438,38 @@ const FOW4 = (() => {
         let nation = Attribute(refChar,"nation");
         let player = (Allies.includes(nation)) ? 0:1;
 
+        let keys = Formation
+
+
         let support = FormationArray[player];
         if (!support) {
             support = new Formation(player,nation,(player+1),"Support");
         }
 
         let formationKeys = Object.keys(FormationArray);
+        let supportFlag = false;
+        if (formationKeys.length > 0) {
+            for (let i=0;i<formationKeys.length;i++) {
+                let formation = FormationArray[formationKeys[i]];
+                if (formation.nation !== nation) {continue}
+                if (formation.name === "Support") {
+                    supportFlag = true;
+                    break;
+                }
+            }
+        }
+
+        if (supportFlag === false) {
+            support = new Formation(player,nation,stringGen(),"Support");
+        }
+
         let newID = stringGen();
         SetupCard("Unit Creation","",nation);
         outputCard.body.push("Select Existing Formation or New");
 
         ButtonInfo("New","!UnitCreation2;" + newID + ";?{Formation Name}");
+        formationKeys = Object.keys(FormationArray); //redone as Support may have been added
+
         for (let i=0;i<formationKeys.length;i++) {
             let formation = FormationArray[formationKeys[i]];
             if (formation.nation !== nation) {continue};
@@ -1473,6 +1496,7 @@ const FOW4 = (() => {
         let teamIDs = unitCreationInfo.teamIDs;
         let formationID = Tag[1];
         let formation = FormationArray[formationID];
+
         if (!formation) {
             formation = new Formation(player,nation,formationID,Tag[2]);
         }
@@ -1483,6 +1507,7 @@ const FOW4 = (() => {
         let basegmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id + ";";
         for (let i=0;i<teamIDs.length;i++) {
             let team = new Team(teamIDs[i],formationID,unit.id);
+            if (!team) {continue};
             unit.add(team);
             let aura = "transparent";
             if (i === 0) {
@@ -1583,6 +1608,9 @@ const FOW4 = (() => {
             outputCard.body.push("No Order this Turn");
         } else {
             outputCard.body.push("Team Order: " + team.order);
+        }
+        if (team.specialorder !== "") {
+            outputCard.body.push("Special Order: " + team.specialorder);
         }
         outputCard.body.push("[hr]");
         outputCard.body.push("Unit: " + unit.name);
@@ -1745,7 +1773,7 @@ const FOW4 = (() => {
                         for (let t=0;t<fKeys.length;t++) {
                             let fm = TeamArray[fKeys[t]];
                             if (fm.id === team1.id || fm.id === team2.id || fm.player !== team1.player || fm.unitID === team1.unitID) {continue};
-                            if (fm.type === "Infantry" && fm.token.get(SM.moved) === false && fm.token.get(SM.dash) === false) {continue};
+                            if (fm.type === "Infantry" && fm.token.get(SM.tactical) === false && fm.token.get(SM.dash) === false) {continue}; //ignore these infantry
                             let dis = fm.hex.distance(qrs);
                             if (dis < 2) {
             log(fm.name)
@@ -1801,7 +1829,7 @@ const FOW4 = (() => {
                     }
                 }
             }
-            if (team2.type === "Infantry" && team2.token.get(SM.moved) === false && team2.token.get(SM.dash) === false) {
+            if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false) {
                 concealed = true //infantry teams that didnt move are concealed to all but Aircraft
         log("Infantry didnt move = Concealed")
             }
@@ -1911,10 +1939,11 @@ const FOW4 = (() => {
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
         let order = Tag[1];
+
         ActivateUnitTwo(teamID,order);
     }
 
-    const ActivateUnitTwo = (teamID,order) => {
+    const ActivateUnitTwo = (teamID,order,specialorder) => {
         let team = TeamArray[teamID];
         let unit = UnitArray[team.unitID];
         let inCommand = team.inCommand();
@@ -1938,7 +1967,11 @@ const FOW4 = (() => {
             targetArray = [targetTeam];
         }
 
-        SetupCard(targetName,order,unit.nation);
+        if (!specialorder) {
+            specialorder = "";
+            SetupCard(targetName,order,unit.nation);
+        };
+
         for (let i=0;i<targetArray.length;i++) {
             for (let j=0;j<sms.length;j++) {
                 targetArray[i].token.set(sms[j],false);
@@ -1985,10 +2018,10 @@ const FOW4 = (() => {
                 errorMsg.push("Team is Pinned, cannot Assault");
             }
             //shot at aircraft prev turn here
-            if (unitLeader.token.get(sm.radio) === true || team.token.get(sm.radio) === true) {
+            if (unitLeader.token.get(SM.radio) === true || team.token.get(SM.radio) === true) {
                 errorMsg.push("Unit/Team called in Artillery");
             }
-            if (unitLeader.token.get(sm.oppfire) === true) {
+            if (unitLeader.token.get(SM.oppfire) === true) {
                 errorMsg.push("Unit fired Opportunity Fire and cannot Assault");
             }
         }
@@ -1999,14 +2032,14 @@ const FOW4 = (() => {
 
         let marker;
         if (order.includes("Tactical")) {
-            if (team.specialorder.includes("Dig In") === false) {
+            if (specialorder.includes("Dig In") === false) {
                 outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
                 outputCard.body.push(noun + 'cannot move next to enemies');
             }
             marker = SM.tactical
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
-            outputCard.body.push(noun + ' cannot move within 2 hexes of visible enemies');
+            outputCard.body.push(noun + ' cannot move within 4 hexes of visible enemies');
             marker = SM.dash
         } else if (order.includes("Hold")) {
             outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
@@ -2025,9 +2058,15 @@ const FOW4 = (() => {
         for (let i=0;i<targetArray.length;i++) {
             targetArray[i].token.set(marker,true);
             targetArray[i].order = order;
+            if (targetArray[i].specialorder === "") {
+                targetArray[i].specialorder = specialorder;
+            } else {
+                outputCard.body.push('[' + targetArray[i].name + " already has " + targetArray[i].specialorder + "]");
+            }
         }
         if (inCommand === true) {
             unit.order = order;
+            unit.specialorder = specialorder;
         }
         PrintCard();
     }
@@ -2093,16 +2132,16 @@ const FOW4 = (() => {
 
         let specOrders;
         if (type === "Infantry") {
-             specOrders = "!SpecialOrders;?{Special Order|Blitz|Dig In|Follow Me|Shoot and Scoot|Clear Minefield"
+             specOrders = "!SpecialOrders;?{Special Order|Blitz & Move|Blitz & Hold|Dig In|Follow Me|Shoot and Scoot|Clear Minefield"
         } else if (type === "Gun") {
             specOrders = "!SpecialOrders;?{Special Order|Dig In|Cross Here"
         } else if (type === "Tank") {
-            specOrders = "!SpecialOrders;?{Special Order|Blitz|Cross Here|Follow Me|Shoot and Scoot";
+            specOrders = "!SpecialOrders;?{Special Order|Blitz & Move|Blitz & Hold|Cross Here|Follow Me|Shoot and Scoot";
             if (special.includes("Mine")) {
                 specOrders += "|Clear Minefield";
             }
         } else if (type === "Unarmoured Tank") {
-            specOrders = "!SpecialOrders;?{Special Order|Blitz|Cross Here|Follow Me|Shoot and Scoot";
+            specOrders = "!SpecialOrders;?{Special Order|Blitz & Move|Blitz & Hold|Cross Here|Follow Me|Shoot and Scoot";
         } 
 
         specOrders += "}";
@@ -2208,13 +2247,13 @@ const FOW4 = (() => {
         let team = TeamArray[teamID];
         let unit = UnitArray[team.unitID];
         let unitLeader = TeamArray[unit.teamIDs[0]];
-        SetupCard(unit.name,order,team.nation);
+        SetupCard(unit.name,specialorder,team.nation);
         let errorMsg = [];
         
         let roll = randomInteger(6);
         let stat = 1;
 
-        if (order === "Clear Minefield") {
+        if (specialorder === "Clear Minefield") {
             targetTeam = team;
         } else {
             targetTeam = unitLeader;
@@ -2261,25 +2300,29 @@ const FOW4 = (() => {
         if (specialorder === "Cross Here" || specialorder === "Clear Minefield") {
             line = "Auto";
         } else if (specialorder === "Follow Me") {
-            stat = unitLeader.courage;
-            line = stat + "+";
+            stat = unitLeader.motivation;
+            line += stat + "+  ";
         } else {
             stat = unitLeader.skill;
-            line = stat + "+";
+            line += stat + "+  ";
         }
-
-        unit.specialorder = specialorder;
+        if (roll >= stat) {
+            line += " Success!";
+        } else {
+            line += " Failure!";
+        }
+        
+        outputCard.body.push(line);
 
         switch (specialorder) {
             case "Blitz & Move":
                 if (roll >= stat) {
-                    outputCard.body.push("Success");
                     outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 2 hexes before making a normal Tactical Move");
-                    if (unitLeader.token.get(sm.mounted) === true) {
+                    if (unitLeader.token.get(SM.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
                             let id = unit.inCommandIDs[i];
-                            if (TeamArray[id].token.get(sm.mounted) === true) {
+                            if (TeamArray[id].token.get(SM.mounted) === true) {
                                 let transID = state.FOW4.passengers[id];
                                 RemovePassenger(id);
                                 DismountPassengersTwo(id,transID);
@@ -2287,59 +2330,52 @@ const FOW4 = (() => {
                         }
                     }
                 } else {    
-                    outputCard.body.push("Failure");
                     outputCard.body.push("Teams from the Unit can only Move at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
                     specialorder = "Failed Blitz";
                 }
-                ActivateUnitTwo(unitLeader.id,"Tactical");
+                ActivateUnitTwo(unitLeader.id,"Tactical",specialorder);
                 break;
             case "Blitz & Hold":
                 if (roll >= stat) {
-                    outputCard.body.push("Success");
                     outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 2 hexes and then take up a Hold Order");
-                    if (unitLeader.token.get(sm.mounted) === true) {
+                    if (unitLeader.token.get(SM.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
                             let id = unit.inCommandIDs[i];
-                            if (TeamArray[id].token.get(sm.mounted) === true) {
+                            if (TeamArray[id].token.get(SM.mounted) === true) {
                                 let transID = state.FOW4.passengers[id];
                                 RemovePassenger(id);
                                 DismountPassengersTwo(id,transID);
                             }
                         }
                     }
-                    ActivateUnitTwo(unitLeader.id,"Hold");
+                    ActivateUnitTwo(unitLeader.id,"Hold",specialorder);
                 } else {    
-                    outputCard.body.push("Failure");
                     outputCard.body.push("Teams from the Unit count as Moving at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
                     specialorder = "Failed Blitz";
-                    ActivateUnitTwo(unitLeader.id,"Tactical");
+                    ActivateUnitTwo(unitLeader.id,"Tactical",specialorder);
                 }
                 break;
             case "Cross Here":
-                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 3 hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1. Teams using this order cannot Shoot or Assault this turn but may Dash Move");
-                ActivateUnitTwo(unitLeader.id,"Dash");
+                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 3 hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1.");
+                ActivateUnitTwo(unitLeader.id,"Dash",specialorder);
                 break;
             case "Dig In":
-                stat = unitLeader.skill;
                 if (roll >= stat) {
                     outputCard.body.push("In Command Infantry Teams Dig In");
-                    DigIn(unit);
+                    //DigIn(unit);
                 } else {
                     outputCard.body.push("The Unit failed to Dig In");
                     specialorder = "Failed Dig In";
                 }
                 outputCard.body.push("The Teams can fire at their moving ROF (but cannot fire a Bombardment)");
                 outputCard.body.push("If they do not Shoot or Assault, they are Gone to Ground");
-                ActivateUnitTwo(unitLeader.id,"Tactical")
+                ActivateUnitTwo(unitLeader.id,"Tactical",specialorder)
                 break;
             case "Follow Me":
-                stat = unitLeader.courage;
                 if (roll >= stat) {
-                    outputCard.body.push("Success");
                     outputCard.body.push("In Command Teams may immediately Move directly forward up to an additional 2 hexes, remaining In Command.")
                 } else {
-                    outputCard.body.push("Failure");
                     outputCard.body.push("Teams remain where they are")
                     specialorder = "Failed Follow Me";
                 }
@@ -2347,12 +2383,9 @@ const FOW4 = (() => {
                 PrintCard();
                 break;
             case "Shoot and Scoot":
-                stat = unitLeader.skill;
                 if (roll >= stat) {
-                    outputCard.body.push("Success");
                     outputCard.body.push("The Leader and any Teams that are In Command and did not Move in the Movement Step may immediately Move up to 2 hexes");
                 } else {
-                    outputCard.body.push("Failure");
                     outputCard.body.push("Teams remain where they are")
                 }
                 PrintCard();
@@ -2362,7 +2395,8 @@ const FOW4 = (() => {
                 outputCard.body.push("That Team counts as having Moved, and cannot Shoot or Assault");
                 outputCard.body.push("The Minefield can be removed immediately");
                 outputCard.body.push("Other Teams may be given the same order");
-                team.token.set(sm.dash,true);
+                targetTeam.token.set(SM.dash,true);
+                targetTeam.specialorder = specialorder;
                 PrintCard();
                 break;
         }
