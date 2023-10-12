@@ -409,7 +409,7 @@ const FOW4 = (() => {
                 if (team.special.includes("HQ")) {
                     this.hqUnit = true;
                 }
-                unit.type = team.type;
+                this.type = team.type;
             }
         }
 
@@ -1508,10 +1508,17 @@ const FOW4 = (() => {
             formation = new Formation(player,nation,formationID,Tag[2]);
         }
         let unit = new Unit(player,nation,stringGen(),unitName,formationID);
+
         unit.number = formation.unitIDs.length;
         let unitMarker = Nations[nation].platoonmarkers[unit.number];
         formation.add(unit);
+
+        log(formation)
+        log(unit)
+        
+
         let basegmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id + ";";
+
         for (let i=0;i<teamIDs.length;i++) {
             let team = new Team(teamIDs[i],formationID,unit.id);
             if (!team) {continue};
