@@ -441,6 +441,12 @@ const FOW4 = (() => {
             return pinned;
         }
 
+        unpin() {
+            let leaderTeam = TeamArray[this.teamIDs[0]];
+            leaderTeam.token.set("aura1_color",Colours.green);
+        }
+
+
 
     }
 
@@ -544,8 +550,8 @@ const FOW4 = (() => {
             this.rotation = token.get("rotation");
             this.special = special;
             this.unique = unique;
-            this.transport = "";
-            this.passengers = [];
+            this.transport = ""; //id of transport if a passenger
+            this.passengers = []; //id of any passengers
             //this.weaponArray = weaponArray;
             this.hitArray = [];
             this.maxPass = maxPass;
@@ -577,8 +583,14 @@ const FOW4 = (() => {
             }
             return bailed;
         }
-
-
+    
+        remount() {
+            let colour = "transparent";
+            if (this.id === UnitArray[this.unitID].teamIDs[0]) {
+                colour = Colours.green;
+            }
+            this.token.set("aura1_color",colour);
+        }
 
 
 
@@ -2761,21 +2773,23 @@ const FOW4 = (() => {
         let roll = randomInteger(6);
         if (Tag.length === 1) {
             let playerID = msg.playerid;
-            if (!state.TY.players[playerID] || state.TY.players[playerID] === undefined) {
+            let nation = "Neutral";
+            if (!state.FOW4.players[playerID] || state.FOW4.players[playerID] === undefined) {
                 if (msg.selected) {
                     let id = msg.selected[0]._id;
                     if (id) {
-                        let team = TeamArray[id];
-                        if (team) {
-                            let nation = team.nation;
-                            state.TY.players[playerID] = nation;
-    log(playerID + " - " + nation)
-                        }
+                        let tok = findObjs({_type:"graphic", id: id})[0];
+                        let char = getObj("character", tok.get("represents")); 
+                        nation = Attribute(char,"nation");
+                        state.FOW4.players[playerID] = nation;
                     }
+                } else {
+                    sendChat("","Click on one of your tokens then select Roll again");
+                    return;
                 }
+            } else {
+                nation = state.FOW4.players[playerID];
             }
-            let nation = state.TY.players[playerID];
-            if (!nation) {nation = "British"};
             let res = "/direct " + DisplayDice(roll,nation,40);
             sendChat("player|" + playerID,res);
         } else {
@@ -2793,7 +2807,7 @@ const FOW4 = (() => {
                 }
                 if (roll >= needed || reroll >= needed) {
                     outputCard.body.push("Success!");
-                    team.unpin();
+                    team.remount();
                 } else {
                     outputCard.body.push("Failure! Team remains Bailed Out");
                 }
@@ -2832,10 +2846,7 @@ const FOW4 = (() => {
                 let needed = parseInt(Tag[3]);
                 let unit = UnitArray[unitID];
                 let roll = randomInteger(6);
-                let unitLeader = TeamArray[unit.leaderID];
-                if (!unitLeader) {
-                    unitLeader = TeamArray[unit.teamIDs[0]];
-                }
+                let unitLeader = TeamArray[unit.teamIDs[0]];
                 if (!unitLeader) {
                     log("ERROR with Unit Leader of unit: " + unit.name)
                     return;
@@ -2911,7 +2922,44 @@ const FOW4 = (() => {
         }
     }
 
-
+    const CommandReroll = (team) => {
+        //will be unitLeader if pinning, counterattack
+        //else will be an individual tank team if remounting
+        let reroll = -1;
+        let formation = FormationArray[team.formationID];
+        let formationLeaders = [];
+        if (formation.name !== "Support") {
+            for (let i=0;i<formation.unitIDs.length;i++) {
+                let unit = UnitArray[formation.unitIDs[i]];
+                if (unit.hqUnit === true) {
+                    let leader = TeamArray[unit.teamIDs[0]];
+                    formationLeaders.push(leader);
+                }
+            }
+        } else {
+            let keys = Object.keys(UnitArray);
+            for (let i=0;i<keys.length;i++) {
+                let unit = UnitArray[formation.unitIDs[i]];
+                if (unit.hqUnit === true && unit.player === team.player) {
+                    let leader = TeamArray[unit.teamIDs[0]];
+                    formationLeaders.push(leader);
+                }
+            }
+        }
+        for (let i=0;i<formationLeaders.length;i++) {
+            let leader = formationLeaders[i];
+            let checkID = leader.id;
+            if (leader.token.get(sm.mounted) === true) {
+                checkID = leader.transport;
+            }
+            let losCheck = LOS(team.id,checkID);
+            if (losCheck.los === true && losCheck.distance <= 6) {
+                reroll = randomInteger(6);
+                break;
+            }
+        }
+        return reroll;
+    }
 
 
 
