@@ -13,6 +13,7 @@ const FOW4 = (() => {
     let FormationArray = {}; //to track formations
     let SmokeArray = {};
     let FoxholeArray = [];
+    let CheckArray = []; //used by Remount, Rally and Morale checks
 
     let unitCreationInfo = {}; //used during unit creation 
 
@@ -41,7 +42,8 @@ const FOW4 = (() => {
         "assault": "status_grenade",
         "mounted": "status_Mounted-Transparent::2006522",
         "flare": "status_Flare::5867553",
-        "radio": "status_green", //change
+        "radio": "status_Radio::5864350",
+        "aafire": "status_sentry-gun",
     }
 
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
@@ -390,7 +392,7 @@ const FOW4 = (() => {
             this.formationID = formationID;
             this.teamIDs = [];
             this.hqUnit = false;
-            this.aircraft = false;
+            this.type = "";
             this.number = 0;
 
             UnitArray[id] = this;
@@ -407,9 +409,7 @@ const FOW4 = (() => {
                 if (team.special.includes("HQ")) {
                     this.hqUnit = true;
                 }
-                if (team.type === "Aircraft") {
-                    this.aircraft = true;
-                }
+                unit.type = team.type;
             }
         }
 
@@ -537,7 +537,7 @@ const FOW4 = (() => {
             //this.artillery = artillery;
             this.spotAttempts = 0;
             this.rangedInHex = {};
-
+            this.nightvisibility = 0;
 
             this.hex = hex; //axial
             this.hexLabel = hexLabel; //doubled
@@ -570,7 +570,13 @@ const FOW4 = (() => {
             return inC;
         }
 
-
+        bailed() {
+            let bailed = false;
+            if (this.token.get("aura1_color") === Colours.yellow) {
+                bailed = true;
+            }
+            return bailed;
+        }
 
 
 
@@ -1632,7 +1638,12 @@ const FOW4 = (() => {
         let losReason = "";
 
         if (state.FOW4.darkness === true && special.includes("Spotter") === false && team2.token.get(SM.flare) === false) {
-            nightVisibility = randomInteger(6) * 4;
+            if (team1.nightvisibility > 0) {
+                nightVisibility = team1.nightvisibility;
+            } else {
+                nightVisibility = randomInteger(6) * 4;
+                team1.nightvisibility = nightVisibility;
+            }
             if (team1.special.includes("Infra-Red") || team1.special.includes("Thermal")) {
                 nightVisibility = Math.max(nightVisibility,randomInteger(6)*4);
             }
@@ -1897,11 +1908,6 @@ const FOW4 = (() => {
         state.FOW4.startingPlayer = startingPlayer;
         let nat = state.FOW4.nations[startingPlayer][0];
 
-        //let side = ["Warsaw Pact","NATO"];
-        //if (state.FOW4.nations[startingPlayer].length > 1) {
-        //    nat = side[startingPlayer];
-        //}
-
         SetupCard("Setup New Game","","Neutral");
         outputCard.body.push("Game Type: " + gametype);
         outputCard.body.push("First Player: " + nat);
@@ -2022,6 +2028,9 @@ const FOW4 = (() => {
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
             outputCard.body.push(noun + ' cannot move within 8 hexes of visible enemies');
+            if (state.FOW4.darkness === true) {
+                outputCard.body.push("Darkness limits speed to Terrain Dash");
+            }
             marker = SM.dash
         } else if (order.includes("Hold")) {
             outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
@@ -2207,6 +2216,9 @@ const FOW4 = (() => {
         let cross = team.cross;
         if (team.specialorder === "Cross Here") {
             cross--;
+        }
+        if (state.FOW4.darkness === true) {
+            cross++;
         }
         SetupCard(team.name,"vs. " + cross + "+",team.nation);
         outputCard.body.push("Roll: " + DisplayDice(roll,team.nation,24));
@@ -2435,12 +2447,230 @@ const FOW4 = (() => {
         FoxholeArray = newFoxholes;
     }
     
+    const NewTurn = () => {
+        //RemoveLines();
+        if (state.FOW4.nations[0].length === 0 && state.FOW4.nations[1].length === 0) {
+            sendChat("","No Units Created Yet");
+            return;
+        }
+        let turn = state.FOW4.turn;
+        let currentPlayer = parseInt(state.FOW4.currentPlayer);
+
+        if (turn === 0 && state.FOW4.gametype === "Meeting Engagement") {
+            StartInFoxholes();
+        } else {
+            currentPlayer = (currentPlayer === 0) ? 1:0;
+        }
+
+        turn++;
+        state.FOW4.turn = turn;
+        state.FOW4.currentPlayer = currentPlayer;
+
+        SetupCard("Turn " + turn,"",state.FOW4.nations[currentPlayer][0]);
+
+        if ((state.FOW4.timeOfDay === "Dawn" || state.FOW4.timeOfDay === "Dusk") && currentPlayer === state.FOW4.firstPlayer && turn > 2) {
+            let numDice = turn - 2;
+            let flip = false;
+            for (let i=0;i<numDice;i++) {
+                let roll = randomInteger(6);
+                if (roll > 4) {
+                    flip = true;
+                    break;
+                }
+            }
+            if (flip) {
+                SetupCard("Time Change","","Neutral");
+                if (state.FOW4.timeOfDay === "Dawn") {
+                    outputCard.body.push("[#ff0000]Morning has broken, the rest of the battle is fought in Daylight[/#]");
+                    state.FOW4.timeOfDay = "Daylight";
+                    state.FOW4.darkness = false;
+                    pageInfo.page.set("dynamic_lighting_enabled",false);
+                }
+                if (state.FOW4.timeOfDay === "Dusk") {
+                    outputCard.body.push("[#ff0000]Night has fallen, the rest of the battle is fought in Darkness[/#]");
+                    state.FOW4.timeOfDay = "Night";
+                    state.FOW4.darkness = true;
+                    pageInfo.page.set({
+                        dynamic_lighting_enabled: true,
+                        daylight_mode_enabled: true,
+                        daylightModeOpacity: 0.1,
+                    })
+                }
+                PrintCard();
+            }
+        }
+
+        //RemoveMoveMarkers();
+        if (state.FOW4.darkness === true) {
+            pageInfo.page.set({
+                dynamic_lighting_enabled: true,
+                daylight_mode_enabled: true,
+                daylightModeOpacity: 0.1,
+            })
+        } else {
+            pageInfo.page.set("dynamic_lighting_enabled",false);
+        }
+
+        //start phase with checking for rez'd leaders
+        StartPhase("ResLeaders");
+    }
 
 
 
+    const StartPhase = (pass) => {
+        let currentPlayer = parseInt(state.FOW4.currentPlayer);
+        let nat = state.FOW4.nations[currentPlayer][0];  
+        if (pass === "ResLeaders") {
+            ResLeaders();
+        }
+        if (pass === "Remount") {
+            CheckArray = [];
+            let keys = Object.keys(UnitArray); 
+            for (let i=0;i<keys.length;i++) {
+                let unit = UnitArray[keys[i]];
+                if (unit.type !== "Tank" || unit.player !== state.FOW4.currentPlayer) {continue};
+                let ids = unit.teamIDs;
+                for (let j=0;j<ids.length;j++) {
+                    let team = TeamArray[ids[j]];
+                    if (team.bailed() === true) {
+                        CheckArray.push(team);
+                    }
+                }
+            }
+            if (CheckArray.length > 0) {
+                SetupCard("Remount Checks","",nat);
+                ButtonInfo("Start Remount Checks","!RemountChecks");
+                PrintCard();            
+            } else {
+                StartPhase("Rally");
+            }
+        }
+        if (pass === "Rally") {
+            CheckArray = [];
+            let keys = Object.keys(UnitArray);
+            for (let i=0;i<keys.length;i++) {
+                let unit = UnitArray[keys[i]];
+                if (unit.player !== state.FOW4.currentPlayer || (unit.type !== "Infantry" && unit.type !== "Unarmoured Tank" && unit.type !== "Gun")) {continue};
+                let unitLeader = TeamArray[unit.teamIDs[0]];
+                if (!unitLeader) {
+                    log("No Unit Leader for this unit: " + unit.name);
+                    log("# of units: " + unit.teamIDs.length);
+                    return;
+                }
+                unit.size = unit.teamIDs.length;
+                unitLeader.token.set("bar1_value",0);
+                if (unit.pinned() === true) {
+                    CheckArray.push(unit);
+                };
+            };
+            if (CheckArray.length > 0) {
+                SetupCard("Rally Checks","",nat);
+                ButtonInfo("Start Rally Checks","!RallyChecks");
+                PrintCard();            
+            } else {
+                StartPhase("Unit Morale");
+            }
+        }
+        if (pass === "Unit Morale") {
+            CheckArray = [];
+            let keys = Object.keys(UnitArray);
+            for (let i=0;i<keys.length;i++) {
+                let unit = UnitArray[keys[i]];
+                let unitLeader = TeamArray[unit.teamIDs[0]];
+                if (!unitLeader) {
+                    log("Error in Unit Morale Unit Leader")
+                    log(unit)
+                    continue;
+                }
+                if (unit.player !== state.FOW4.currentPlayer || unitLeader.special.includes("HQ") || unitLeader.special.includes("Independent")) {continue};
+                let count = 0;
+                let ids = unit.teamIDs;
+                for (let j=0;j<ids.length;j++) {
+                    let team = TeamArray[ids[j]];
+                    if (team.type === "Tank") {
+                        if (team.bailed() === true) {
+                            continue;
+                        }
+                    }
+                    if (team.inCommand() === true) {
+                        count++;
+                    }   
+                }
+                if (count < lastStandCount[unit.type]) {
+                    CheckArray.push(unit);
+                }
+            }
+            if (CheckArray.length > 0) {
+                SetupCard("Unit Morale Checks","",nat);
+                ButtonInfo("Start Morale Checks","!MoraleChecks");
+                PrintCard();            
+            } else {
+                StartPhase("Formation Morale");
+            }
+        }
+        if (pass === "Formation Morale") {      
+            let keys = Object.keys(FormationArray);
+            for (let i=0;i<keys.length;i++) {
+                let formation = FormationArray[keys[i]];
+                if (formation.name === "Support") {continue};
+                let unitNumbers = formation.unitIDs.length;
+                if (unitNumbers < 2) {
+                    SetupCard(formation.name,"Morale",formation.nation);
+                    outputCard.body.push("The Formation as a whole breaks and flees the field!");
+                    outputCard.body.push("Check Victory Conditions");
+                    //destroy units/teams
+                    PrintCard();
+                }
+            }
+            StartPhase("Final");
+        }
+        if (pass === "Final") {
+            SetupCard("Turn: " + state.FOW4.turn,"Start Phase",nat);
+            SendToRear();
+            ClearSmoke();
+            RemoveFoxholes();
+            ResetFlags();
+            if (state.FOW4.turn === 1 && state.FOW4.currentPlayer === state.FOW4.startingPlayer) {
+                outputCard.body.push("Aircraft cannot Arrive this turn");
+                outputCard.body.push("All Teams are treated as having moved in the Shooting Step");
+                outputCard.body.push("No Artillery Bombardments this turn");
+            } else {
+                outputCard.body.push("1 - Reveal Ambushes");
+                outputCard.body.push("2 - Roll for Reserves");
+                outputCard.body.push("3 - Roll for Strike Aircraft");
+            }
+            PrintCard();
+        }
+    }
 
-
-
+    const ResLeaders = () => {
+        /*
+        for (let i=0;i<2;i++) {
+            if (LeaderResFlag[i] === false) {continue};
+            SetupCard("Commander Survival","",state.TY.nations[i][0]);
+            let possibleIDs = LeaderResInfo[i].possibleIDs;
+            let count = 0;
+            for (let j=0;j<possibleIDs.length;j++) {
+                let team = TeamArray[possibleIDs[j]];
+                if (team) {
+                    team.token.set("status_green",true);
+                    count += 1;
+                }
+            }
+            if (count === 0) {continue} //all dead
+            
+            outputCard.body.push(state.TY.nations[i][0] + " Commander has a chance of Survival");
+            outputCard.body.push("Eligible Teams are indicated by a Green dot");
+            outputCard.body.push("Select One and Click the Button to Roll a Dice");
+            outputCard.body.push("On a roll of 3+ the Commander survives and takes over the selected Team");
+            curLeaderPlayer = i;
+            ButtonInfo("Commander Survival","!CommanderSurvival");
+            PrintCard();
+            return;
+        }
+        */
+        StartPhase("Remount");
+    }
 
 
 
@@ -2550,6 +2780,9 @@ const FOW4 = (() => {
                 break;
             case '!Cross':
                 Cross(msg);
+                break;
+            case '!NewTurn':
+                NewTurn();
                 break;
 
         }
