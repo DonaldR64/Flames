@@ -2398,7 +2398,7 @@ const FOW4 = (() => {
     const DigIn = (unit) => {
         for (let i=0;i<unit.teamIDs.length;i++) {
             let team = TeamArray[unit.teamIDs[i]];
-            if (team.type !== "Infantry") {continue};
+            if (team.type !== "Infantry" && team.type !== "Gun") {continue};
             if (team.inCommand() === false) {continue};
             let hex = hexMap[team.hexLabel];
             if (hex.terrain.includes("Building") || hex.terrain.includes("Foxholes")) {continue};
@@ -2455,7 +2455,10 @@ const FOW4 = (() => {
         }
         let turn = state.FOW4.turn;
         let currentPlayer = parseInt(state.FOW4.currentPlayer);
-
+        if (currentPlayer === "") {
+            sendChat("","Setup Game First");
+            return;
+        }
         if (turn === 0 && state.FOW4.gametype === "Meeting Engagement") {
             StartInFoxholes();
         } else {
@@ -2500,7 +2503,6 @@ const FOW4 = (() => {
             }
         }
 
-        //RemoveMoveMarkers();
         if (state.FOW4.darkness === true) {
             pageInfo.page.set({
                 dynamic_lighting_enabled: true,
@@ -2626,10 +2628,10 @@ const FOW4 = (() => {
         }
         if (pass === "Final") {
             SetupCard("Turn: " + state.FOW4.turn,"Start Phase",nat);
-            SendToRear();
-            ClearSmoke();
+            //SendToRear();
+            //ClearSmoke();
             RemoveFoxholes();
-            ResetFlags();
+            //ResetFlags();
             if (state.FOW4.turn === 1 && state.FOW4.currentPlayer === state.FOW4.startingPlayer) {
                 outputCard.body.push("Aircraft cannot Arrive this turn");
                 outputCard.body.push("All Teams are treated as having moved in the Shooting Step");
@@ -2672,8 +2674,242 @@ const FOW4 = (() => {
         StartPhase("Remount");
     }
 
+    const StartInFoxholes = () => {
+        let keys = Object.keys(UnitArray);
+        for (let i=0;i<keys.length;i++) {
+            let unit = UnitArray[keys[i]];
+            DigIn(unit);
+        }
+    }
 
+    const ResLeaders = () => {
+    return;
+        for (let i=0;i<2;i++) {
+            if (LeaderResFlag[i] === false) {continue};
+            SetupCard("Commander Survival","",state.TY.nations[i][0]);
+            let possibleIDs = LeaderResInfo[i].possibleIDs;
+            let count = 0;
+            for (let j=0;j<possibleIDs.length;j++) {
+                let team = TeamArray[possibleIDs[j]];
+                if (team) {
+                    team.token.set("status_green",true);
+                    count += 1;
+                }
+            }
+            if (count === 0) {continue} //all dead
+            
+            outputCard.body.push(state.TY.nations[i][0] + " Commander has a chance of Survival");
+            outputCard.body.push("Eligible Teams are indicated by a Green dot");
+            outputCard.body.push("Select One and Click the Button to Roll a Dice");
+            outputCard.body.push("On a roll of 3+ the Commander survives and takes over the selected Team");
+            curLeaderPlayer = i;
+            ButtonInfo("Commander Survival","!CommanderSurvival");
+            PrintCard();
+            return;
+        }
+        StartPhase("Remount");
+    }
+    
 
+    const RemountChecks = () => {
+        let team = CheckArray.shift();
+        if (team) {
+            let location = team.location;
+            sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
+            SetupCard(team.name,"Remount",team.nation);
+            outputCard.body.push("Roll Against: " + team.remount);
+            ButtonInfo("Roll","!RollD6;Remount;" + team.id + ";" + team.remount);
+            PrintCard();
+        } else {
+            StartPhase("Rally");
+        }
+    }
+    
+    const RallyChecks = () => {
+        let unit = CheckArray.shift();
+        if (unit) {
+            SetupCard(unit.name,"Rally",unit.nation);
+            let unitLeader = TeamArray[unit.leaderID];
+            let location = unitLeader.location;
+            sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
+            outputCard.body.push("Roll Against: " + unitLeader.rally);
+            ButtonInfo("Roll","!RollD6;Rally;" + unit.id + ";" + unitLeader.rally);
+            PrintCard();
+        } else {
+            StartPhase("Unit Morale");
+        }
+    }
+    
+    const MoraleChecks = () => {
+        let unit = CheckArray.shift();
+        if (unit) {
+            SetupCard(unit.name,"Unit Morale",unit.nation);
+            let unitLeader = TeamArray[unit.leaderID];
+            let location = unitLeader.location;
+            sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
+            outputCard.body.push("Roll Against: " + unitLeader.morale);
+            ButtonInfo("Roll","!RollD6;UnitMorale;" + unit.id + ";" + unitLeader.morale);
+            PrintCard();
+        } else {
+            StartPhase("Formation Morale");
+        }
+    }
+    
+    const RollD6 = (msg) => {
+        let Tag = msg.content.split(";");
+        PlaySound("Dice");
+        let roll = randomInteger(6);
+        if (Tag.length === 1) {
+            let playerID = msg.playerid;
+            if (!state.TY.players[playerID] || state.TY.players[playerID] === undefined) {
+                if (msg.selected) {
+                    let id = msg.selected[0]._id;
+                    if (id) {
+                        let team = TeamArray[id];
+                        if (team) {
+                            let nation = team.nation;
+                            state.TY.players[playerID] = nation;
+    log(playerID + " - " + nation)
+                        }
+                    }
+                }
+            }
+            let nation = state.TY.players[playerID];
+            if (!nation) {nation = "British"};
+            let res = "/direct " + DisplayDice(roll,nation,40);
+            sendChat("player|" + playerID,res);
+        } else {
+            let type = Tag[1];
+            if (type === "Remount") {
+                let id = Tag[2];
+                let needed = parseInt(Tag[3]);
+                let team = TeamArray[id];
+                let roll = randomInteger(6);
+                let reroll = CommandReroll(team);
+                SetupCard(team.name,"Needing: " + needed + "+",team.nation);
+                outputCard.body.push("Team: " + DisplayDice(roll,team.nation,24));
+                if (roll < needed && reroll > -1) {
+                    outputCard.body.push("Commander Reroll: " + DisplayDice(reroll,team.nation,24));
+                }
+                if (roll >= needed || reroll >= needed) {
+                    outputCard.body.push("Success!");
+                    team.unpin();
+                } else {
+                    outputCard.body.push("Failure! Team remains Bailed Out");
+                }
+                let part1 = "Done";
+                if (CheckArray.length > 0) {
+                    part1 = "Next Team";
+                } 
+                ButtonInfo(part1,"!RemountChecks");
+                PrintCard();
+            } else if (type === "Rally") {
+                let unitID = Tag[2];
+                let needed = parseInt(Tag[3]);
+                let unit = UnitArray[unitID];
+                let roll = randomInteger(6);
+                let unitLeader = TeamArray[unit.leaderID];
+                SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
+                outputCard.body.push("Unit Leader: " + DisplayDice(roll,unit.nation,24));
+                let reroll = CommandReroll(unitLeader);
+                if (roll < needed && reroll > -1) {
+                    outputCard.body.push("Commander Reroll: " + DisplayDice(reroll,unit.nation,24));
+                }
+                if (roll >= needed || reroll >= needed) {
+                    outputCard.body.push("Success!");
+                    unit.unpin();
+                } else {
+                    outputCard.body.push("Failure! Unit remains Pinned");
+                }
+                let part1 = "Done";
+                if (CheckArray.length > 0) {
+                    part1 = "Next Unit";
+                } 
+                ButtonInfo(part1,"!RallyChecks");
+                PrintCard();
+            } else if (type === "UnitMorale") {
+                let unitID = Tag[2];
+                let needed = parseInt(Tag[3]);
+                let unit = UnitArray[unitID];
+                let roll = randomInteger(6);
+                let unitLeader = TeamArray[unit.leaderID];
+                if (!unitLeader) {
+                    unitLeader = TeamArray[unit.teamIDs[0]];
+                }
+                if (!unitLeader) {
+                    log("ERROR with Unit Leader of unit: " + unit.name)
+                    return;
+                }
+                SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
+                outputCard.body.push("Unit Leader: " + DisplayDice(roll,unit.nation,24));
+                let reroll = CommandReroll(unitLeader);
+                if (roll < needed && reroll > -1) {
+                    outputCard.body.push("Commander Reroll: " + DisplayDice(reroll,unit.nation,24));
+                }
+                if (roll >= needed || reroll >= needed) {
+                    outputCard.body.push("Success!");
+                    outputCard.body.push("Unit continues to fight.");
+                } else {
+                    outputCard.body.push("Failure! Unit Flees the Field!");
+                    outputCard.body.push("(Any associated Transports Should be Removed)");
+                    FormationArray[unit.formationID].remove(unit);
+                    for (let i=0;i<unit.teamIDs;i++) {
+                        let id = unit.teamIDs[i];
+                        TeamArray[id].Kill();
+                    }
+                }
+                let part1 = "Done";
+                if (CheckArray.length > 0) {
+                    part1 = "Next Unit";
+                } 
+                ButtonInfo(part1,"!MoraleChecks");
+                PrintCard();
+            } else if (type === "CounterAttack") {
+                let unitID = Tag[2];
+                let needed = parseInt(Tag[3]);
+                let unit = UnitArray[unitID];
+                let roll = randomInteger(6);
+                let unitLeader = TeamArray[unit.leaderID];
+                if (!unitLeader) {
+                    unitLeader = TeamArray[unit.teamIDs[0]];
+                }
+                if (!unitLeader) {
+                    log("ERROR with Unit Leader of unit: " + unit.name)
+                    return;
+                }
+                SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
+                outputCard.body.push("Unit Leader: " + DisplayDice(roll,unit.nation,24));
+                let reroll = CommandReroll(unitLeader);
+                if (roll < needed && reroll > -1) {
+                    outputCard.body.push("Commander Reroll: " + DisplayDice(reroll,unit.nation,24));
+                }
+                if (roll >= needed || reroll >= needed) {
+                    outputCard.body.push("Success!");
+                    outputCard.body.push("Unit can Counter Attack!");
+                    outputCard.body.push("Alternately the Unit can Break Off");
+                    outputCard.body.push('Units that Break Off must move to at least 6" away and are pinned');
+                    ButtonInfo("Counter Attack!","!CounterAttack2;" + unitID + ";CA");
+                    ButtonInfo("Break Off!","!CounterAttack2;" + unitID + ";BO");
+                    PrintCard();
+                } else {
+                    outputCard.body.push("Failure! Unit must Break Off");
+                    outputCard.body.push("Any remaining Teams in the Unit(s) must now Break Off at Tactical Speed");
+                    outputCard.body.push('Any Teams not able to get 6" away from an Assaulting Team surrender and are Destroyed');
+                    if (unitLeader.type === "Infantry") {
+                        outputCard.body.push("Unit is also Pinned");
+                        unit.pin();
+                    }
+                    unit.order = "Break Off";
+                    let part1 = "Done";
+                    if (CheckArray.length > 0) {
+                        part1 = "Next Unit";
+                    } 
+                    ButtonInfo(part1,"!CounterAttack");
+                    PrintCard();  
+                }           
+            }
+        }
+    }
 
 
 
@@ -2783,6 +3019,15 @@ const FOW4 = (() => {
                 break;
             case '!NewTurn':
                 NewTurn();
+                break;
+            case '!RemountChecks':
+                RemountChecks();
+                break;
+            case '!RallyChecks':
+                RallyChecks();
+                break;
+            case '!MoraleChecks':
+                MoraleChecks();
                 break;
 
         }
