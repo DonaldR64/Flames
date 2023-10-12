@@ -2694,34 +2694,6 @@ const FOW4 = (() => {
         }
     }
 
-    const ResLeaders = () => {
-    return;
-        for (let i=0;i<2;i++) {
-            if (LeaderResFlag[i] === false) {continue};
-            SetupCard("Commander Survival","",state.TY.nations[i][0]);
-            let possibleIDs = LeaderResInfo[i].possibleIDs;
-            let count = 0;
-            for (let j=0;j<possibleIDs.length;j++) {
-                let team = TeamArray[possibleIDs[j]];
-                if (team) {
-                    team.token.set("status_green",true);
-                    count += 1;
-                }
-            }
-            if (count === 0) {continue} //all dead
-            
-            outputCard.body.push(state.TY.nations[i][0] + " Commander has a chance of Survival");
-            outputCard.body.push("Eligible Teams are indicated by a Green dot");
-            outputCard.body.push("Select One and Click the Button to Roll a Dice");
-            outputCard.body.push("On a roll of 3+ the Commander survives and takes over the selected Team");
-            curLeaderPlayer = i;
-            ButtonInfo("Commander Survival","!CommanderSurvival");
-            PrintCard();
-            return;
-        }
-        StartPhase("Remount");
-    }
-    
 
     const RemountChecks = () => {
         let team = CheckArray.shift();
