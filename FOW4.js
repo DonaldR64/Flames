@@ -2717,6 +2717,12 @@ const FOW4 = (() => {
             SetupCard(unit.name,"Rally",unit.nation);
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
+            let rally = unitLeader.rally;
+            if (unitLeader.nation === "Soviet" && unit.type === "Infantry") {
+                if (Komissar(unit) === true) {
+                    motivation = Math.min(unitLeader.motivation,unitLeader.komissar);
+                }
+            }           
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
             outputCard.body.push("Roll Against: " + unitLeader.rally);
             ButtonInfo("Roll","!RollD6;Rally;" + unit.id + ";" + unitLeader.rally);
@@ -2732,9 +2738,15 @@ const FOW4 = (() => {
             SetupCard(unit.name,"Unit Morale",unit.nation);
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
+            let motivation = unitLeader.motivation;
+            if (unitLeader.nation === "Soviet" && unit.type === "Infantry") {
+                if (Komissar(unit) === true) {
+                    motivation = Math.min(unitLeader.motivation,unitLeader.komissar);
+                }
+            }
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
-            outputCard.body.push("Roll Against: " + unitLeader.morale);
-            ButtonInfo("Roll","!RollD6;UnitMorale;" + unit.id + ";" + unitLeader.morale);
+            outputCard.body.push("Roll Against: " + unitLeader.motivation);
+            ButtonInfo("Roll","!RollD6;UnitMorale;" + unit.id + ";" + unitLeader.motivation);
             PrintCard();
         } else {
             StartPhase("Formation Morale");
@@ -2936,6 +2948,23 @@ const FOW4 = (() => {
         }
         return reroll;
     }
+
+    const Komissar = (unit) => {
+        let komCheck = false;
+        //returns true if unit has a Komissar who is in command
+        let leader = TeamArray[unit.teamIDs[0]];
+        for (let i=1;i<unit.teamIDs.length;i++) {
+            let team = TeamArray[unit.teamIDs[i]];
+            if (team.special.includes("Komissar") && team.inCommand() === true) {
+                komCheck = true;
+            }
+        }
+        return komCheck;
+    }
+
+
+
+
 
 
 
