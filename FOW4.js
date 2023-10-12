@@ -2720,16 +2720,16 @@ const FOW4 = (() => {
             let rally = unitLeader.rally;
             if (unitLeader.nation === "Soviet" && unit.type === "Infantry") {
                 if (Komissar(unit) === true) {
-                    motivation = Math.min(unitLeader.motivation,unitLeader.komissar);
+                    rally = Math.min(rally,unitLeader.komissar);
                 }
             }           
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
-            outputCard.body.push("Roll Against: " + unitLeader.rally);
-            ButtonInfo("Roll","!RollD6;Rally;" + unit.id + ";" + unitLeader.rally);
+            outputCard.body.push("Roll Against: " + rally);
+            ButtonInfo("Roll","!RollD6;Rally;" + unit.id + ";" + rally);
             PrintCard();
         } else {
             StartPhase("Unit Morale");
-        }
+         }
     }
     
     const MoraleChecks = () => {
@@ -2738,15 +2738,15 @@ const FOW4 = (() => {
             SetupCard(unit.name,"Unit Morale",unit.nation);
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
-            let motivation = unitLeader.motivation;
+            let lastStand = unitLeader.laststand;
             if (unitLeader.nation === "Soviet" && unit.type === "Infantry") {
                 if (Komissar(unit) === true) {
-                    motivation = Math.min(unitLeader.motivation,unitLeader.komissar);
+                    lastStand = Math.min(lastStand,unitLeader.komissar);
                 }
             }
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
-            outputCard.body.push("Roll Against: " + unitLeader.motivation);
-            ButtonInfo("Roll","!RollD6;UnitMorale;" + unit.id + ";" + unitLeader.motivation);
+            outputCard.body.push("Roll Against: " + lastStand);
+            ButtonInfo("Roll","!RollD6;UnitMorale;" + unit.id + ";" + lastStand);
             PrintCard();
         } else {
             StartPhase("Formation Morale");
@@ -2953,7 +2953,7 @@ const FOW4 = (() => {
         let komCheck = false;
         //returns true if unit has a Komissar who is in command
         let leader = TeamArray[unit.teamIDs[0]];
-        for (let i=1;i<unit.teamIDs.length;i++) {
+        for (let i=0;i<unit.teamIDs.length;i++) {
             let team = TeamArray[unit.teamIDs[i]];
             if (team.special.includes("Komissar") && team.inCommand() === true) {
                 komCheck = true;
