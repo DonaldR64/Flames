@@ -485,12 +485,12 @@ const FOW4 = (() => {
             let top = attributeArray.armourT;
             if (top) {top = parseInt(top)} else {top = 0};
 
+/*
             //passengers
             let maxPass = 0;
             if (type === "Tank") {
                 maxPass = 3;
             }
-/*
             if (special.includes("Transport")) {
                 if (!state.FOW4.transports[tokenID]) {
                     state.FOW4.transports[tokenID] = [];
@@ -550,8 +550,8 @@ const FOW4 = (() => {
             this.rotation = token.get("rotation");
             this.special = special;
             this.unique = unique;
-            this.transport = ""; //id of transport if a passenger
-            this.passengers = []; //id of any passengers
+            //this.transport = ""; //id of transport if a passenger
+            //this.passengers = []; //id of any passengers
             //this.weaponArray = weaponArray;
             this.hitArray = [];
             this.maxPass = maxPass;
@@ -915,8 +915,8 @@ const FOW4 = (() => {
             playerInfo: [[],[]],
             lineArray: [],
             labmode: false,
-            transports: {},
-            passengers: {},
+            //transports: {},
+            //passengers: {},
             darkness: false,
             turn: 0,
             gametype: "",
@@ -2091,13 +2091,13 @@ const FOW4 = (() => {
         let cross = crossStat(Attribute(char,"cross"));
         let special = Attribute(char,"special");
         if (special === "") {special = " "};
-
+/*
         if (special.includes("Passengers")) {
             abilityName = "Dismount Passengers";
             action = "!DismountPassengers";
             AddAbility(abilityName,action,char.id);        
         }
-
+*/
         if (type === "Aircraft") {
             abilityName = "Arrive ?";
             action = "!EnterAircraft";
@@ -2157,12 +2157,12 @@ const FOW4 = (() => {
         let team = TeamArray[id];
         if (!team) {return};
         //below relies on using addabilites while token is added to TeamArray
-
+/*
         if (type === "Infantry") {
             abilityName = "Mount/Dismount";
             AddAbility(abilityName,"!MountDismount;@{selected|token_id};@{target|Transport|token_id}",char.id);
         }
-
+*/
         if (team.cross > 1) {
             abilityName = "Cross";
             AddAbility(abilityName,"!Cross",char.id);
@@ -2324,6 +2324,7 @@ const FOW4 = (() => {
             case "Blitz & Move":
                 if (roll >= stat) {
                     outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 4 hexes before making a normal Tactical Move");
+                    /*
                     if (unitLeader.token.get(SM.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
@@ -2335,6 +2336,7 @@ const FOW4 = (() => {
                             }
                         }
                     }
+                    */
                 } else {    
                     outputCard.body.push("Teams from the Unit can only Move at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
                     specialorder = "Failed Blitz";
@@ -2344,6 +2346,7 @@ const FOW4 = (() => {
             case "Blitz & Hold":
                 if (roll >= stat) {
                     outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 4 hexes and then take up a Hold Order");
+                    /*
                     if (unitLeader.token.get(SM.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
@@ -2355,6 +2358,7 @@ const FOW4 = (() => {
                             }
                         }
                     }
+                    */
                     ActivateUnitTwo(unitLeader.id,"Hold",specialorder);
                 } else {    
                     outputCard.body.push("Teams from the Unit count as Moving at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
@@ -2937,9 +2941,11 @@ const FOW4 = (() => {
         for (let i=0;i<formationLeaders.length;i++) {
             let leader = formationLeaders[i];
             let checkID = leader.id;
+            /*
             if (leader.token.get(SM.mounted) === true) {
                 checkID = leader.transport;
             }
+            */
             let losCheck = LOS(team.id,checkID);
             if (losCheck.los === true && losCheck.distance <= 6) {
                 reroll = randomInteger(6);
