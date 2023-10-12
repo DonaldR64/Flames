@@ -2778,6 +2778,7 @@ const FOW4 = (() => {
                 let id = Tag[2];
                 let needed = parseInt(Tag[3]);
                 let team = TeamArray[id];
+                let unit = UnitArray[team.unitID];
                 let roll = randomInteger(6);
                 let reroll = CommandReroll(team);
                 SetupCard(team.name,"Needing: " + needed + "+",team.nation);
@@ -2787,7 +2788,11 @@ const FOW4 = (() => {
                 }
                 if (roll >= needed || reroll >= needed) {
                     outputCard.body.push("Success!");
-                    team.remount();
+                    let colour = "transparent";
+                    if (id === unit.teamIDs[0]) {
+                        colour = Colours.green;
+                    }
+                    team.token.set("aura1_color",colour);
                 } else {
                     outputCard.body.push("Failure! Team remains Bailed Out");
                 }
@@ -2802,7 +2807,7 @@ const FOW4 = (() => {
                 let needed = parseInt(Tag[3]);
                 let unit = UnitArray[unitID];
                 let roll = randomInteger(6);
-                let unitLeader = TeamArray[unit.leaderID];
+                let unitLeader = TeamArray[unit.teamIDs[0]];
                 SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
                 outputCard.body.push("Unit Leader: " + DisplayDice(roll,unit.nation,24));
                 let reroll = CommandReroll(unitLeader);
@@ -2860,10 +2865,7 @@ const FOW4 = (() => {
                 let needed = parseInt(Tag[3]);
                 let unit = UnitArray[unitID];
                 let roll = randomInteger(6);
-                let unitLeader = TeamArray[unit.leaderID];
-                if (!unitLeader) {
-                    unitLeader = TeamArray[unit.teamIDs[0]];
-                }
+                let unitLeader = TeamArray[unit.teamIDs[0]];
                 if (!unitLeader) {
                     log("ERROR with Unit Leader of unit: " + unit.name)
                     return;
@@ -2929,7 +2931,7 @@ const FOW4 = (() => {
         for (let i=0;i<formationLeaders.length;i++) {
             let leader = formationLeaders[i];
             let checkID = leader.id;
-            if (leader.token.get(sm.mounted) === true) {
+            if (leader.token.get(SM.mounted) === true) {
                 checkID = leader.transport;
             }
             let losCheck = LOS(team.id,checkID);
