@@ -2721,7 +2721,7 @@ const FOW4 = (() => {
         let unit = CheckArray.shift();
         if (unit) {
             SetupCard(unit.name,"Rally",unit.nation);
-            let unitLeader = TeamArray[unit.leaderID];
+            let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
             outputCard.body.push("Roll Against: " + unitLeader.rally);
@@ -2736,7 +2736,7 @@ const FOW4 = (() => {
         let unit = CheckArray.shift();
         if (unit) {
             SetupCard(unit.name,"Unit Morale",unit.nation);
-            let unitLeader = TeamArray[unit.leaderID];
+            let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
             outputCard.body.push("Roll Against: " + unitLeader.morale);
@@ -3057,6 +3057,9 @@ const FOW4 = (() => {
             case '!MoraleChecks':
                 MoraleChecks();
                 break;
+            case '!RollD6':
+                RollD6(msg);
+                break;                
 
         }
     };
