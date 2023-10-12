@@ -584,13 +584,7 @@ const FOW4 = (() => {
             return bailed;
         }
     
-        remount() {
-            let colour = "transparent";
-            if (this.id === UnitArray[this.unitID].teamIDs[0]) {
-                colour = Colours.green;
-            }
-            this.token.set("aura1_color",colour);
-        }
+
 
 
 
