@@ -2483,8 +2483,9 @@ const FOW4 = (() => {
         } else {
             currentPlayer = (currentPlayer === 0) ? 1:0;
         }
-
-        turn++;
+        if (currentPlayer === state.FOW4.startingPlayer) {
+            turn++;
+        }
         state.FOW4.turn = turn;
         state.FOW4.currentPlayer = currentPlayer;
 
