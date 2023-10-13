@@ -2290,7 +2290,6 @@ log("#: " + bestATWpnNum)
 
 
 
-
     }
 
     const AddAbility = (abilityName,action,charID) => {
@@ -3067,13 +3066,10 @@ log("#: " + bestATWpnNum)
         };
         let weapons = [];
         let shooterTeamArray = [];
-        let overhead = "";
-
 
         let target = TeamArray[targetID];
         let baseToHit = target.hit;
         let targetTeamArray = BuildTargetTeamArray(target);
-
 
         SetupCard(sname,"Shooting",shooter.nation);
 
@@ -3081,9 +3077,16 @@ log("#: " + bestATWpnNum)
             let st = TeamArray[shooterUnit.teamIDs[i]];
             if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
             if (st.inCommand() === false && unitFire === true) {continue};
-            if (st.token.get(SM.fired) === true) {continue};
+            if (st.token.get(SM.fired) === true || st.token.get(SM.aafire) === true) {continue}; //fired already
+            if (st.token.get(SM.dash) === true) {continue}; //dashed or clear minefield
+            if (st.token.get(SM.radio) === true) {continue}; //called artillery
+            if (st.type === "Tank") {
+                if (st.bailed() === true) {continue}; //bailed out
+            }
+
             for (let j=0;j<st.weaponArray.length;j++) {
                 let weapon = st.weaponArray[j];
+                let overhead = "";
                 if (weapon.type !== weaponType) {continue};
                 if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
                 let initialLOS = LOS(st.id,targetID,overhead);
@@ -3117,11 +3120,14 @@ log("#: " + bestATWpnNum)
             for (let j=0;j<targetTeamArray.length;j++) {
                 let tt = TeamArray[targetTeamArray[j].id];
                 if (tt.id === targetID) {continue} //already in ETA
-                let ttLOS = LOS(st.id,tt.id,overhead);
-                if (ttLOS.los === false) {continue};
                 let weaponFlag = false;
+                let ttLOS;
                 for (let k=0;k<weapons.length;k++) {
                     let weapon = weapons[k];
+                    let overhead = "";
+                    if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
+                    ttLOS = LOS(st.id,tt.id,overhead);
+                    if (ttLOS.los === false) {continue};
                     if (ttLOS.distance > weapon.maxRange) {continue};
                     if (ttLOS.distance < weapon.minRange) {continue};
                     if (weapon.notes.includes("Forward Firing") && ttLOS.shooterface !== "Front") {continue};
@@ -3215,7 +3221,6 @@ log(weapons)
     log(array)
         return array;
     }
-
 
 
 
