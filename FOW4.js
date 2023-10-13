@@ -840,6 +840,16 @@ log("#: " + bestATWpnNum)
         }
     }
 
+    const Unique = (array,label) => {
+        //eliminate duplicate objects in array using a label eg. name if sorting on obj.name
+        array = array.reduce((unique, o) => {
+            if(!unique.some(obj => obj[label] === o[label])) {
+              unique.push(o);
+            }
+            return unique;
+        },[]);
+        return array;
+    }
 
     const getAbsoluteControlPt = (controlArray, centre, w, h, rot, scaleX, scaleY) => {
         let len = controlArray.length;
@@ -2257,15 +2267,25 @@ log("#: " + bestATWpnNum)
             AddAbility(abilityName,"!Cross",char.id);
         }
 
+        let mg = false;
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
+            let abName = weapon.name;
+            if (weapon.type.includes("MG")) {
+                if (mg === true) {
+                    continue;
+                } else {
+                    abName = "MGs"
+                    mg = true;
+                }
+            }
 
             let shellType = "Regular";
             if (weapon.notes.includes("Smoke") && weapon.type !== "Artillery") {
                 shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
             }
-            abilityName = "Fire: " + weapon.name;
-            action = "!Shooting;@{selected|token_id};@{target|token_id};" + weapon.name + ";" + shellType;
+            abilityName = "Fire: " + abName;
+            action = "!Shooting;@{selected|token_id};@{target|token_id};" + weapon.type + ";" + shellType;
             AddAbility(abilityName,action,char.id);
         }
 
@@ -3088,7 +3108,8 @@ log("#: " + bestATWpnNum)
             return;
         }
 
-        weapons = [...new Set(weapons)];
+        weapons = Unique(weapons,"name");
+
         //expand ETA
         for (let i=0;i<shooters.length;i++) {
             let st = shooters[i];
@@ -3116,7 +3137,7 @@ log("#: " + bestATWpnNum)
                 }
                 st.eta.push(eta);
             }
-            
+
             //reorder the eta based on distance from initial target
             st.eta = st.eta.sort(function(a,b) {
                 return a.rangeFromInitial - b.rangeFromInitial;
