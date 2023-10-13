@@ -3127,7 +3127,7 @@ log("# Shooters: " + shooters.length)
 
         for (let i=0;i<weapons.length;i++) {
             weapons[i].rof = weapons[i].halted
-            if (shooter.token.get(SM.tactical)) === true) {
+            if (shooter.token.get(SM.tactical) === true) {
                 weapons[i].rof = weapons[i].moving;
             }
         }
