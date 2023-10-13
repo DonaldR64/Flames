@@ -394,7 +394,6 @@ const FOW4 = (() => {
             this.hqUnit = false;
             this.type = "";
             this.number = 0;
-
             UnitArray[id] = this;
         }
 
@@ -1660,7 +1659,7 @@ log("#: " + bestATWpnNum)
             unit.hqUnit = true;
             name = Rank(team.nation,rank) + Name(team.nation);
         } else {
-            if (team.type === "Aircraft" || i === 1) {
+            if (team.type === "Aircraft") {
                 rank = 2;
                 unit.aircraft = true;
                 if (team.nation === "Soviet") {rank=3};
@@ -3066,19 +3065,21 @@ log("#: " + bestATWpnNum)
             unitFire = true
             sname = shooterUnit.name;
         };
+        let weapons = [];
+        let shooterTeamArray = [];
+        let overhead = "";
+
 
         let target = TeamArray[targetID];
-        let targetUnit = UnitArray[target.unitID];
+        let baseToHit = target.hit;
+        let targetTeamArray = BuildTargetTeamArray(target);
 
-        let weapons = [];
-        let shooters = [];
-        let overhead = "";
 
         SetupCard(sname,"Shooting",shooter.nation);
 
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let st = TeamArray[shooterUnit.teamIDs[i]];
-            if (unitFire === false && shooterID !== st.id) {continue}; //single fire
+            if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
             if (st.inCommand() === false && unitFire === true) {continue};
             if (st.token.get(SM.fired) === true) {continue};
             for (let j=0;j<st.weaponArray.length;j++) {
@@ -3097,12 +3098,12 @@ log("#: " + bestATWpnNum)
                     rangeFromInitial: 0,
                 }
                 st.eta = [eta];
-                shooters.push(st);
+                shooterTeamArray.push(st);
                 break;
             }
         }
 
-        if (shooters.length === 0) {
+        if (shooterTeamArray.length === 0) {
             outputCard.body.push("Target not in Range or LOS");
             PrintCard();
             return;
@@ -3111,10 +3112,10 @@ log("#: " + bestATWpnNum)
         weapons = Unique(weapons,"name");
 
         //expand ETA
-        for (let i=0;i<shooters.length;i++) {
-            let st = shooters[i];
-            for (let j=0;j<targetUnit.teamIDs.length;j++) {
-                let tt = TeamArray[targetUnit.teamIDs[j]];
+        for (let i=0;i<shooterTeamArray.length;i++) {
+            let st = shooterTeamArray[i];
+            for (let j=0;j<targetTeamArray.length;j++) {
+                let tt = TeamArray[targetTeamArray[j].id];
                 if (tt.id === targetID) {continue} //already in ETA
                 let ttLOS = LOS(st.id,tt.id,overhead);
                 if (ttLOS.los === false) {continue};
@@ -3145,7 +3146,7 @@ log("#: " + bestATWpnNum)
             log(st.name)
             log(st.eta)
         }
-log("# Shooters: " + shooters.length)
+log("# Shooters: " + shooterTeamArray.length)
 
         for (let i=0;i<weapons.length;i++) {
             weapons[i].rof = weapons[i].halted
@@ -3153,8 +3154,6 @@ log("# Shooters: " + shooters.length)
                 weapons[i].rof = weapons[i].moving;
             }
         }
-
-
 log(weapons)
 
 
@@ -3163,7 +3162,60 @@ log(weapons)
 
 
 
+
+
     }
+
+    const BuildTargetTeamArray = (targetTeam) => {
+        let array = [];
+        let targetUnit = UnitArray[targetTeam.unitID];
+        let ids = targetUnit.teamIDs;
+
+        //if HQ or independent, can add nearby formation in
+        if (targetTeam.special.includes("HQ") || targetTeam.special.includes("Independent")) {
+            let keys = Object.keys(UnitArray);
+            btaLoop1:
+            for (let j=0;j<keys.length;j++) {
+                let unit = UnitArray[keys[j]];
+                if (unit.id === targetUnit.id || unit.player !== targetUnit.player || unit.type !== targetUnit.type) {continue};
+                for (let k=0;k<unit.teamIDs.length;k++) {
+                    let team3 = TeamArray[unit.teamIDs[k]];
+                    if (team3.hex.distance(targetTeam.hex) <= commandRadius[0]) {
+                        //a valid team - add its unit IDs, rest will get sorted in/out below
+                        ids = ids.concat(unit.teamIDs);
+                        break btaLoop1;
+                    }
+                }
+            }
+        }
+
+        for (let i=0;i<ids.length;i++) {
+            let team = TeamArray[ids[i]];
+            let priority = 0;
+            if (i === 0) {priority = 1};
+            let refDistance = targetTeam.hex.distance(team.hex);//distance from targeted team to this team
+            if (refDistance > 6 || team.type !== targetTeam.type) {continue}; //too far or not same type
+            if (team.special.includes("HQ") || team.special.includes("Independent")) {priority = 3};
+            if (team.unique === true) {priority = 2};
+            if (team.bailed() === true && team.type === "Tank") {priority = -2};
+            let info = {
+                name: team.name,
+                id: team.id,
+                priority: priority,
+                refDistance: refDistance,
+            }
+            array.push(info);
+        }
+
+        array = array.sort(function(a,b) {
+            return a.refDistance - b.refDistance; //order based on distance from initial target
+        });
+
+    log("Target Array")
+    log(array)
+        return array;
+    }
+
 
 
 
