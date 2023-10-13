@@ -529,6 +529,7 @@ const FOW4 = (() => {
                     fp: fp,
                     notes: notes,
                     type: type,
+                    rof: 0, //used in shooting routine
                 }
                 if (weapon.notes.includes("Heavy Weapon")) {
                     if (special === " ") {
@@ -3035,7 +3036,7 @@ log("#: " + bestATWpnNum)
         let Tag = msg.content.split(";");
         let shooterID = Tag[1];
         let targetID = Tag[2];
-        let weaponName = Tag[3]; //default is position 1
+        let weaponType = Tag[3]; 
         let shellType = Tag[4]; //Regular,Smoke
         let shooter = TeamArray[shooterID];
         let shooterUnit = UnitArray[shooter.unitID];
@@ -3049,12 +3050,12 @@ log("#: " + bestATWpnNum)
         let target = TeamArray[targetID];
         let targetUnit = UnitArray[target.unitID];
 
-        let weaponInfo = [];
+        let weapons = [];
+        let shooters = [];
+        let overhead = "";
 
         SetupCard(sname,"Shooting",shooter.nation);
 
-        let shooters = [];
-        let overhead = ""
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let st = TeamArray[shooterUnit.teamIDs[i]];
             if (unitFire === false && shooterID !== st.id) {continue}; //single fire
@@ -3062,13 +3063,13 @@ log("#: " + bestATWpnNum)
             if (st.token.get(SM.fired) === true) {continue};
             for (let j=0;j<st.weaponArray.length;j++) {
                 let weapon = st.weaponArray[j];
-                if (weapon.name !== weaponName) {continue};
+                if (weapon.type !== weaponType) {continue};
                 if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
                 let initialLOS = LOS(st.id,targetID,overhead);
                 if (initialLOS.los === false) {continue};
                 if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {continue};
                 if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {continue};
-                weaponInfo = weapon;
+                weapons.push(weapon);
                 let eta = {
                     targetName: target.name,
                     targetID: targetID,
@@ -3087,6 +3088,7 @@ log("#: " + bestATWpnNum)
             return;
         }
 
+        weapons = [...new Set(weapons)];
         //expand ETA
         for (let i=0;i<shooters.length;i++) {
             let st = shooters[i];
@@ -3095,9 +3097,16 @@ log("#: " + bestATWpnNum)
                 if (tt.id === targetID) {continue} //already in ETA
                 let ttLOS = LOS(st.id,tt.id,overhead);
                 if (ttLOS.los === false) {continue};
-                if (ttLOS.distance > weaponInfo.maxRange) {continue};
-                if (ttLOS.distance < weaponInfo.minRange) {continue};
-                if (weaponInfo.notes.includes("Forward Firing") && ttLOS.shooterface !== "Front") {continue};
+                let weaponFlag = false;
+                for (let k=0;k<weapons.length;k++) {
+                    let weapon = weapons[k];
+                    if (ttLOS.distance > weapon.maxRange) {continue};
+                    if (ttLOS.distance < weapon.minRange) {continue};
+                    if (weapon.notes.includes("Forward Firing") && ttLOS.shooterface !== "Front") {continue};
+                    weaponFlag = true;
+                    break; //has one weapon with range and in arc
+                }
+                if (weaponFlag === false) {continue};
                 let rfi = tt.hex.distance(target.hex);
                 let eta = {
                     targetName: tt.name,
@@ -3114,14 +3123,17 @@ log("#: " + bestATWpnNum)
             log(st.name)
             log(st.eta)
         }
-        log("# Shooters: " + shooters.length)
+log("# Shooters: " + shooters.length)
 
-        let ROF = weaponInfo.halted;
-        if (shooter.token.get(SM.tactical) === true) {
-            ROF = weaponInfo.moving;
+        for (let i=0;i<weapons.length;i++) {
+            weapons[i].rof = weapons[i].halted
+            if (shooter.token.get(SM.tactical)) === true) {
+                weapons[i].rof = weapons[i].moving;
+            }
         }
 
-log(weaponInfo)
+
+log(weapons)
 
 
 
