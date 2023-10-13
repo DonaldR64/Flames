@@ -467,7 +467,92 @@ const FOW4 = (() => {
             let hex = pointToHex(location);
             let hexLabel = hex.label();
 
-            //weapons
+            //create array of weapon info
+            let weaponArray = [];
+            let artillery;
+            let artFlag = false;
+            let artNum = 0;
+            let bestAT = -1;
+            let bestFP = 7;
+            let bestATWpnNum;
+            for (let i=1;i<5;i++) {
+                let name = attributeArray["weapon"+i+"name"];
+                if (!name || name == " " || name == "") {continue};
+                if (name.includes("(") || name.includes(")")) {
+                    name = name.replace("(","[");
+                    name = name.replace(")","]");
+                    AttributeSet(character.id,"weapon"+i+"name",name);
+                }
+                let fp = attributeArray["weapon"+i+"fp"];
+                if (fp === "AUTO") {
+                    fp = 1;
+                } else {
+                    fp = Number(attributeArray["weapon"+i+"fp"].replace(/[^\d]/g, ""));
+                }
+                let notes = attributeArray["weapon"+i+"notes"];
+                if (!notes || notes === "") {notes = " "};
+
+                let halted = attributeArray["weapon"+i+"halted"];
+                if (!halted || halted === "") {halted = 0};
+
+                let moving = attributeArray["weapon"+i+"moving"];
+                if (!moving || moving === "") {moving = 0};
+
+                let rangeText = attributeArray["weapon"+i+"range"];
+                rangeText = rangeText.split("-");
+                let minRange = 0;
+                let maxRange = rangeText[0].replace(/[^\d]/g, "");
+                if (rangeText.length > 1) {
+                    minRange = rangeText[0].replace(/[^\d]/g, "");
+                    maxRange = rangeText[1].replace(/[^\d]/g, "");
+                }
+                let type = attributeArray["weapon"+i+"type"];
+                if (!type || type === "") {
+                    type = "Small Arms";
+                }
+                let at = parseInt(attributeArray["weapon"+i+"at"]);
+                if (at > bestAT || at === bestAT && fp < bestFP) {
+                    bestATWpnNum = (i-1);
+                    bestAT = at;
+                    bestFP = fp;
+                }
+
+                let weapon = {
+                    name: attributeArray["weapon"+i+"name"],
+                    minRange: minRange,
+                    maxRange: maxRange,
+                    halted: halted,
+                    moving: moving,
+                    at: parseInt(attributeArray["weapon"+i+"at"]),
+                    fp: fp,
+                    notes: notes,
+                    type: type,
+                }
+                if (weapon.notes.includes("Heavy Weapon")) {
+                    if (special === " ") {
+                        special = "Heavy Weapon"
+                    } else {
+                        special += ",Heavy Weapon";
+                    }
+                }
+                weaponArray.push(weapon);
+                if (halted === "Artillery" || halted === "Salvo" || moving === "Artillery" || moving === "Salvo") {
+                    artFlag = true;
+                    artillery = weapon;
+                    artNum = i;
+                };
+            }
+
+            if (bestAT <= 2) {
+                bestATWpnNum = 5; //Hand Grenades
+            }
+log("BestAT: " + bestAT)
+log("#: " + bestATWpnNum)
+
+
+
+
+
 
             //special
             let special = attributeArray.special;
@@ -552,9 +637,10 @@ const FOW4 = (() => {
             this.unique = unique;
             //this.transport = ""; //id of transport if a passenger
             //this.passengers = []; //id of any passengers
-            //this.weaponArray = weaponArray;
+            this.weaponArray = weaponArray;
             this.hitArray = [];
-            this.maxPass = maxPass;
+            this.eta = [];
+            //this.maxPass = maxPass;
 
             TeamArray[tokenID] = this;
             hexMap[hexLabel].tokenIDs.push(tokenID);
@@ -1669,8 +1755,8 @@ const FOW4 = (() => {
         let teamLevel = Math.min(team1Height,team2Height);
         team1Height -= teamLevel;
         team2Height -= teamLevel;
-    log("Team1 H: " + team1Height)
-    log("Team2 H: " + team2Height)
+    //log("Team1 H: " + team1Height)
+    //log("Team2 H: " + team2Height)
     
         let interHexes = team1.hex.linedraw(team2.hex); //hexes from shooter (hex 0) to target (hex at end)
         let team1Hex = hexMap[team1.hexLabel];
@@ -1746,9 +1832,9 @@ const FOW4 = (() => {
                     let qrs = interHexes[i];
                     let qrsLabel = qrs.label();
                     let interHex = hexMap[qrsLabel];
-    log(i + ": " + qrsLabel)
-    log(interHex.terrain)
-    log("Type: " + interHex.type)
+    //log(i + ": " + qrsLabel)
+    //log(interHex.terrain)
+    //log("Type: " + interHex.type)
                     if (interHex.smoke === true) {smoke = true};
                     if (interHex.smokescreen === true) {
                         if (distanceT1T2 > 6) {
@@ -1766,10 +1852,10 @@ const FOW4 = (() => {
                     } else if (team1Height <= team2Height) {
                         B = i * team2Height / distanceT1T2;
                     }
-        log("InterHex Height: " + interHexHeight);
-        log("InterHex Elevation: " + interHexElevation);
-        log("Last Elevation: " + lastElevation);
-        log("B: " + B)
+        //log("InterHex Height: " + interHexHeight);
+        //log("InterHex Elevation: " + interHexElevation);
+        //log("Last Elevation: " + lastElevation);
+        //log("B: " + B)
                     if (interHexElevation < lastElevation && lastElevation > team1Height && lastElevation > team2Height) {
                         los = false;
                         losReason = "Terrain Drops off at " + qrsLabel;
@@ -1782,14 +1868,14 @@ const FOW4 = (() => {
                     if (special !== "Overhead") {
             //check for intervening friendlies in 1 hexes of interHex - can ignore if same team
                         //if find one, flag and note height
-            log("Friendlies")
+            //log("Friendlies")
                         for (let t=0;t<fKeys.length;t++) {
                             let fm = TeamArray[fKeys[t]];
                             if (fm.id === team1.id || fm.id === team2.id || fm.player !== team1.player || fm.unitID === team1.unitID) {continue};
                             if (fm.type === "Infantry" && fm.token.get(SM.tactical) === false && fm.token.get(SM.dash) === false) {continue}; //ignore these infantry
                             let dis = fm.hex.distance(qrs);
                             if (dis < 2) {
-            log(fm.name)
+            //log(fm.name)
                                 friendlyFlag = true;
                                 fmHeight = teamHeight(fm);
                                 friendlyHeight = Math.max(fmHeight,friendlyHeight);
@@ -1806,7 +1892,7 @@ const FOW4 = (() => {
                             los = false;
                             break;
                         }
-        log("Terrain higher than B")
+        //log("Terrain higher than B")
                         if (interHex.type === 3) {
                             hexesWithBuild++;
                         }
@@ -1837,14 +1923,14 @@ const FOW4 = (() => {
                             bulletproof = true;
                         }
                     } else {
-        log("Terrain less than B")
+        //log("Terrain less than B")
 
                     }
                 }
             }
             if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false) {
                 concealed = true //infantry teams that didnt move are concealed to all but Aircraft
-        log("Infantry didnt move = Concealed")
+        //log("Infantry didnt move = Concealed")
             }
 
         }
@@ -2168,43 +2254,18 @@ const FOW4 = (() => {
             AddAbility(abilityName,"!Cross",char.id);
         }
 
-
-
-/*
-
-        let mgNums = [];
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
-            if (weapon.name.includes("Krasnopol")) {continue}; //only fired by observer
-            let wNum = i+1;
-            if (weapon.type === "Artillery" || weapon.type === "Rockets") {
-                if (type === "Aircraft" || type === "Helicopter") {
-                    //??
-                } else {
-                    abilityName = "Preplan";
-                    AddAbility(abilityName,"!PlaceRangedIn",char.id);
-                }
-                continue;
-            }
-            if (weapon.type.includes("MG")) {
-                mgNums.push(wNum);
-                continue;
-            }
+
             let shellType = "Regular";
             if (weapon.notes.includes("Smoke") && weapon.type !== "Artillery") {
                 shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
             }
             abilityName = "Fire: " + weapon.name;
-            action = "!Shooting;@{selected|token_id};@{target|token_id};" + wNum + ";" + shellType;
+            action = "!Shooting;@{selected|token_id};@{target|token_id};" + weapon.name + ";" + shellType;
             AddAbility(abilityName,action,char.id);
         }
-        if (mgNums.length > 0) {
-            abilityName = "Fire: Machine Guns";
-            mgNums = mgNums.toString();
-            action = "!Shooting;@{selected|token_id};@{target|token_id};" + mgNums;
-            AddAbility(abilityName,action,char.id);
-        }
-*/
+
 
 
 
@@ -2968,6 +3029,109 @@ const FOW4 = (() => {
         return komCheck;
     }
 
+    const Shooting = (msg) => {
+        let Tag = msg.content.split(";");
+        let shooterID = Tag[1];
+        let targetID = Tag[2];
+        let weaponName = Tag[3]; //default is position 1
+        let shellType = Tag[4]; //Regular,Smoke
+        let shooter = TeamArray[shooterID];
+        let shooterUnit = UnitArray[shooter.unitID];
+        let unitFire = false;
+        let sname = shooter.name;
+        if (shooterID === shooterUnit.teamIDs[0]) {
+            unitFire = true
+            sname = shooterUnit.name;
+        };
+
+        let target = TeamArray[targetID];
+        let targetUnit = UnitArray[target.unitID];
+
+        let weaponInfo = [];
+
+        SetupCard(sname,"Shooting",shooter.nation);
+
+        let shooters = [];
+        let overhead = ""
+        for (let i=0;i<shooterUnit.teamIDs.length;i++) {
+            let st = TeamArray[shooterUnit.teamIDs[i]];
+            if (unitFire === false && shooterID !== st.id) {continue}; //single fire
+            if (st.inCommand() === false && unitFire === true) {continue};
+            if (st.token.get(SM.fired) === true) {continue};
+            for (let j=0;j<st.weaponArray.length;j++) {
+                let weapon = st.weaponArray[j];
+                if (weapon.name !== weaponName) {continue};
+                if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
+                let initialLOS = LOS(st.id,targetID,overhead);
+                if (initialLOS.los === false) {continue};
+                if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {continue};
+                if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {continue};
+                weaponInfo = weapon;
+                let eta = {
+                    targetName: target.name,
+                    targetID: targetID,
+                    los: initialLOS,
+                    rangeFromInitial: 0,
+                }
+                st.eta = [eta];
+                shooters.push(st);
+                break;
+            }
+        }
+
+        if (shooters.length === 0) {
+            outputCard.body.push("Target not in Range or LOS");
+            PrintCard();
+            return;
+        }
+
+        //expand ETA
+        for (let i=0;i<shooters.length;i++) {
+            let st = shooters[i];
+            for (let j=0;j<targetUnit.teamIDs.length;j++) {
+                let tt = TeamArray[targetUnit.teamIDs[j]];
+                if (tt.id === targetID) {continue} //already in ETA
+                let ttLOS = LOS(st.id,tt.id,overhead);
+                if (ttLOS.los === false) {continue};
+                if (ttLOS.distance > weaponInfo.maxRange) {continue};
+                if (ttLOS.distance < weaponInfo.minRange) {continue};
+                if (weaponInfo.notes.includes("Forward Firing") && ttLOS.shooterface !== "Front") {continue};
+                let rfi = tt.hex.distance(target.hex);
+                let eta = {
+                    targetName: tt.name,
+                    targetID: tt.id,
+                    los: ttLOS,
+                    rangeFromInitial: rfi,
+                }
+                st.eta.push(eta);
+            }
+            //reorder the eta based on distance from initial target
+            st.eta = st.eta.sort(function(a,b) {
+                return a.rangeFromInitial - b.rangeFromInitial;
+            });
+            log(st.name)
+            log(st.eta)
+        }
+        log("# Shooters: " + shooters.length)
+
+        let ROF = weaponInfo.halted;
+        if (shooter.token.get(SM.tactical) === true) {
+            ROF = weaponInfo.moving;
+        }
+
+        
+
+
+
+
+
+
+
+    }
+
+
+
+
 
 
 
@@ -3090,7 +3254,11 @@ const FOW4 = (() => {
                 break;
             case '!RollD6':
                 RollD6(msg);
-                break;                
+                break;        
+            case '!Shooting':
+                Shooting(msg);
+                break;    
+
 
         }
     };
