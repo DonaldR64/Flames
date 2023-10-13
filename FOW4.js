@@ -3116,6 +3116,7 @@ log("#: " + bestATWpnNum)
                 }
                 st.eta.push(eta);
             }
+            
             //reorder the eta based on distance from initial target
             st.eta = st.eta.sort(function(a,b) {
                 return a.rangeFromInitial - b.rangeFromInitial;
