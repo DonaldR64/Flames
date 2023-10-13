@@ -492,10 +492,10 @@ const FOW4 = (() => {
                 let notes = attributeArray["weapon"+i+"notes"];
                 if (!notes || notes === "") {notes = " "};
 
-                let halted = attributeArray["weapon"+i+"halted"];
+                let halted = parseInt(attributeArray["weapon"+i+"halted"]);
                 if (!halted || halted === "") {halted = 0};
 
-                let moving = attributeArray["weapon"+i+"moving"];
+                let moving = parseInt(attributeArray["weapon"+i+"moving"]);
                 if (!moving || moving === "") {moving = 0};
 
                 let rangeText = attributeArray["weapon"+i+"range"];
@@ -506,6 +506,8 @@ const FOW4 = (() => {
                     minRange = rangeText[0].replace(/[^\d]/g, "");
                     maxRange = rangeText[1].replace(/[^\d]/g, "");
                 }
+                minRange = parseInt(minRange);
+                maxRange = parseInt(maxRange);
                 let type = attributeArray["weapon"+i+"type"];
                 if (!type || type === "") {
                     type = "Small Arms";
@@ -518,12 +520,12 @@ const FOW4 = (() => {
                 }
 
                 let weapon = {
-                    name: attributeArray["weapon"+i+"name"],
+                    name: name,
                     minRange: minRange,
                     maxRange: maxRange,
                     halted: halted,
                     moving: moving,
-                    at: parseInt(attributeArray["weapon"+i+"at"]),
+                    at: at,
                     fp: fp,
                     notes: notes,
                     type: type,
@@ -3119,7 +3121,7 @@ log("#: " + bestATWpnNum)
             ROF = weaponInfo.moving;
         }
 
-        
+log(weaponInfo)
 
 
 
