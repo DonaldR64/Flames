@@ -528,7 +528,6 @@ const FOW4 = (() => {
                     fp: fp,
                     notes: notes,
                     type: type,
-                    rof: 0, //used in shooting routine
                 }
                 if (weapon.notes.includes("Heavy Weapon")) {
                     if (special === " ") {
@@ -3066,10 +3065,9 @@ log("#: " + bestATWpnNum)
         };
         let weapons = [];
         let shooterTeamArray = [];
-
         let target = TeamArray[targetID];
-        let baseToHit = target.hit;
         let targetTeamArray = BuildTargetTeamArray(target);
+//safety distance for aircraft to be added in for target and mates
 
         SetupCard(sname,"Shooting",shooter.nation);
 
@@ -3102,7 +3100,9 @@ log("#: " + bestATWpnNum)
                 }
                 st.eta = [eta];
                 shooterTeamArray.push(st);
-                break;
+                if (weapon.type !== "AA MG") {
+                    //RotateToken(st,target,90);
+                }
             }
         }
 
@@ -3154,13 +3154,80 @@ log("#: " + bestATWpnNum)
         }
 log("# Shooters: " + shooterTeamArray.length)
 
-        for (let i=0;i<weapons.length;i++) {
-            weapons[i].rof = weapons[i].halted
-            if (shooter.token.get(SM.tactical) === true) {
-                weapons[i].rof = weapons[i].moving;
-            }
-        }
 log(weapons)
+
+        for (let i=0;i<shooterTeamArray.length;i++) {
+            let sTeam = shooterTeamArray[i];
+            let eta = sTeam.eta;
+            for (let j=0;j<weapons.length;j++) {
+                let weapon = weapons[j];
+                let toHit = target.hit;
+                let los = eta[0].los;
+                if (los.distance > Math.round(weapon.maxRange/2)) {
+                    toHit++;
+                }
+                if (los.concealed === true) {
+                    toHit++;
+                    if (target.token.get(SM.gtg) === true) {
+                        toHit++;
+                    }
+                }
+                if (los.smoke === true) {
+                    toHit++;
+                }
+                if (sTeam.inCommand() === false) {
+                    toHit++;
+                }
+                if (state.FOW4.darkness === true) {
+                    toHit++;
+                }
+
+                let rof = weapon.halted;
+                if (sTeam.token.get(SM.tactical) === true) {
+                    rof = weapon.moving;
+                }
+
+                let rolls = [];
+                let hits = 0;
+                for (let k=0;k<rof;k++) {
+                    let roll = randomInteger(6);
+                    let roll2 = randomInteger(6);
+                    if (roll >= toHit) {
+                        rolls.push(roll);
+                        hits++;
+                    } else if (toHit > 6 && toHit < 9 && roll === 6) {
+                        rolls.push(roll + "/" + roll2);
+                        if (toHit === 7 && roll2 > 4) {
+                            hits++;
+                        } else if (toHit === 8 && roll2 === 6) {
+                            hits++;
+                        }
+                    } else {
+                        rolls.push(roll);
+                    }
+                }
+
+log(toHit)
+log(rolls)
+                outputCard.body.push(sTeam.name + " firing " + weapon.name + " gets " + hits + " hits.");
+
+                //assign hits
+
+
+
+            }
+
+
+
+
+
+
+        }
+
+
+
+        PrintCard();
+
 
 
 
