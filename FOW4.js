@@ -3163,12 +3163,12 @@ log(weapons)
                 let weapon = weapons[j];
                 let toHit = target.hit;
                 let los = eta[0].los;
-                if (los.distance > Math.round(weapon.maxRange/2)) {
+                if (los.distance > Math.max(16,Math.round(weapon.maxRange/2))) {
                     toHit++;
                 }
                 if (los.concealed === true) {
                     toHit++;
-                    if (target.token.get(SM.gtg) === true) {
+                    if (target.token.get(SM.gtg) === sstrue) {
                         toHit++;
                     }
                 }
@@ -3210,19 +3210,31 @@ log(weapons)
 log(toHit)
 log(rolls)
                 outputCard.body.push(sTeam.name + " firing " + weapon.name + " gets " + hits + " hits.");
-
                 //assign hits
-
-
-
+                let targNum = 0
+                for (let t=0;t<(eta.length - 1);t++) {
+                    let t1Hits = TeamArray[eta[t].targetID].hitArray.length;
+                    let t2Hits = TeamArray[eta[t+1].targetID].hitArray.length
+                    if (t2Hits < t1Hits) {
+                        targNum = t;
+                    }
+                }
+                let hit = {
+                    weapon: weapon,
+                    bp: eta[targNum].los.bulletproof,
+                    facing: eta[targNum].los.facing,
+                    distance: eta[targNum].los.distance,
+                    shooterID: sTeam.id,
+                }
+                TeamArray[eta[t].targetID].hitArray.push(hit);
             }
-
-
-
-
-
-
         }
+
+        MistakenTarget(targetTeamArray);
+
+
+
+        //Saves ?
 
 
 
@@ -3238,6 +3250,26 @@ log(rolls)
 
 
     }
+
+    const SwapHits = (hits,team) => {
+        let newHits = [];
+        for (let k=0;k<hits.length;k++) {
+            let hit = hits[k];
+            let overhead = "";
+            if (hit.weapon.notes.includes("Overhead")) {overhead = "Overhead"};
+            let newLOS = LOS(hit.shooterID,team.id,overhead);
+            hit.bp = newLOS.bulletproof;
+            hit.facting = newLOS.facing;
+            hit.distance = newLOS.distance;
+            newHits.push(hit);
+        }
+        return newHits;
+    }
+
+
+
+
+
 
     const BuildTargetTeamArray = (targetTeam) => {
         let array = [];
@@ -3289,7 +3321,37 @@ log(rolls)
         return array;
     }
 
-
+    const Mistaken = (targetTeamArray) => {
+        //applies mistaken target rule to targets 
+        let roll = randomInteger(6);
+log("Roll: " + roll)
+        let array = targetTeamArray.sort(function(a,b){
+            return a.priority - b.priority;
+        })
+        
+        for (let i=0;i<array.length;i++) {
+            if (roll < 3) {break};
+            let team1 = TeamArray[array[i].id];
+            let hits1 = team1.hitArray;
+            for (let j=(array.length - 1);j>i;j--) {
+                if (array[j].priority === array[i].priority) {continue};
+                let team2 = TeamArray[array[j].id];
+                let hits2 = team2.hitArray;
+                if (hits2 < hits1) {
+log("A Swap Occurs")
+log("Team1: " + team1.name + " / Priority: " + array[i].priority);
+log("Team2: " + team2.name + " / Priority: " + array[j].priority);
+                    //swap hits from team2 to team1
+                    TeamArray[team1.id].hits = SwapHits(hits2,team1);
+                    //swap from team1 to team2
+                    TeamArray[team2.id].hits = SwapHits(hits1,team2);
+                    roll = randomInteger(6);
+log("Roll: " + roll)
+                    break;
+                }
+            }
+        }
+    }
 
 
 
