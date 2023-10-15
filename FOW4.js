@@ -3235,7 +3235,7 @@ log("Rolls: " + rolls)
                             break;
                         }
                     }
-    log("Target #: " + targNum)
+    log("Assigned to " + TeamArray[eta[targNum].targetID].name);
                     let hit = {
                         weapon: weapon,
                         bp: eta[targNum].los.bulletproof,
@@ -3250,7 +3250,6 @@ log("Rolls: " + rolls)
         }
 
         if (targetTeamArray.length > 1 && mistaken === true) {
-            //build a reverse ETA for mistaken purposes
             Mistaken(targetTeamArray,shooterTeamArray);
         }
 log("Final Hit #s")
@@ -3262,6 +3261,11 @@ log(tt.name + " - Hits: " + tt.hitArray.length)
             }
         }
 
+
+
+
+
+        
 
         //Saves ?
 
