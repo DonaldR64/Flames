@@ -16,6 +16,7 @@ const FOW4 = (() => {
     let CheckArray = []; //used by Remount, Rally and Morale checks
 
     let unitCreationInfo = {}; //used during unit creation 
+    let unitIDs4Saves = []; //used during shooting routines
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -3058,6 +3059,7 @@ log("#: " + bestATWpnNum)
         let shooter = TeamArray[shooterID];
         let shooterUnit = UnitArray[shooter.unitID];
         let unitFire = false;
+
         let sname = shooter.name;
         if (shooterID === shooterUnit.teamIDs[0]) {
             unitFire = true
@@ -3068,6 +3070,11 @@ log("#: " + bestATWpnNum)
         let target = TeamArray[targetID];
         let targetTeamArray = BuildTargetTeamArray(target);
 //safety distance for aircraft to be added in for target and mates
+
+        let mistaken = true;
+        if (shooter.hex.distance(target.hex) < 8 && target.type === "Tank" && shooter.hex.distance(target.hex) < 4) {
+            mistaken = false;
+        }
 
         SetupCard(sname,"Shooting",shooter.nation);
 
@@ -3230,8 +3237,15 @@ log(rolls)
             }
         }
 
-        MistakenTarget(targetTeamArray);
-
+        if (targetTeamArray.length > 1 && mistaken === true) {
+            Mistaken(targetTeamArray);
+        }
+        for (let i=0;i<targetTeamArray;i++) {
+            let tt = TeamArray[targetTeamArray[i].id];
+            if (unitIDs4Saves.includes(tt.unitID) === false) {
+                unitIDs4Saves.push(tt.unitID);
+            }
+        }
 
 
         //Saves ?
@@ -3333,10 +3347,12 @@ log("Roll: " + roll)
             if (roll < 3) {break};
             let team1 = TeamArray[array[i].id];
             let hits1 = team1.hitArray;
+        
             for (let j=(array.length - 1);j>i;j--) {
                 if (array[j].priority === array[i].priority) {continue};
                 let team2 = TeamArray[array[j].id];
                 let hits2 = team2.hitArray;
+               
                 if (hits2 < hits1) {
 log("A Swap Occurs")
 log("Team1: " + team1.name + " / Priority: " + array[i].priority);
