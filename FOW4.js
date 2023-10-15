@@ -3162,7 +3162,7 @@ log("#: " + bestATWpnNum)
 log("# Shooters: " + shooterTeamArray.length)
 
 log(weapons)
-
+        
         for (let i=0;i<shooterTeamArray.length;i++) {
             let sTeam = shooterTeamArray[i];
             let eta = sTeam.eta;
@@ -3238,7 +3238,8 @@ log(rolls)
         }
 
         if (targetTeamArray.length > 1 && mistaken === true) {
-            Mistaken(targetTeamArray);
+            //build a reverse ETA for mistaken purposes
+            Mistaken(targetTeamArray,shooterTeamArray);
         }
         for (let i=0;i<targetTeamArray;i++) {
             let tt = TeamArray[targetTeamArray[i].id];
@@ -3285,7 +3286,7 @@ log(rolls)
 
 
 
-    const BuildTargetTeamArray = (targetTeam) => {
+    const BuildTargetTeamArray = (targetTeam,shooterTeamArray) => {
         let array = [];
         let targetUnit = UnitArray[targetTeam.unitID];
         let ids = targetUnit.teamIDs;
@@ -3317,6 +3318,7 @@ log(rolls)
             if (team.special.includes("HQ") || team.special.includes("Independent")) {priority = 3};
             if (team.unique === true) {priority = 2};
             if (team.bailed() === true && team.type === "Tank") {priority = -2};
+
             let info = {
                 name: team.name,
                 id: team.id,
@@ -3335,7 +3337,7 @@ log(rolls)
         return array;
     }
 
-    const Mistaken = (targetTeamArray) => {
+    const Mistaken = (targetTeamArray,shooterTeamArray) => {
         //applies mistaken target rule to targets 
         let roll = randomInteger(6);
 log("Roll: " + roll)
@@ -3352,8 +3354,8 @@ log("Roll: " + roll)
                 if (array[j].priority === array[i].priority) {continue};
                 let team2 = TeamArray[array[j].id];
                 let hits2 = team2.hitArray;
-               
-                if (hits2 < hits1) {
+            
+                if (hits2.length < hits1.length) {
 log("A Swap Occurs")
 log("Team1: " + team1.name + " / Priority: " + array[i].priority);
 log("Team2: " + team2.name + " / Priority: " + array[j].priority);
