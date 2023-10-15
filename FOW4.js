@@ -1792,6 +1792,7 @@ log("#: " + bestATWpnNum)
                 facing: facing,
                 shooterface: shooterFace,
                 distance: distanceT1T2,
+                special: special,
             }
             losReason = "Night Visibility < Distance"
             return result;    
@@ -1958,6 +1959,7 @@ log("#: " + bestATWpnNum)
             facing: facing,
             shooterface: shooterFace,
             distance: distanceT1T2,
+            special: special,
         }
         return result;
     }
@@ -3068,14 +3070,14 @@ log("#: " + bestATWpnNum)
         let weapons = [];
         let shooterTeamArray = [];
         let target = TeamArray[targetID];
-        let targetTeamArray = BuildTargetTeamArray(target);
+        let targetTeamArray = BuildTargetTeamArray(target,shooter);
 //safety distance for aircraft to be added in for target and mates
 
         let mistaken = true;
         if (shooter.hex.distance(target.hex) < 8 && target.type === "Tank" && shooter.hex.distance(target.hex) < 4) {
             mistaken = false;
         }
-
+log("Mistaken: " + mistaken)
         SetupCard(sname,"Shooting",shooter.nation);
 
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
@@ -3175,7 +3177,7 @@ log(weapons)
                 }
                 if (los.concealed === true) {
                     toHit++;
-                    if (target.token.get(SM.gtg) === sstrue) {
+                    if (target.token.get(SM.gtg) === true) {
                         toHit++;
                     }
                 }
@@ -3214,26 +3216,36 @@ log(weapons)
                     }
                 }
 
-log(toHit)
-log(rolls)
+log("To Hit: " + toHit)
+log("Rolls: " + rolls)
                 outputCard.body.push(sTeam.name + " firing " + weapon.name + " gets " + hits + " hits.");
                 //assign hits
-                let targNum = 0
-                for (let t=0;t<(eta.length - 1);t++) {
-                    let t1Hits = TeamArray[eta[t].targetID].hitArray.length;
-                    let t2Hits = TeamArray[eta[t+1].targetID].hitArray.length
-                    if (t2Hits < t1Hits) {
-                        targNum = t;
+                for (let q=0;q<hits;q++) {
+    log("Hit " + (q+1))
+                    let targNum = 0
+                    for (let t=0;t<(eta.length - 1);t++) {
+                        let t1 = TeamArray[eta[t].targetID];
+                        let num1 = t1.hitArray.length;
+                        let t2 = TeamArray[eta[t+1].targetID];
+                        let num2 = t2.hitArray.length;
+    log("Target " + t + ": " + t1.name + " Hits: " + num1);
+    log("Target " + (t+1) + ": " + t2.name + " Hits: " + num2);
+                        if (num2 < num1) {
+                            targNum = (t+1);
+                            break;
+                        }
                     }
+    log("Target #: " + targNum)
+                    let hit = {
+                        weapon: weapon,
+                        bp: eta[targNum].los.bulletproof,
+                        facing: eta[targNum].los.facing,
+                        distance: eta[targNum].los.distance,
+                        shooterID: sTeam.id,
+                        special: eta[targNum].los.special,
+                    }
+                    TeamArray[eta[targNum].targetID].hitArray.push(hit);
                 }
-                let hit = {
-                    weapon: weapon,
-                    bp: eta[targNum].los.bulletproof,
-                    facing: eta[targNum].los.facing,
-                    distance: eta[targNum].los.distance,
-                    shooterID: sTeam.id,
-                }
-                TeamArray[eta[t].targetID].hitArray.push(hit);
             }
         }
 
@@ -3241,8 +3253,10 @@ log(rolls)
             //build a reverse ETA for mistaken purposes
             Mistaken(targetTeamArray,shooterTeamArray);
         }
-        for (let i=0;i<targetTeamArray;i++) {
+log("Final Hit #s")
+        for (let i=0;i<targetTeamArray.length;i++) {
             let tt = TeamArray[targetTeamArray[i].id];
+log(tt.name + " - Hits: " + tt.hitArray.length)
             if (unitIDs4Saves.includes(tt.unitID) === false) {
                 unitIDs4Saves.push(tt.unitID);
             }
@@ -3256,29 +3270,44 @@ log(rolls)
         PrintCard();
 
 
-
-
-
-
-
-
-
-
     }
 
-    const SwapHits = (hits,team) => {
-        let newHits = [];
-        for (let k=0;k<hits.length;k++) {
-            let hit = hits[k];
-            let overhead = "";
-            if (hit.weapon.notes.includes("Overhead")) {overhead = "Overhead"};
-            let newLOS = LOS(hit.shooterID,team.id,overhead);
-            hit.bp = newLOS.bulletproof;
-            hit.facting = newLOS.facing;
-            hit.distance = newLOS.distance;
-            newHits.push(hit);
+    const CompareHits = (ta1,ta2) => {
+        let hitInfo = {
+            hits1: {
+                swappable: [],
+                unswappable: [],
+            },
+            hits2: {
+                swappable: [],
+                unswappable: [],
+            }
         }
-        return newHits;
+        for (let i=0;i<TeamArray[ta1.id].hitArray.length;i++) {
+            let hit = TeamArray[ta1.id].hitArray[i];
+            if (ta2.shooterIDs.includes(hit.shooterID)) {
+                let newLOS = LOS(hit.shooterID,ta2.id,hit.special);
+                hit.bp = newLOS.bp;
+                hit.facing = newLOS.facing;
+                hit.distance = newLOS.distance;
+                hitInfo.hits1.swappable.push(hit);
+            } else {
+                hitInfo.hits1.unswappable.push(hit);
+            }
+        }
+        for (let i=0;i<TeamArray[ta2.id].hitArray.length;i++) {
+            let hit = TeamArray[ta2.id].hitArray[i];
+            if (ta1.shooterIDs.includes(hit.shooterID)) {
+                let newLOS = LOS(hit.shooterID,ta1.id,hit.special);
+                hit.bp = newLOS.bp;
+                hit.facing = newLOS.facing;
+                hit.distance = newLOS.distance;
+                hitInfo.hits2.swappable.push(hit);
+            } else {
+                hitInfo.hits2.unswappable.push(hit);
+            }
+        }
+        return hitInfo;
     }
 
 
@@ -3286,8 +3315,14 @@ log(rolls)
 
 
 
-    const BuildTargetTeamArray = (targetTeam,shooterTeamArray) => {
+
+
+
+
+
+    const BuildTargetTeamArray = (targetTeam,shooterTeam) => {
         let array = [];
+        let shooterUnit = UnitArray[shooterTeam.unitID];
         let targetUnit = UnitArray[targetTeam.unitID];
         let ids = targetUnit.teamIDs;
 
@@ -3319,11 +3354,20 @@ log(rolls)
             if (team.unique === true) {priority = 2};
             if (team.bailed() === true && team.type === "Tank") {priority = -2};
 
+            let shooterIDs = []; //used for Mistaken Swaps
+            for (let j=0;j<shooterUnit.teamIDs.length;j++) {
+                let ttLOS = LOS(team.id,shooterUnit.teamIDs[j],"Overhead");
+                if (ttLOS.los === true) {
+                    shooterIDs.push(shooterUnit.teamIDs[j]);
+                }
+            }
+
             let info = {
                 name: team.name,
                 id: team.id,
                 priority: priority,
                 refDistance: refDistance,
+                shooterIDs: shooterIDs,
             }
             array.push(info);
         }
@@ -3338,31 +3382,33 @@ log(rolls)
     }
 
     const Mistaken = (targetTeamArray,shooterTeamArray) => {
+log("In Mistaken")
         //applies mistaken target rule to targets 
         let roll = randomInteger(6);
 log("Roll: " + roll)
         let array = targetTeamArray.sort(function(a,b){
-            return a.priority - b.priority;
+            return b.priority - a.priority;
         })
-        
+log(array)
         for (let i=0;i<array.length;i++) {
             if (roll < 3) {break};
-            let team1 = TeamArray[array[i].id];
-            let hits1 = team1.hitArray;
-        
+            let t1 = array[i];
+log("T1: " + t1.name + " / Priority: " + t1.priority)
             for (let j=(array.length - 1);j>i;j--) {
-                if (array[j].priority === array[i].priority) {continue};
-                let team2 = TeamArray[array[j].id];
-                let hits2 = team2.hitArray;
-            
-                if (hits2.length < hits1.length) {
+                let t2 = array[j];
+log("T2: " + t2.name + " / Priority: " + t2.priority)
+                if (t1.priority === t2.priority) {continue};
+                let hitInfo = CompareHits(t1,t2); //eligible hits for swapping
+log("Hit Info")
+log(hitInfo)
+                if (hitInfo.hits2.swappable.length < hitInfo.hits1.swappable.length) {
 log("A Swap Occurs")
-log("Team1: " + team1.name + " / Priority: " + array[i].priority);
-log("Team2: " + team2.name + " / Priority: " + array[j].priority);
-                    //swap hits from team2 to team1
-                    TeamArray[team1.id].hits = SwapHits(hits2,team1);
-                    //swap from team1 to team2
-                    TeamArray[team2.id].hits = SwapHits(hits1,team2);
+                    let h1 = hitInfo.hits1.unswappable.concat(hitInfo.hits2.swappable);
+                    let h2 = hitInfo.hits2.unswappable.concat(hitInfo.hits1.swappable);
+log("Team1 New Hits: " + h1.length);
+log("Team2 New Hits: " + h2.length);
+                    TeamArray[t1.id].hitArray = h1;
+                    TeamArray[t2.id].hitArray = h2;
                     roll = randomInteger(6);
 log("Roll: " + roll)
                     break;
