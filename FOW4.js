@@ -83,7 +83,29 @@ const FOW4 = (() => {
 
     }
 
+    const SaveResults = {
+        "deflect": "Hit deflected by Armour",
+        "minor": "Hit caused Minor damage only",
+        "destroyed": "[#ff0000]Hit Destroys the Team[/#]",
+        "bailed": "[#0000ff]Hit caused Moderate Damage to Vehicle, Crew Suppressed[/#]",
+        "bailedAgain": "[#0000ff]Hit caused Moderate Damage to Vehicle, Crew Remains Suppressed[/#]",
+        "flees": "[#ff0000]Hit Destroys Tank as the Crew Flees![/#]",
+        "saved": "Hit Saved",
+        "cover": "Hit Saved by Cover",
+    }
 
+    const SaveResultsMult = {
+        "deflect": "All Hits deflected by Armour",
+        "minor": "Hits cause Minor damage only",
+        "destroyed": "[#ff0000]Hits Destroy the Team[/#]",
+        "bailed": "[#0000ff]Hits cause Moderate Damage to Vehicle, Crew Suppressed[/#]",
+        "bailedAgain": "[#0000ff]Hits cause Moderate Damage to Vehicle, Crew Remains Suppressed[/#]",
+        "flees": "[#ff0000]Hits Destroy Tank as the Crew Flees![/#]",
+        "saved": "All Hits Saved",
+        "cover": "All Hits Saved (Cover)",
+    }
+
+    
 
 
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
