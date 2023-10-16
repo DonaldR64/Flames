@@ -3640,11 +3640,58 @@ log(tt.name + " - Hits: " + tt.hitArray.length)
             if (unitIDs4Saves.includes(tt.unitID) === false) {
                 unitIDs4Saves.push(tt.unitID);
             }
+            //place markers on shooter
+    let line = '[🎲](#" class="showtip" title="' + hitRolls + toHitTips + ')' + shooterTeam.name + ": " + end;
+    outputCard.body.push(line);
+    if (AA === true || oppfire === true) {
+        shooterTeam.token.set(sm.oppfire,true);
+    } else {
+        shooterTeam.token.set(sm.fired,true);
+    }
+    if (state.TY.darkness === true) {
+        shooterTeam.token.set(sm.flare,true);
+    }
+
+
+    if (selectedTeam.player === currentPlayer) {
+        unitFiredThisTurn = true; //used to track start of Shooting Phase
+    }
+
+
+            //Sounds & FX
+
+
+
+
+
+
         }
+
+        //total hits
+
+
+
+        let allFired = true;
+    for (let i=0;i<shooterUnit.teamIDs.length;i++) {
+        let team = TeamArray[shooterUnit.teamIDs[i]];
+        if (team.token.get(sm.fired) === false && team.token.get(sm.oppfire) === false && team.type !== "System Unit") {
+            allFired = false;
+            break;
+        }
+    }
+
+    if (allFired === false) {
+        outputCard.body.push("[hr]");
+        outputCard.body.push("Not all Teams have fired");
+    }    
+
 
         //Saves
 
-
+    if (allFired === true) {
+        //can run saves
+        ProcessSaves();
+    } 
 
 
 
