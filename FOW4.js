@@ -3644,7 +3644,7 @@ log(weapons)
                 shooterTeam.token.set(SM.flare,true);
             }
 
-        }
+        } //end shooter(s)
 
         if (targetTeamArray.length > 1 && mistaken === true) {
             Mistaken(targetTeamArray,shooterTeamArray);
