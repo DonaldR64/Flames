@@ -324,31 +324,19 @@ section {
 
 .spheader h2 {
   text-align: center;
-  color: black;
-}
-
-input[type="hidden"][name="attr_faction"][value="Deathguard"] ~ .spheader h2 {
-  color: black;
-}
-input[type="hidden"][name="attr_faction"][value="Space Wolves"] ~ .spheader h2 {
-  color: black;
+  color: white;
 }
 
 .spbody h4 {
-  color: black;
+  color: white;
 }
-input[type="hidden"][name="attr_faction"][value="Deathguard"] ~ .spbody {
-  color: black;
-}
-input[type="hidden"][name="attr_faction"][value="Space Wolves"] ~ .spbody {
-  color: black;
-}
+
 .item span {
   font-size: 14px;
 }
 
 .spbody {
-  color: black;
+  color: white;
   align-items: center;
   text-align: center;
   padding: 0px 0px 0px 20px;
