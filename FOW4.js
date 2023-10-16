@@ -3646,10 +3646,12 @@ log(weapons)
 
         } //end shooter(s)
 
+/*
+//move to saves
         if (targetTeamArray.length > 1 && mistaken === true) {
             Mistaken(targetTeamArray,shooterTeamArray);
         }
-
+*/
         for (let i=0;i<targetTeamArray.length;i++) {
             let tt = TeamArray[targetTeamArray[i].id];
             if (unitIDs4Saves.includes(tt.unitID) === false) {
@@ -3725,16 +3727,6 @@ log(weapons)
         }
         return hitInfo;
     }
-
-
-
-
-
-
-
-
-
-
 
     const BuildTargetTeamArray = (targetTeam,shooterTeam) => {
         let array = [];
