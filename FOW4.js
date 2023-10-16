@@ -543,7 +543,7 @@ const FOW4 = (() => {
                 if (name.includes("(") || name.includes(")")) {
                     name = name.replace("(","[");
                     name = name.replace(")","]");
-                    AttributeSet(character.id,"weapon"+i+"name",name);
+                    AttributeSet(char.id,"weapon"+i+"name",name);
                 }
                 let fp = attributeArray["weapon"+i+"fp"];
                 if (fp === "AUTO") {
@@ -748,8 +748,9 @@ log("#: " + bestATWpnNum)
             this.assault = parse2ndStat(attributeArray.assault,this.skill);
             this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
             this.hit = parseStat(attributeArray.hit);
-            //this.artilleryFlag = artFlag;
-            //this.artillery = artillery;
+            this.artilleryFlag = artFlag;
+            this.artillery = artillery;
+            this.artNum = artNum;
             this.spotAttempts = 0;
             this.rangedInHex = {};
             this.nightvisibility = 0;
@@ -794,8 +795,169 @@ log("#: " + bestATWpnNum)
             return bailed;
         }
     
+        Save(hit,hitNum) {
+log(hit)
+            let facing = hit.facing;
+            let range = hit.range;
+            let bp = hit.bp;
+            let weapon = hit.weapon;
+            let rangedIn = hit.rangedIn;
+            let shooterType = hit.shooterType;
+            let closeCombat = (!hit.closeCombat) ? false:true;
 
+            let notes = weapon.notes;
+            let saveRoll = randomInteger(6);
+            let fpRoll = randomInteger(6);
+            let saveNeeded = 0;
+            let save = {
+                result: "",
+                tip: hitNum + ": ",
+                passIDs: [],
+                passengerType: "",
+            }
 
+            if (bp === "Artillery") {
+                bp = hexMap[this.hexLabel].bp;
+                if (hexMap[this.hexLabel].terrain.includes("Foxholes") && this.type === "Infantry") {bp = true};
+            } 
+            if (bp === "Passenger") {
+                bp = false;
+            }
+
+            if (this.type === "Tank") {
+                if (facing === "Front") {saveNeeded = this.armourF};
+                if (facing === "Side/Rear") {
+                    if (weapon.fp > 4 && shooterType === "Infantry" && this.special.includes("Skirts")) {
+                        saveNeeded = Math.max(5,this.armourS);
+                    } else {
+                        saveNeeded = this.armourS
+                    }                
+                };
+                if (facing === "Top") {saveNeeded = this.armourT};
+
+                saveNeeded = parseInt(saveNeeded);
+
+                if (range > Math.round(weapon.maxRange/2) && weapon.notes.includes("HEAT") === false) {
+                    saveNeeded += 1;
+                    save.tip += "<br>+1 Armour for Long Range<br>";
+                };
+
+                let armourSave = saveRoll + saveNeeded;
+
+                save.tip += "Antitank " + weapon.at + " vs. ";
+                save.tip += "<br>" + facing + " Armour: " + saveNeeded + " + Save Roll: " + saveRoll;
+
+                if (weapon.at > (saveNeeded + 6)) {
+                    save.tip = hitNum + ": Auto -  AT " + weapon.at + " vs Armour: " + saveNeeded;
+                }
+
+                if ((saveNeeded + 1) > weapon.at) {
+                    save.tip = hitNum + ": Bounce - Armour: " + saveNeeded + " vs AT " + weapon.at;
+                    PlaySound("Ricochet")
+                }
+
+                if (armourSave > weapon.at) {
+                    save.result = "deflect";
+                    PlaySound("Ricochet")
+                } else if (armourSave === weapon.at) {
+                    save.tip += "<br>Firepower Roll: " + fpRoll + " vs. " + weapon.fp + "+"; 
+                    if (fpRoll < weapon.fp) {
+                        save.result = "minor"
+                    } else {
+                        let result = this.BailOut();
+                        PlaySound("Hit");
+                        save.result = result.result;
+                        save.tip += result.tip;
+                        if (result.result === "flees") {save.tip = "*" + save.tip}
+                    }           
+                } else {
+                    save.tip += "<br>Firepower Roll: " + fpRoll + " vs. " + weapon.fp + "+"; 
+                    if (fpRoll < weapon.fp) {
+                        let result = this.BailOut();
+                        save.result = result.result;
+                        save.tip += result.tip;
+                        if (result.result === "flees" && save.tip.charAt(0) != "💀") {
+                            save.tip = "💀" + save.tip
+                        }
+                    } else {
+                        if (save.tip.charAt(0) != "💀") {
+                            save.tip = "💀" + save.tip
+                        }
+                        save.result = "destroyed";
+                    }
+                }
+            } else if (this.type === "Infantry" || this.type === "Unarmoured Tank" || this.type === "Gun") {
+                if (this.special.includes("Gun Shield") && facing === front && this.token.get(SM.dash) === false && bp !== "Artillery") {
+                    bp = true;
+                }
+
+                saveNeeded = parseInt(this.armourF);
+                if (closeCombat === true) {
+                    saveNeeded = 7;
+                }
+                save.tip = hitNum + ": Save Roll: " + saveRoll + " vs. " + saveNeeded + "+";
+                if (saveNeeded === 7) {
+                    save.tip = hitNum + ": No Save";
+                }
+                if (rangedIn && this.type === "Infantry" && saveRoll >= saveNeeded) {
+                    //reroll passed saves on rangedIn artillery for infantry
+                    saveRoll = randomInteger(6);
+                    save.tip += "<br>Rerolled due to RangedIn: " + saveRoll;
+                }
+                if (notes.includes("Brutal") && saveRoll >= saveNeeded) {
+                    //reroll passed saves for brutal weapons
+                    saveRoll = randomInteger(6);
+                    save.tip += "<br>Rerolled due to Brutal Weapon: " + saveRoll;
+                }
+                if ((weapon.type === "Flamethrower" || notes.includes("Flame-thrower")) && saveRoll >= saveNeeded) {
+                    //reroll passed saves for flamethrowers
+                    saveRoll = randomInteger(6);
+                    save.tip += "<br>Rerolled due to Flamethrower: " + saveRoll;
+                }
+                if (saveRoll >= saveNeeded) {
+                    save.result = "saved";
+                } else if (bp === true && this.type !== "Unarmoured Tank") {
+                    save.tip += "<br>Firepower Roll: " + fpRoll + " vs. " + weapon.fp + "+";
+                    if (fpRoll < weapon.fp) {
+                        save.result = "cover";
+                    } else {
+                        if (save.tip.charAt(0) != "💀") {
+                            save.tip = "💀" + save.tip
+                        }
+                        save.result = "destroyed";
+                    }
+                } else {
+                    if (save.tip.charAt(0) != "💀") {
+                        save.tip = "💀" + save.tip
+                    }                    
+                    save.result = "destroyed";
+                }
+            } else if (this.type === "Aircraft") {
+                //only weapons capable of targetting aircraft should make it to here
+                saveNeeded = parseInt(this.armourF);
+                save.tip = hitNum + ": Save Roll: " + saveRoll + " vs. " + saveNeeded + "+";
+                if (saveRoll >= saveNeeded) {
+                    save.result = "saved";
+                } else {
+                    save.tip += "<br>Firepower Roll: " + fpRoll + " vs. " + weapon.fp + "+";
+                    let noRerollWeapons = ["Guided","Guided AA","Anti-helicopter","Dedicated AA"];
+                    let notes = weapon.notes.split(",");
+                    if (((shooterType === "Infantry" && findCommonElements(noRerollWeapons,notes) === false) || weapon.type === "AA MG") && fpRoll >= weapon.fp) {
+                        fpRoll = randomInteger(6);
+                        save.tip += "<br>Rerolled: " + fpRoll;
+                    }
+                    if (fpRoll < weapon.fp) {
+                        save.result = "minor";
+                    } else {
+                        if (save.tip.charAt(0) != "💀") {
+                            save.tip = "💀" + save.tip
+                        }
+                        save.result = "destroyed";
+                    }
+                } 
+            }
+            return save;
+        }
 
 
 
@@ -3224,6 +3386,9 @@ log("Mistaken: " + mistaken)
                     continue;
                 };
                 if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
+                if (target.type === "Aircraft" && (weapon.notes.includes("AA") === false || weapon.type.includes("AA") === false)) {
+                    continue;
+                } 
                 let initialLOS = LOS(st.id,targetID,overhead);
                 if (initialLOS.los === false) {continue};
                 if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {continue};
@@ -3252,6 +3417,15 @@ log("Mistaken: " + mistaken)
         }
 
         weapons = Unique(weapons,"name");
+        let wnames = "";
+        for (let i=0;i<weapons.length;i++) {
+            if (i>0) {wnames += ", "}
+            wnames += weapons[i].name;
+        }
+
+
+        outputCard.body.push(wnames);
+        outputCard.body.push("[hr]");
 
         //expand ETA
         for (let i=0;i<shooterTeamArray.length;i++) {
@@ -3301,29 +3475,71 @@ log(weapons)
             for (let j=0;j<weapons.length;j++) {
                 let weapon = weapons[j];
                 let toHit = target.hit;
+                let toHitTips = "";
                 let los = eta[0].los;
                 if (los.distance > Math.max(16,Math.round(weapon.maxRange/2))) {
                     toHit++;
+                    toHitTips += "<br>> 1/2 Range +1";
                 }
                 if (los.concealed === true) {
                     toHit++;
+                    toHitTips += "<br>Concealed +1";
                     if (target.token.get(SM.gtg) === true) {
                         toHit++;
+                        toHitTips += " and Gone to Ground +1";
+                    } else if (target.special.includes("Scout") && target.token.get(SM.fired) === false) {
+//plus not if assaulting - have to figure out how to put that in here
+                        toHit++;
+                        toHitTips += " and Scout +1";
                     }
+
+
                 }
                 if (los.smoke === true) {
                     toHit++;
+                    toHitTips += "<br>Smoke +1";
                 }
                 if (sTeam.inCommand() === false) {
                     toHit++;
+                    toHitTips += "<br>Not in Command +1";
                 }
                 if (state.FOW4.darkness === true) {
+                    toHitTips += "<br>Darkness +1";
                     toHit++;
+                }
+                if (weapon.notes.includes("No HE") && (target.type === "Infantry" || target.type === "Gun")) {
+                    toHit++;
+                    toHitTips += "<br>No HE +1";
+                }
+                if (sTeam.special.includes("Overworked") && (sTeam.token.get(SM.tactical) === true || sTeam.token.get(SM.dash) === true)) {
+                    toHit++;
+                    toHitTips += "<br>Overworked & Moved +1";
+                }
+                if (weapon.notes.includes("Slow Firing") && (sTeam.token.get(SM.tactical) === true || sTeam.token.get(SM.dash) === true)) {
+                    toHit++;
+                    toHitTips += "<br>Slow Firing & Moved +1";
                 }
 
                 let rof = weapon.halted;
                 if (sTeam.token.get(SM.tactical) === true) {
                     rof = weapon.moving;
+                }
+                if (shooterUnit.pinned() === true) {
+                    if (weapon.notes.includes("Pinned ROF")) {
+                        let substring = weapon.notes.split(",");
+                        substring = substring.filter((string) => string.includes("Pinned ROF"));
+                        substring= substring.toString();
+                        rof = parseInt(substring.replace(/[^0-9]+/g, ""));
+                    } else {
+                        rof = weapon.moving;
+                    }
+                }
+                if (target.type === "Aircraft") {
+                    if (weapon.notes.includes("Self Defence AA")) {
+                        rof = 1;
+                    } else if (weapon.notes.includes("Dedicated AA")) {
+                        rof = weapon.halted;
+                    }
                 }
 
                 let rolls = [];
@@ -3346,9 +3562,42 @@ log(weapons)
                     }
                 }
 
-log("To Hit: " + toHit)
-log("Rolls: " + rolls)
-                outputCard.body.push(sTeam.name + " firing " + weapon.name + " gets " + hits + " hits.");
+                rolls.sort();
+                rolls.reverse();
+
+
+                let end;
+                if (hits === 0) {
+                    if (rof === 1) {
+                        end = "1 Shot which Missed";
+                    } else {
+                        end = "Missed with " + rof + " Shots";
+                    }
+                } else if (rof > 1) {
+                    let noun = " Hit";
+                    if (hits > 1) {noun += "s"};
+                    end = hits + noun + " from " + rof + " Shots";
+                    if (shellType === "Smoke") {
+                        end = "Smoked a Target";
+                    }
+                } else {
+                    end = "1 Shot which Hit";
+                    if (shellType === "Smoke") {
+                        end = "Smoked a Target";
+                    }
+                }
+    
+                if (hits > 0) {
+                    end = "[#ff0000]" + end + "[/#]";       
+                }
+    
+                if (toHitTips !== "") {
+                    toHitTips = "<br>Modifiers" + toHitTips;
+                }
+
+                let line = '[🎲](#" class="showtip" title="Rolls: ' + rolls + toHitTips + ')' + sTeam.name + ": " + end;
+                outputCard.body.push(line);
+
                 //assign hits
                 for (let q=0;q<hits;q++) {
     log("Hit " + (q+1))
@@ -3370,8 +3619,11 @@ log("Rolls: " + rolls)
                         weapon: weapon,
                         bp: eta[targNum].los.bulletproof,
                         facing: eta[targNum].los.facing,
-                        distance: eta[targNum].los.distance,
+                        range: eta[targNum].los.distance,
                         shooterID: sTeam.id,
+                        shooterType: sTeam.type,
+                        rangedIn: false,
+                        closeCombat: false,
                         special: eta[targNum].los.special,
                     }
                     TeamArray[eta[targNum].targetID].hitArray.push(hit);
@@ -3391,13 +3643,10 @@ log(tt.name + " - Hits: " + tt.hitArray.length)
             }
         }
 
-
-
-
-
+        //Saves
         
 
-        //Saves ?
+
 
 
 
@@ -3575,11 +3824,11 @@ log("Roll: " + roll)
                 let newHex = pointToHex(newLocation);
                 let newHexLabel = newHex.label();
                 newLocation = hexToPoint(newHex); //centres it in hex
-                let newRotation = oldHex.angle(newHex);
+                //let newRotation = oldHex.angle(newHex);
                 tok.set({
                     left: newLocation.x,
                     top: newLocation.y,
-                    rotation: newRotation,
+                    //rotation: newRotation,
                 });
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
