@@ -2372,7 +2372,9 @@ log("#: " + bestATWpnNum)
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
             let abName = weapon.name;
+            let wtype = weapon.type;
             if (weapon.type.includes("MG")) {
+                wtype = "MG"
                 if (mg === true) {
                     continue;
                 } else {
@@ -2386,7 +2388,7 @@ log("#: " + bestATWpnNum)
                 shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
             }
             abilityName = "Fire: " + abName;
-            action = "!Shooting;@{selected|token_id};@{target|token_id};" + weapon.type + ";" + shellType;
+            action = "!Shooting;@{selected|token_id};@{target|token_id};" + wtype + ";" + shellType;
             AddAbility(abilityName,action,char.id);
         }
 
@@ -3194,7 +3196,11 @@ log("Mistaken: " + mistaken)
             for (let j=0;j<st.weaponArray.length;j++) {
                 let weapon = st.weaponArray[j];
                 let overhead = "";
-                if (weapon.type !== weaponType) {continue};
+                if (weaponType === "MG" && weapon.type.includes("MG") === false) {
+                    continue;
+                } else if (weaponType !== "MG" && weapon.type !== weaponType) {
+                    continue;
+                };
                 if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
                 let initialLOS = LOS(st.id,targetID,overhead);
                 if (initialLOS.los === false) {continue};
@@ -3214,6 +3220,8 @@ log("Mistaken: " + mistaken)
                 }
             }
         }
+
+        shooterTeamArray = [...new Set(shooterTeamArray)];
 
         if (shooterTeamArray.length === 0) {
             outputCard.body.push("Target not in Range or LOS");
