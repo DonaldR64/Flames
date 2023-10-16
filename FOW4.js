@@ -47,6 +47,45 @@ const FOW4 = (() => {
         "aafire": "status_sentry-gun",
     }
 
+    let specialInfo = {
+
+        "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
+        "Bombs": "Bombs do not need to re-roll successful To Hit rolls for having only 1 or 2 weapons firing",
+        "Brutal": "Infantry, Gun and Unarmoured Tank Teams re-roll successful Saves against Brutal Weapons",
+        "Dedicated AA": "Dedicated AA Weapons can Shoot at Aircraft using their Halted ROF",
+        "Flamethrower": "",
+        "Forward Firing": "Forward Firing Weapons can only target Teams fully in front of the Shooter",
+        "Gun Shield": "Gives Bulletproof Cover when shot at from the Front. No protection against Bombardments or if the Team moved at Dash speed",
+        "HEAT": "A Team's Armour is not increased by +1 if at long Range vs HEAT",
+        "Heavy Weapon": "A Heavy Weapon Team cannot Charge into Contact",
+        "HQ": "HQ Team",
+        "Independent": "An Independent Team",
+        "Large Gun": 'Cannot be placed in Buildings and cannot be placed from Ambush within 16" of enemy',
+        "Limited 1": "Each time the Unit  shoots, one of its Teams may shoot this weapon rather than its usual weapons",
+        "No HE": "A weapon with no HE targetting an Infantry or Gun Team add +1 to the score needed To Hit",
+        "Old Hand": 'An Old Hand Commander gives Units from their Formation whose Unit Leader is within 6" a Tactics rating of 3+',
+        "Observer": "Observer Teams can Sport for any friendly Artillery Unit",
+        "Overhead Fire": "Grenade Launchers and Light Mortars capable of Overhead Fire can fire over friendly team",
+        "Overworked": "Overworked weapons add +1 to the score needed To Hit when moving",
+        "Passengers #": "A Transport Team can carry # Infantry Teams as Passengers",
+        "Pinned ROF 1": "These weapons have a ROF of 1 when Pinned Down",
+        "Salvo": "Use a larger Artillery Template",
+        "Scout": "Scouts are Gone to Ground unless they Shoot or Assault. This means that if they are Concealed, the enemy will suffer an additional +1 penalty to hit them",
+        "Self-Defence AA": "Self-Defence AA weapons can Shoot at Aircraft with ROF 1",
+        "Slow Firing": "Slow Firing Weapons add +1 to the score needed To Hit when moving",
+        "Smoke": "Smoke weapons can Shoot Smoke ammunition",
+        "Smoke Bombardment": "Once per game, the weapon can fire a Smoke Bombardment",
+        "Spearhead": "Special Rules for Deployment (page 93)",
+        "Stormtroopers": "The Unit may attempt a second Movement Order after succeeding in its first Movement Order. The second Movement Order must be different from the first.",
+        "Tractor": "A Tractor Team can tow a single Gun Team as a Passenger, placing the Gun Team behind it",
+        "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if assaulted",
+        "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.'
+
+    }
+
+
+
+
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
 
     let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: []};
