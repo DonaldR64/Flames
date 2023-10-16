@@ -1,5 +1,5 @@
 const FOW4 = (() => { 
-    const version = '4.10.11';
+    const version = '4.10.15';
     if (!state.FOW4) {state.FOW4 = {}};
 
     //Constants and Persistent Variables
@@ -3492,6 +3492,9 @@ log(tt.name + " - Hits: " + tt.hitArray.length)
     log(array)
         return array;
     }
+
+
+
 
     const Mistaken = (targetTeamArray,shooterTeamArray) => {
 log("In Mistaken")
