@@ -76,7 +76,7 @@ const FOW4 = (() => {
         "Smoke": "Smoke weapons can Shoot Smoke ammunition",
         "Smoke Bombardment": "Once per game, the weapon can fire a Smoke Bombardment",
         "Spearhead": "Special Rules for Deployment (page 93)",
-        "Stormtroopers": "The Unit may attempt a second Movement Order after succeeding in its first Movement Order. The second Movement Order must be different from the first.",
+        "Stormtroopers": "The Unit may attempt a second Special Order after succeeding in its first Special Order. The second Movement Order must be different from the first.",
         "Tractor": "A Tractor Team can tow a single Gun Team as a Passenger, placing the Gun Team behind it",
         "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if assaulted",
         "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.'
