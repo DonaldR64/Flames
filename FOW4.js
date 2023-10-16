@@ -71,7 +71,7 @@ const FOW4 = (() => {
         "Pinned ROF 1": "These weapons have a ROF of 1 when Pinned Down",
         "Salvo": "Use a larger Artillery Template",
         "Scout": "Scouts are Gone to Ground unless they Shoot or Assault. This means that if they are Concealed, the enemy will suffer an additional +1 penalty to hit them",
-        "Self-Defence AA": "Self-Defence AA weapons can Shoot at Aircraft with ROF 1",
+        "Self Defence AA": "Self-Defence AA weapons can Shoot at Aircraft with ROF 1",
         "Slow Firing": "Slow Firing Weapons add +1 to the score needed To Hit when moving",
         "Smoke": "Smoke weapons can Shoot Smoke ammunition",
         "Smoke Bombardment": "Once per game, the weapon can fire a Smoke Bombardment",
@@ -608,7 +608,7 @@ log("#: " + bestATWpnNum)
             if (!specials || specials === "") {
                 specials = " ";
             }
-            specials = specials.split(";");
+            specials = specials.split(",");
             for (let i=0;i<specials.length;i++) {
                 let special = specials[i].trim();
                 let attName = "special" + i;
