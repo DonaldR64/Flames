@@ -1,5 +1,5 @@
 const FOW4 = (() => { 
-    const version = '4.10.15';
+    const version = '4.10.15b';
     if (!state.FOW4) {state.FOW4 = {}};
 
     //Constants and Persistent Variables
