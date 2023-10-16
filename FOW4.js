@@ -3475,7 +3475,7 @@ log(weapons)
             for (let j=0;j<weapons.length;j++) {
                 let weapon = weapons[j];
                 let toHit = target.hit;
-                let toHitTips = "";
+                let toHitTips = "<br>Base: " + toHit;
                 let los = eta[0].los;
                 if (los.distance > Math.max(16,Math.round(weapon.maxRange/2))) {
                     toHit++;
@@ -3565,6 +3565,9 @@ log(weapons)
                 rolls.sort();
                 rolls.reverse();
 
+                rolls = rolls.toString() + " vs. " + toHit + "+";
+
+
 
                 let end;
                 if (hits === 0) {
@@ -3589,10 +3592,6 @@ log(weapons)
     
                 if (hits > 0) {
                     end = "[#ff0000]" + end + "[/#]";       
-                }
-    
-                if (toHitTips !== "") {
-                    toHitTips = "<br>Modifiers" + toHitTips;
                 }
 
                 let line = '[🎲](#" class="showtip" title="Rolls: ' + rolls + toHitTips + ')' + sTeam.name + ": " + end;
@@ -3644,7 +3643,7 @@ log(tt.name + " - Hits: " + tt.hitArray.length)
         }
 
         //Saves
-        
+
 
 
 
@@ -3824,11 +3823,11 @@ log("Roll: " + roll)
                 let newHex = pointToHex(newLocation);
                 let newHexLabel = newHex.label();
                 newLocation = hexToPoint(newHex); //centres it in hex
-                //let newRotation = oldHex.angle(newHex);
+                let newRotation = oldHex.angle(newHex);
                 tok.set({
                     left: newLocation.x,
                     top: newLocation.y,
-                    //rotation: newRotation,
+                    rotation: newRotation,
                 });
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
