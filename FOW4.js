@@ -505,6 +505,7 @@ const FOW4 = (() => {
             let location = new Point(token.get("left"),token.get("top"));
             let hex = pointToHex(location);
             let hexLabel = hex.label();
+            let infoArray = [];
 
             //create array of weapon info
             let weaponArray = [];
@@ -569,13 +570,24 @@ const FOW4 = (() => {
                     notes: notes,
                     type: type,
                 }
-                if (weapon.notes.includes("Heavy Weapon")) {
+                if (notes.includes("Heavy Weapon")) {
                     if (special === " ") {
                         special = "Heavy Weapon"
                     } else {
                         special += ",Heavy Weapon";
                     }
                 }
+
+                if (notes !== " ") {
+                    //puts info on weapon specials on sheet
+                    let ws = notes.split(",");
+                    for (let s=0;s<ws.length;s++) {
+                        let wss = ws[s].trim();
+                        infoArray.push(wss);
+                    }
+                }
+
+
                 weaponArray.push(weapon);
                 if (halted === "Artillery" || halted === "Salvo" || moving === "Artillery" || moving === "Salvo") {
                     artFlag = true;
@@ -591,13 +603,62 @@ log("BestAT: " + bestAT)
 log("#: " + bestATWpnNum)
 
 
+            //update sheet with info
+            let specials = attributeArray.special;
+            if (!specials || specials === "") {
+                specials = " ";
+            }
+            specials = specials.split(";");
+            for (let i=0;i<specials.length;i++) {
+                let special = specials[i].trim();
+                let attName = "special" + i;
+                AttributeSet(char.id,attName,special);
+                infoArray.push(special);
+            }
 
+            infoArray = [...new Set(infoArray)];
 
+            infoArray.sort(function (a,b) {
+                let a1 = a.charAt(0).toLowerCase();
+                let b1 = b.charAt(0).toLowerCase();
+                if (a1<b1) {return -1};
+                if (a1>b1) {return 1};
+                return 0;
+            });
 
+            for (let i=0;i<10;i++) {
+                let specName = infoArray[i];
+                if (!specName || specName === "") {continue}
+                if (specName.includes("(")) {
+                    let index = specName.indexOf("(");
+                    specName = specName.substring(0,index);
+                    specName += "(X)";
+                }
+                if (specName.includes("+")) {
+                    let index = specName.indexOf("+");
+                    specName = specName.substring(0,index);
+                    specName += "+X";
+                }
+                let specInfo = specialInfo[specName];
+                if (specName) {
+                    specName += ": ";
+                }
+                if (!specInfo && specName) {
+                    specInfo = "Not in Database Yet";
+                }
+                let atName = "spec" + (i+1) + "Name";
+                let atText = "spec" + (i+1) + "Text";
 
-            //special
-            let special = attributeArray.special;
-            if (!special || special === "") {
+                if (!specName) {
+                    DeleteAttribute(char.id,atName);
+                } else {
+                    AttributeSet(char.id,atName,specName);
+                    AttributeSet(char.id,atText,specInfo);
+                }
+            }
+
+            let special = infoArray.toString();
+            if (!special || special === "" || special === " ") {
                 special = " ";
             }
 

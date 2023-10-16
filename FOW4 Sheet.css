@@ -324,7 +324,7 @@ section {
 
 .spheader h2 {
   text-align: center;
-  color: white;
+  color: black;
 }
 
 input[type="hidden"][name="attr_faction"][value="Deathguard"] ~ .spheader h2 {
@@ -335,7 +335,7 @@ input[type="hidden"][name="attr_faction"][value="Space Wolves"] ~ .spheader h2 {
 }
 
 .spbody h4 {
-  color: white;
+  color: black;
 }
 input[type="hidden"][name="attr_faction"][value="Deathguard"] ~ .spbody {
   color: black;
@@ -348,7 +348,7 @@ input[type="hidden"][name="attr_faction"][value="Space Wolves"] ~ .spbody {
 }
 
 .spbody {
-  color: white;
+  color: black;
   align-items: center;
   text-align: center;
   padding: 0px 0px 0px 20px;
