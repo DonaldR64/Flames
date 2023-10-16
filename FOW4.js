@@ -3468,7 +3468,8 @@ log("Mistaken: " + mistaken)
 log("# Shooters: " + shooterTeamArray.length)
 
 log(weapons)
-        
+        let totalHits = 0;        
+
         for (let i=0;i<shooterTeamArray.length;i++) {
             let sTeam = shooterTeamArray[i];
             let eta = sTeam.eta;
@@ -3568,7 +3569,7 @@ log(weapons)
                 rolls = rolls.toString() + " vs. " + toHit + "+";
 
 
-
+                totalHits += hits;
                 let end;
                 if (hits === 0) {
                     if (rof === 1) {
@@ -3596,6 +3597,11 @@ log(weapons)
 
                 let line = '[🎲](#" class="showtip" title="Rolls: ' + rolls + toHitTips + ')' + sTeam.name + ": " + end;
                 outputCard.body.push(line);
+                PlaySound(weapon.type);
+                //FX
+
+
+
 
                 //assign hits
                 for (let q=0;q<hits;q++) {
@@ -3628,70 +3634,51 @@ log(weapons)
                     TeamArray[eta[targNum].targetID].hitArray.push(hit);
                 }
             }
+            //place markers on shooter
+            if (target.type === "Aircraft") {
+                shooterTeam.token.set(SM.aafire,true);
+            } else {
+                shooterTeam.token.set(SM.fired,true);
+            }
+            if (state.FOW4.darkness === true) {
+                shooterTeam.token.set(SM.flare,true);
+            }
+
         }
 
         if (targetTeamArray.length > 1 && mistaken === true) {
             Mistaken(targetTeamArray,shooterTeamArray);
         }
-log("Final Hit #s")
+
         for (let i=0;i<targetTeamArray.length;i++) {
             let tt = TeamArray[targetTeamArray[i].id];
-log(tt.name + " - Hits: " + tt.hitArray.length)
             if (unitIDs4Saves.includes(tt.unitID) === false) {
                 unitIDs4Saves.push(tt.unitID);
             }
-            //place markers on shooter
-    let line = '[🎲](#" class="showtip" title="' + hitRolls + toHitTips + ')' + shooterTeam.name + ": " + end;
-    outputCard.body.push(line);
-    if (AA === true || oppfire === true) {
-        shooterTeam.token.set(sm.oppfire,true);
-    } else {
-        shooterTeam.token.set(sm.fired,true);
-    }
-    if (state.TY.darkness === true) {
-        shooterTeam.token.set(sm.flare,true);
-    }
-
-
-    if (selectedTeam.player === currentPlayer) {
-        unitFiredThisTurn = true; //used to track start of Shooting Phase
-    }
-
-
-            //Sounds & FX
-
-
-
-
-
-
         }
 
         //total hits
-
-
+        outputCard.body.push("[hr]");
+        outputCard.body.push("Total Hits: " + totalHits);
 
         let allFired = true;
-    for (let i=0;i<shooterUnit.teamIDs.length;i++) {
-        let team = TeamArray[shooterUnit.teamIDs[i]];
-        if (team.token.get(sm.fired) === false && team.token.get(sm.oppfire) === false && team.type !== "System Unit") {
-            allFired = false;
-            break;
+        for (let i=0;i<shooterUnit.teamIDs.length;i++) {
+            let team = TeamArray[shooterUnit.teamIDs[i]];
+            if (team.token.get(sm.fired) === false && team.token.get(sm.aafire) === false) {
+                allFired = false;
+                break;
+            }
         }
-    }
 
-    if (allFired === false) {
-        outputCard.body.push("[hr]");
-        outputCard.body.push("Not all Teams have fired");
-    }    
+        if (allFired === false) {
+            outputCard.body.push("[hr]");
+            outputCard.body.push("Not all Teams have fired");
+        }    
 
-
-        //Saves
-
-    if (allFired === true) {
-        //can run saves
-        ProcessSaves();
-    } 
+        if (allFired === true) {
+            //can run saves
+            //ProcessSaves();
+        } 
 
 
 
