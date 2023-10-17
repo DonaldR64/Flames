@@ -49,7 +49,7 @@ const FOW4 = (() => {
     }
 
     let specialInfo = {
-        "Artillery": "Team has weapon capable of an Artillery Barrage",
+        "Artillery": "Team has a weapon capable of an Artillery Barrage",
         "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
         "Bombs": "Bombs do not need to re-roll successful To Hit rolls for having only 1 or 2 weapons firing",
         "Brutal": "Infantry, Gun and Unarmoured Tank Teams re-roll successful Saves against Brutal Weapons",
@@ -59,19 +59,19 @@ const FOW4 = (() => {
         "Gun Shield": "Gives Bulletproof Cover when shot at from the Front. No protection against Bombardments or if the Team moved at Dash speed",
         "HEAT": "A Team's Armour is not increased by +1 if at long Range vs HEAT",
         "Heavy Weapon": "A Heavy Weapon Team cannot Charge into Contact",
-        "HQ": "HQ Team",
+        "HQ": "Always In Command and ignores Morale Checks. May Spot for Artillery",
         "Independent": "An Independent Team",
         "Large Gun": 'Cannot be placed in Buildings and cannot be placed from Ambush within 16" of enemy',
         "Limited 1": "Each time the Unit  shoots, one of its Teams may shoot this weapon rather than its usual weapons",
         "No HE": "A weapon with no HE targetting an Infantry or Gun Team add +1 to the score needed To Hit",
         "Old Hand": 'An Old Hand Commander gives Units from their Formation whose Unit Leader is within 6" a Tactics rating of 3+',
-        "Observer": "Observer Teams can Sport for any friendly Artillery Unit",
+        "Observer": "Observer Teams can Spot for Artillery",
         "Overhead Fire": "Grenade Launchers and Light Mortars capable of Overhead Fire can fire over friendly team",
         "Overworked": "Overworked weapons add +1 to the score needed To Hit when moving",
         "Passengers #": "A Transport Team can carry # Infantry Teams as Passengers",
         "Pinned ROF 1": "These weapons have a ROF of 1 when Pinned Down",
         "Salvo": "Use a larger Artillery Template",
-        "Scout": "Scouts are Gone to Ground unless they Shoot or Assault. This means that if they are Concealed, the enemy will suffer an additional +1 penalty to hit them",
+        "Scout": "Scouts are Gone to Ground unless they Shoot or Assault",
         "Self Defence AA": "Self-Defence AA weapons can Shoot at Aircraft with ROF 1",
         "Slow Firing": "Slow Firing Weapons add +1 to the score needed To Hit when moving",
         "Smoke": "Smoke weapons can Shoot Smoke ammunition",
@@ -79,7 +79,7 @@ const FOW4 = (() => {
         "Spearhead": "Special Rules for Deployment (page 93)",
         "Stormtroopers": "The Unit may attempt a second Special Order after succeeding in its first Special Order. The second Movement Order must be different from the first.",
         "Tractor": "A Tractor Team can tow a single Gun Team as a Passenger, placing the Gun Team behind it",
-        "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if assaulted",
+        "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if Assaulted",
         "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.'
 
     }
@@ -792,6 +792,7 @@ log(this.artillery)
         }
 
         inCommand() {
+            if (this.special.includes("HQ")) {return true};
             let inC = false;
             let unit = UnitArray[this.unitID];
             let unitLeader = TeamArray[unit.teamIDs[0]];
@@ -2371,7 +2372,7 @@ log(hit)
         let targetArray = [];
         let sms = [SM.tactical,SM.dash,SM.hold,SM.assault];
 
-        if (inCommand === true) {
+        if (inCommand === true && order !== "Spot") {
             targetTeam = unitLeader;
             targetName = unit.name;
             for (let i=0;i<unit.teamIDs.length;i++) {
@@ -2465,8 +2466,10 @@ log(hit)
             outputCard.body.push('Teams must target an enemy within 8 hexes of the Team it will charge into');
             outputCard.body.push("Eligible Teams can complete the charge");
             marker = SM.assault;
-        } 
-
+        } else if (order.includes("Spot")) {
+            CreateBarrages(targetTeam.id);
+            marker = SM.radio;
+        }
 
         outputCard.body.push(extraLine);
         for (let i=0;i<targetArray.length;i++) {
@@ -2478,7 +2481,7 @@ log(hit)
                 outputCard.body.push('[' + targetArray[i].name + " already has " + targetArray[i].specialorder + "]");
             }
         }
-        if (inCommand === true) {
+        if (inCommand === true && order !== "Spot") {
             unit.order = order;
             unit.specialorder = specialorder;
         }
@@ -2521,28 +2524,37 @@ log(hit)
             AddAbility(abilityName,action,char.id);
         }
 
+
+/*
         if (special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) {
             abilityName = "Spot";
             action = "!CreateBarrages;@{selected|token_id}";
             AddAbility(abilityName,action,char.id);
         }
 
-/*
         abilityName = "Targets";
         action = "!Targetting";
         AddAbility(abilityName,action,char.id);
 */
+
+
+
         if (type === "Infantry") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault}";
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
         } else if (type === "Gun") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold}";
+            action = "!Activate;?{Order|Tactical|Dash|Hold";
         } else if (type === "Tank") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault}";
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
         } else if (type === "Unarmoured Tank") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold}";
+            action = "!Activate;?{Order|Tactical|Dash|Hold";
         } else if (type === "Aircraft") {
             action = "!Activate;Aircraft";
         }
+
+        if (special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) {
+            action += "|Spot";
+        }
+        action += "}";
         abilityName = "Orders";
         AddAbility(abilityName,action,char.id);
 
@@ -2584,6 +2596,8 @@ log(hit)
         let mg = false;
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
+            if (weapon.type === "Artillery") {continue};
+            //if weapon has direct fire should classify type as gun
             let abName = weapon.name;
             let wtype = weapon.type;
             if (weapon.type.includes("MG")) {
@@ -2595,7 +2609,6 @@ log(hit)
                     mg = true;
                 }
             }
-
             let shellType = "Regular";
             if (weapon.notes.includes("Smoke") && weapon.type !== "Artillery") {
                 shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
@@ -3873,13 +3886,10 @@ log("Roll: " + roll)
     }
 
 
-    const CreateBarrages = (msg) => {
+    const CreateBarrages = (observerID) => {
         //RemoveBarrageToken();
         //RemoveLines();
-        let Tag = msg.content.split(";");
-        let observerID = Tag[1];
         let observerTeam = TeamArray[observerID];
-        SetupCard("Place Barrages","",observerTeam.nation);
         let errorMsg = [];
 
         if (observerTeam.spotAttempts >= 3) {
@@ -3968,7 +3978,7 @@ log(ai)
 
         outputCard.body.push("Place Barrage Marker");
         outputCard.body.push("Choose Artillery When in Place");
-        PrintCard();
+        //feeds back to ActivateUnit2
     }
 
     const ArtilleryInfo = (barrageID,spotter,barrageCharID) => {
