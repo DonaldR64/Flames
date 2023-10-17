@@ -1319,6 +1319,7 @@ log(hit)
             startingPlayer: "",
             barrageID: "",
             BarrageInfo: [],
+            smokeScreens: [[],[]],
         }
         sendChat("","Cleared State/Arrays");
     }
@@ -3070,7 +3071,7 @@ log(hit)
         /*
         for (let i=0;i<2;i++) {
             if (LeaderResFlag[i] === false) {continue};
-            SetupCard("Commander Survival","",state.TY.nations[i][0]);
+            SetupCard("Commander Survival","",state.FOW4.nations[i][0]);
             let possibleIDs = LeaderResInfo[i].possibleIDs;
             let count = 0;
             for (let j=0;j<possibleIDs.length;j++) {
@@ -3082,7 +3083,7 @@ log(hit)
             }
             if (count === 0) {continue} //all dead
             
-            outputCard.body.push(state.TY.nations[i][0] + " Commander has a chance of Survival");
+            outputCard.body.push(state.FOW4.nations[i][0] + " Commander has a chance of Survival");
             outputCard.body.push("Eligible Teams are indicated by a Green dot");
             outputCard.body.push("Select One and Click the Button to Roll a Dice");
             outputCard.body.push("On a roll of 3+ the Commander survives and takes over the selected Team");
@@ -3929,8 +3930,6 @@ log("Roll: " + roll)
         let barrageUnit = UnitArray[num];
         let barrageTeam = new Team(newToken.id,num,num);
 
-log(barrageTeam)
-/*        
         let ai = ArtilleryInfo(newToken.id,observerTeam,represents);//adds artillery options to barrage token
         let unitIDs = ai.unitIDs;
         let two = ai.two;
@@ -3958,13 +3957,97 @@ log(barrageTeam)
 
 
         state.FOW4.BarrageInfo = info;
-*/
-
 
         outputCard.body.push("Place Barrage Marker");
         outputCard.body.push("Choose Artillery When in Place");
         PrintCard();
     }
+
+    const ArtilleryInfo = (barrageID,spotter,barrageCharID) => {
+        let keys = Object.keys(TeamArray);
+        let unitIDs = [];
+        let normal = false;
+        let salvo = false;
+        for (let i=0;i<keys.length;i++) {
+            let team = TeamArray[keys[i]];
+            if (team.player !== spotter.player) {continue};
+            if (team.special.includes("Artillery") === false) {continue};
+            let unit = UnitArray[team.unitID];
+            if (unit.pinned() === true) {continue};
+            if (unitIDs.includes(unit.id)) {continue};
+            if (unit.order === "Failed Blitz" || unit.order.includes("Dig In")) {continue};
+            let ids = unit.teamIDs;
+            let artTeams = [];
+            let weapon = team.artillery;
+            for (let j=0;j<ids.length;j++) {
+                let artTeam = TeamArray[ids[j]];
+                if (artTeam.special.includes("Artillery") === false) {continue};
+                if (artTeam.token.get(SM.fired) === true) {continue};
+                if (artTeam.bailed() === true) {continue};
+                if ((artTeam.type === "Aircraft") && unit.id !== spotter.unitID) {continue};
+                if (hexMap[artTeam.hexLabel].terrain.includes("Building") && artTeam.type !== "Aircraft") {continue};
+                if (artTeam.type !== "Aircraft" && (artTeam.token.get(SM.tactical) === true || artTeam.token.get(SM.dash) === true)) {
+                    continue; //moved
+                }
+                //if (hexMap[artTeam.hexLabel].terrain.includes("Offboard") && artTeam.special.includes("Firebase") === false) {continue};
+                if (hexMap[artTeam.hexLabel].terrain.includes("Reserves")) {continue};
+                artTeams.push(artTeam);
+            }
+            if (artTeams.length === 0) {continue};
+            if (weapon.moved === "Artillery" || weapon.halted === "Artillery") {
+                normal = true;
+            }
+            if (weapon.moved === "Salvo" || weapon.halted === "Salvo") {
+                salvo = true;
+            }    
+            unitIDs.push(unit.id);
+            //now will have # of teams and weapons and an array of those teams (for arcs, ranges when needed)
+            //flags for special weapons
+            smokeFlag = false;
+            if (unitFiredThisTurn === false && weapon.notes.includes("Smoke Bombardment") === true && state.FOW4.smokeScreens[unit.player].includes(unit.id) === false) {
+                smokeFlag = true; //start of firing, hasnt fired its smoke bombardment
+            }
+/*
+            oneShots = []; //an array of teams with their one shot weapons still
+            for (let k=0;k<artTeams.length;k++) {
+                if (weapon.notes.includes("One Shot") && artTeams[k].token.get(SM.oneshot) === false) {
+                    oneShots.push(artTeams[k]);
+                }
+            }
+*/
+            //add ability for this artillery unit to the barrage character
+            let action = "!Artillery;" + barrageID + ";" + spotter.id + ";" + unit.id + ";Normal}"
+            let abilityName = weapon.name;
+            AddAbility(abilityName,action,barrageCharID);
+            if (smokeFlag === true) {
+                abilityName += ": Smoke";
+                action = "!Artillery;" + barrageID + ";" + spotter.id + ";" + unit.id + ";Smoke Bombardment;?{Smoke Direction|Northeast|East|Southeast|Southwest|West|Northwest}";
+                AddAbility(abilityName,action,barrageCharID);
+            };
+        }
+        let two = false;
+        if (salvo === true && normal === true) {
+            two = true;
+        }
+        if (salvo === true && normal === false) {
+            two = "Salvo Only";
+        }
+        let res = {
+            unitIDs: unitIDs,
+            two: two,
+        }
+        return res;
+    }
+
+
+
+
+
+
+
+
+
+
 
 const RemoveBarrageToken = () => {
     let barrageID = state.FOW4.barrageID;
@@ -3979,9 +4062,9 @@ const BarrageLOS = (msg) => {
     let barrageID = Tag[1];
     let barrageTeam = TeamArray[barrageID];
 
-    let observerID = state.TY.BarrageInfo.observerID;
+    let observerID = state.FOW4.BarrageInfo.observerID;
     let observerTeam = TeamArray[observerID];
-    let artUnitIDs = state.TY.BarrageInfo.artUnitIDs;
+    let artUnitIDs = state.FOW4.BarrageInfo.artUnitIDs;
     let artUnits = [];
     let air = false;
 
@@ -4034,7 +4117,7 @@ const BarrageLOS = (msg) => {
         baseTips += "<br>+1 Specialist Observer";
     }
     //night time check
-    if (state.TY.darkness === true) {
+    if (state.FOW4.darkness === true) {
         base -= 1;
         baseTips += "<br>-1 Night Time";
     };
@@ -4117,7 +4200,7 @@ const BarrageLOS = (msg) => {
         }
         let bombRI = false;
         let smoke = false;
-        if (artTeam.artillery.notes.includes("Smoke Bombardment") && state.TY.smokeScreens[artUnit.player].includes(artUnit.id) === false && unitFiredThisTurn === false) {
+        if (artTeam.artillery.notes.includes("Smoke Bombardment") && state.FOW4.smokeScreens[artUnit.player].includes(artUnit.id) === false && unitFiredThisTurn === false) {
             smoke = true;
         }
         let smokeRI = false;
