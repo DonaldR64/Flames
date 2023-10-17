@@ -2129,7 +2129,7 @@ log(hit)
     
         if (team1.type === "Aircraft" || team2.type === "Aircraft") {
             if (team1.type === "Aircraft") {
-                let st = Math.max(interHexes.length - 5,0); //4 hexes before target plus target hex
+                let st = Math.max(interHexes.length - (4*gameScale + 1),0); //4 hexes before target plus target hex
                 for (let i=st;i<interHexes.length;i++) {
                     let qrs = interHexes[i];
                     let interHex = hexMap[qrs.label()];
@@ -2139,7 +2139,7 @@ log(hit)
                     if (interHex.smoke === true || interHex.smokescreen) {smoke = true};
                 }
             } else {
-                let en = Math.min(interHexes.length,5); //4 hexes from shooter plus shooters hex
+                let en = Math.min(interHexes.length,(4*gameScale + 1)); //4 hexes from shooter plus shooters hex
                 for (let i=0;i<en;i++) {
                     let qrs = interHexes[i];
                     let interHex = hexMap[qrs.label()];
@@ -2224,9 +2224,9 @@ log(hit)
                         if (interHex.type === 3) {
                             hexesWithBuild++;
                         }
-                        if (hexesWithBuild > 2) {
+                        if (hexesWithBuild > 2*gameScale) {
                             los = false;
-                            losReason = "> 2 hexes into Building at " + qrsLabel;
+                            losReason = ">" + 2*gameScale + " hexes into Building at " + qrsLabel;
                             break;
                         }
                         if (hexesWithBuild > 1 && interHex.type < 3) {
@@ -2239,9 +2239,9 @@ log(hit)
                         if (interHex.type === 2) {
                             hexesWithTall++;
                         }
-                        if (hexesWithTall > 2 && distanceT1T2 > 6) {
+                        if (hexesWithTall > 2*gameScale && distanceT1T2 > 6) {
                             los = false;
-                            losReason = "> 2 hexes through Tall terrain at " + qrsLabel; 
+                            losReason = ">" + 2*gameScale + " hexes through Tall terrain at " + qrsLabel; 
                             break;
                         }
                         if (interHex.type > 0) {
@@ -2443,11 +2443,7 @@ log(hit)
                 order = "Tactical";
             }
             //shot at aircraft prev turn here
-            if (targetTeam.token.get(SM.radio) === true) {
-                outputCard.body.push("Unit/Team called in Artillery, cannot Assault");
-                outputCard.body.push("Team defaults to a Tactical Order");
-                order = "Tactical";
-            }
+
         }
 
 
@@ -2455,12 +2451,12 @@ log(hit)
         if (order.includes("Tactical")) {
             if (specialorder.includes("Dig In") === false) {
                 outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
-                outputCard.body.push(noun + 'cannot move within 2 hexes of enemies');
+                outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
             }
             marker = SM.tactical
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
-            outputCard.body.push(noun + ' cannot move within 8 hexes of visible enemies');
+            outputCard.body.push(noun + ' cannot move within ' + 8*gameScale + ' hexes of visible enemies');
             if (state.FOW4.darkness === true) {
                 outputCard.body.push("Darkness limits speed to Terrain Dash");
             }
@@ -2470,8 +2466,8 @@ log(hit)
             outputCard.body.push(noun + verb + "Gone to Ground if not Firing");
             marker = SM.hold;
         } else if (order.includes("Assault")) {
-            outputCard.body.push('Teams can move at Tactical Speed to a Max of 10 hexes, and may fire at their Moving ROF');
-            outputCard.body.push('Teams must target an enemy within 8 hexes of the Team it will charge into');
+            outputCard.body.push('Teams can move at Tactical Speed to a Max of ' + 10*gameScale + ' hexes, and may fire at their Moving ROF');
+            outputCard.body.push('Teams must target an enemy within ' + 8*gameScale + ' hexes of the Team it will charge into');
             outputCard.body.push("Eligible Teams can complete the charge");
             marker = SM.assault;
         } else if (order.includes("Spot")) {
@@ -2743,7 +2739,7 @@ log(hit)
         switch (specialorder) {
             case "Blitz & Move":
                 if (roll >= stat) {
-                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 4 hexes before making a normal Tactical Move");
+                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to " + 4*gameScale + " hexes before making a normal Tactical Move");
                     /*
                     if (unitLeader.token.get(SM.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
@@ -2765,7 +2761,7 @@ log(hit)
                 break;
             case "Blitz & Hold":
                 if (roll >= stat) {
-                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to 4 hexes and then take up a Hold Order");
+                    outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to " + 4*gameScale + " hexes and then take up a Hold Order");
                     /*
                     if (unitLeader.token.get(SM.mounted) === true) {
                         outputCard.body.push("The Unit dismounts as part of this Blitz Move");
@@ -2787,7 +2783,7 @@ log(hit)
                 }
                 break;
             case "Cross Here":
-                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within 6 hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1.");
+                outputCard.body.push("Any Teams (including the Unit Leader) from the Unit rolling to Cross Difficult Terrain within " + 6*gameScale + " hexes of where the Unit Leader crosses improve their chance of crossing safely, reducing the score they need to pass a Cross Test by 1.");
                 ActivateUnitTwo(unitLeader.id,"Dash",specialorder);
                 break;
             case "Dig In":
@@ -2804,7 +2800,7 @@ log(hit)
                 break;
             case "Follow Me":
                 if (roll >= stat) {
-                    outputCard.body.push("In Command Teams may immediately Move directly forward up to an additional 4 hexes, remaining In Command.")
+                    outputCard.body.push("In Command Teams may immediately Move directly forward up to an additional " + 4*gameScale + " hexes, remaining In Command.")
                 } else {
                     outputCard.body.push("Teams remain where they are")
                     specialorder = "Failed Follow Me";
@@ -2814,14 +2810,14 @@ log(hit)
                 break;
             case "Shoot and Scoot":
                 if (roll >= stat) {
-                    outputCard.body.push("The Leader and any Teams that are In Command and did not Move in the Movement Step may immediately Move up to 4 hexes");
+                    outputCard.body.push("The Leader and any Teams that are In Command and did not Move in the Movement Step may immediately Move up to " + 4*gameScale + " hexes");
                 } else {
                     outputCard.body.push("Teams remain where they are")
                 }
                 PrintCard();
                 break;
             case "Clear Minefield":
-                outputCard.body.push('The Team is ordered to clear a Minefield within 2 Hexes');
+                outputCard.body.push('The Team is ordered to clear a Minefield within " + 2*gameScale + " Hexes');
                 outputCard.body.push("That Team counts as having Moved, and cannot Shoot or Assault");
                 outputCard.body.push("The Minefield can be removed immediately");
                 outputCard.body.push("Other Teams may be given the same order");
@@ -3323,14 +3319,14 @@ log(hit)
                     outputCard.body.push("Success!");
                     outputCard.body.push("Unit can Counter Attack!");
                     outputCard.body.push("Alternately the Unit can Break Off");
-                    outputCard.body.push('Units that Break Off must move to at least 6" away and are pinned');
+                    outputCard.body.push('Units that Break Off must move to at least ' + 6*gameScale + '" away and are pinned');
                     ButtonInfo("Counter Attack!","!CounterAttack2;" + unitID + ";CA");
                     ButtonInfo("Break Off!","!CounterAttack2;" + unitID + ";BO");
                     PrintCard();
                 } else {
                     outputCard.body.push("Failure! Unit must Break Off");
                     outputCard.body.push("Any remaining Teams in the Unit(s) must now Break Off at Tactical Speed");
-                    outputCard.body.push('Any Teams not able to get 6" away from an Assaulting Team surrender and are Destroyed');
+                    outputCard.body.push('Any Teams not able to get ' + 6*gameScale + '" away from an Assaulting Team surrender and are Destroyed');
                     if (unitLeader.type === "Infantry") {
                         outputCard.body.push("Unit is also Pinned");
                         unit.pin();
@@ -3945,7 +3941,7 @@ log("Roll: " + roll)
             imgsrc: img,
             layer: "objects",
             aura1_color: colour,
-            aura1_radius: 3,
+            aura1_radius: 2,
         });
         toFront(newToken);
         state.FOW4.barrageID = newToken.id;
