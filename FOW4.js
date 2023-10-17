@@ -3669,12 +3669,12 @@ log(weapons)
             }
             //place markers on shooter
             if (target.type === "Aircraft") {
-                shooterTeam.token.set(SM.aafire,true);
+                sTeam.token.set(SM.aafire,true);
             } else {
-                shooterTeam.token.set(SM.fired,true);
+                sTeam.token.set(SM.fired,true);
             }
             if (state.FOW4.darkness === true) {
-                shooterTeam.token.set(SM.flare,true);
+                sTeam.token.set(SM.flare,true);
             }
 
         } //end shooter(s)
@@ -4321,6 +4321,10 @@ const BarrageLOS = (msg) => {
             case '!Shooting':
                 Shooting(msg);
                 break;    
+            case '!CreateBarrages':
+                CreateBarrages(msg);
+                break;
+            
 
 
         }
