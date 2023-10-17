@@ -165,6 +165,9 @@ const FOW4 = (() => {
             "fontColour": "#000000",
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
+            "barrageChar": "-NUlUj2snn9vRtAo2k2l", 
             "platoonmarkers": ["letters_and_numbers0099::4815235","letters_and_numbers0100::4815236","letters_and_numbers0101::4815237","letters_and_numbers0102::4815238","letters_and_numbers0103::4815239","letters_and_numbers0104::4815240","letters_and_numbers0105::4815241","letters_and_numbers0106::4815242","letters_and_numbers0107::4815243","letters_and_numbers0108::4815244","letters_and_numbers0109::4815245","letters_and_numbers0110::4815246","letters_and_numbers0111::4815247","letters_and_numbers0112::4815248","letters_and_numbers0113::4815249","letters_and_numbers0114::4815250","letters_and_numbers0115::4815251","letters_and_numbers0116::4815252","letters_and_numbers0117::4815253","letters_and_numbers0118::4815254","letters_and_numbers0119::4815255","letters_and_numbers0120::4815256","letters_and_numbers0121::4815257","letters_and_numbers0122::4815258","letters_and_numbers0123::4815259","letters_and_numbers0124::4815260"],
         },
         "Germany": {
@@ -175,6 +178,9 @@ const FOW4 = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#000000",
             "borderStyle": "5px double",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
+            "barrageChar": "-NUD72rOu6QMJVJHOU-q",  
             "platoonmarkers": ["letters_and_numbers0197::4815333","letters_and_numbers0198::4815334","letters_and_numbers0199::4815335","letters_and_numbers0200::4815336","letters_and_numbers0201::4815337","letters_and_numbers0202::4815338","letters_and_numbers0203::4815339","letters_and_numbers0204::4815340","letters_and_numbers0205::4815341","letters_and_numbers0206::4815342","letters_and_numbers0207::4815343","letters_and_numbers0208::4815344","letters_and_numbers0209::4815345","letters_and_numbers0210::4815346","letters_and_numbers0211::4815347","letters_and_numbers0212::4815348","letters_and_numbers0213::4815349","letters_and_numbers0214::4815350","letters_and_numbers0215::4815351","letters_and_numbers0216::4815352","letters_and_numbers0217::4815353","letters_and_numbers0218::4815354","letters_and_numbers0219::4815355","letters_and_numbers0220::4815356","letters_and_numbers0221::4815357","letters_and_numbers0222::4815358"],
         },
         "UK": {
@@ -185,6 +191,9 @@ const FOW4 = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#BC2D2F",
             "borderStyle": "5px groove",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328837544/KrWC027rT0Lw_ghCuu_5DQ/thumb.png?1676838067",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891446/xsAVVJ0Ft-xZW92JUtZBdw/thumb.png?1676321000",
+            "barrageChar": "-NUlUkuOz7tjIrafOcNo",
             "platoonmarkers": ["letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
         },
         "USA": {
@@ -195,6 +204,9 @@ const FOW4 = (() => {
             "fontColour": "#006400",
             "borderColour": "#006400",
             "borderStyle": "5px double",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835139/zd6jnMDVIEEvRg_cNkHxeQ/thumb.png?1676837399",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
+            "barrageChar": "-NUlUl6uxp5omEWaZfze",  
             "platoonmarkers": ["letters_and_numbers0050::4815186","letters_and_numbers0051::4815187","letters_and_numbers0052::4815188","letters_and_numbers0053::4815189","letters_and_numbers0054::4815190","letters_and_numbers0055::4815191","letters_and_numbers0056::4815192","letters_and_numbers0057::4815193","letters_and_numbers0058::4815194","letters_and_numbers0059::4815195","letters_and_numbers0060::4815196","letters_and_numbers0061::4815197","letters_and_numbers0062::4815198","letters_and_numbers0063::4815199","letters_and_numbers0064::4815200","letters_and_numbers0065::4815201","letters_and_numbers0066::4815202","letters_and_numbers0067::4815203","letters_and_numbers0068::4815204","letters_and_numbers0069::4815205","letters_and_numbers0070::4815206","letters_and_numbers0071::4815207","letters_and_numbers0072::4815208","letters_and_numbers0073::4815209","letters_and_numbers0074::4815210","letters_and_numbers0075::4815211"],
         },
         "Waffen-SS": {
@@ -205,6 +217,9 @@ const FOW4 = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#FF0000",
             "borderStyle": "5px ridge",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
+            "barrageChar": "-NUD72rOu6QMJVJHOU-q",  
             "platoonmarkers": ["letters_and_numbers0197::4815333","letters_and_numbers0198::4815334","letters_and_numbers0199::4815335","letters_and_numbers0200::4815336","letters_and_numbers0201::4815337","letters_and_numbers0202::4815338","letters_and_numbers0203::4815339","letters_and_numbers0204::4815340","letters_and_numbers0205::4815341","letters_and_numbers0206::4815342","letters_and_numbers0207::4815343","letters_and_numbers0208::4815344","letters_and_numbers0209::4815345","letters_and_numbers0210::4815346","letters_and_numbers0211::4815347","letters_and_numbers0212::4815348","letters_and_numbers0213::4815349","letters_and_numbers0214::4815350","letters_and_numbers0215::4815351","letters_and_numbers0216::4815352","letters_and_numbers0217::4815353","letters_and_numbers0218::4815354","letters_and_numbers0219::4815355","letters_and_numbers0220::4815356","letters_and_numbers0221::4815357","letters_and_numbers0222::4815358"],
         },
 
@@ -532,7 +547,6 @@ const FOW4 = (() => {
             //create array of weapon info
             let weaponArray = [];
             let artillery;
-            let artFlag = false;
             let artNum = 0;
             let bestAT = -1;
             let bestFP = 7;
@@ -612,7 +626,6 @@ const FOW4 = (() => {
 
                 weaponArray.push(weapon);
                 if (halted === "Artillery" || halted === "Salvo" || moving === "Artillery" || moving === "Salvo") {
-                    artFlag = true;
                     artillery = weapon;
                     artNum = i;
                 };
@@ -748,7 +761,6 @@ log("#: " + bestATWpnNum)
             this.assault = parse2ndStat(attributeArray.assault,this.skill);
             this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
             this.hit = parseStat(attributeArray.hit);
-            this.artilleryFlag = artFlag;
             this.artillery = artillery;
             this.artNum = artNum;
             this.spotAttempts = 0;
@@ -1305,6 +1317,8 @@ log(hit)
             currentPlayer: "",
             timeOfDay: "",
             startingPlayer: "",
+            barrageID: "",
+            BarrageInfo: [],
         }
         sendChat("","Cleared State/Arrays");
     }
@@ -2309,6 +2323,11 @@ log(hit)
         outputCard.body.push("Game Type: " + gametype);
         outputCard.body.push("First Player: " + nat);
         outputCard.body.push("Time of Day: " + timeOfDay);
+
+
+
+
+
         PrintCard();
     }
     
@@ -2494,11 +2513,13 @@ log(hit)
             AddAbility(abilityName,action,char.id);
         }
 
-/*
-        abilityName = "Spot";
-        action = "!CreateBarrages;@{selected|token_id}";
-        AddAbility(abilityName,action,char.id);
+        if (special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) {
+            abilityName = "Spot";
+            action = "!CreateBarrages;@{selected|token_id}";
+            AddAbility(abilityName,action,char.id);
+        }
 
+/*
         abilityName = "Targets";
         action = "!Targetting";
         AddAbility(abilityName,action,char.id);
@@ -2846,11 +2867,23 @@ log(hit)
             sendChat("","Setup Game First");
             return;
         }
-        if (turn === 0 && state.FOW4.gametype === "Meeting Engagement") {
-            StartInFoxholes();
-        } else {
+
+        if (turn === 0) {
+            for (let p=0;p<2;p++) {
+                let num = 100 + parseInt(p);
+                let form = new Formation(p,state.FOW4.nations[p][0],num,"Barrages");
+                let unit = new Unit(p,state.FOW4.nations[p][0],num,"Barrages");
+            }
+            if (state.FOW4.gametype === "Meeting Engagement") {
+                StartInFoxholes();
+            }
+            currentPlayer === state.FOW4.startingPlayer;
+        }
+
+        if (turn > 0) {
             currentPlayer = (currentPlayer === 0) ? 1:0;
         }
+
         if (currentPlayer === state.FOW4.startingPlayer) {
             turn++;
         }
@@ -3666,7 +3699,7 @@ log(weapons)
         let allFired = true;
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let team = TeamArray[shooterUnit.teamIDs[i]];
-            if (team.token.get(sm.fired) === false && team.token.get(sm.aafire) === false) {
+            if (team.token.get(SM.fired) === false && team.token.get(SM.aafire) === false) {
                 allFired = false;
                 break;
             }
@@ -3829,6 +3862,339 @@ log("Roll: " + roll)
     }
 
 
+    const CreateBarrages = (msg) => {
+        //RemoveBarrageToken();
+        //RemoveLines();
+        let Tag = msg.content.split(";");
+        let observerID = Tag[1];
+        let observerTeam = TeamArray[observerID];
+        SetupCard("Place Barrages","",observerTeam.nation);
+        let errorMsg = [];
+
+        if (observerTeam.spotAttempts >= 3) {
+            errorMsg.push("No further Spotting Attempts by this Team/Unit");
+        }
+        if (observerTeam.token.get(SM.tactical) === true || observerTeam.token.get(SM.dash) === true) {
+            errorMsg.push("Spotter Team Moved or Dug In");
+        }
+        if (observerTeam.token.get(SM.fired) === true) {
+            errorMsg.push("Spotter Team has Fired");
+        }
+
+        if (state.FOW4.turn === 1 && state.FOW4.gametype === "Meeting Engagement" && state.FOW4.startingPlayer === state.FOW4.currentPlayer) {
+            errorMsg.push("No Barrages for First Player this Turn");
+        }
+        if (errorMsg.length > 0) {
+            for (let i=0;i<errorMsg.length;i++) {
+                outputCard.body.push(errorMsg[i]);
+            }
+            PrintCard();
+            return;
+        }
+        let img = Nations[observerTeam.nation].barrageimage;
+        img = getCleanImgSrc(img);
+        let represents = Nations[observerTeam.nation].barrageChar;
+        let colour = Nations[observerTeam.nation].borderColour;
+        let location = hexMap[observerTeam.hexLabel].centre;
+        //create macro for barrage based on current art availability
+        let abilArray = findObjs({  _type: "ability", _characterid: represents});
+        //clear old abilities
+        for(let a=0;a<abilArray.length;a++) {
+            abilArray[a].remove();
+        } 
+        let abilityAction = "!BarrageLOS;@{selected|token_id}";
+        AddAbility("Check",abilityAction,represents);
+
+        let newToken = createObj("graphic", {   
+            left: location.x,
+            top: location.y,
+            width: 70, 
+            height: 70,  
+            represents: represents,
+            name: "Barrage Target",
+            pageid: Campaign().get("playerpageid"),
+            imgsrc: img,
+            layer: "objects",
+            aura1_color: colour,
+            aura1_radius: 3,
+        });
+        toFront(newToken);
+        state.FOW4.barrageID = newToken.id;
+        //let barrageChar = getObj("character", newToken.get("represents")); 
+
+
+        let num = 100 + parseInt(observerTeam.player);
+
+        let barrageFormation = FormationArray[num];
+        let barrageUnit = UnitArray[num];
+        let barrageTeam = new Team(newToken.id,num,num);
+
+log(barrageTeam)
+/*        
+        let ai = ArtilleryInfo(newToken.id,observerTeam,represents);//adds artillery options to barrage token
+        let unitIDs = ai.unitIDs;
+        let two = ai.two;
+        if (two === true) {
+            abilityAction = "!ToggleSize;@{selected|token_id}";
+            AddAbility("Toggle",abilityAction,represents);
+        }
+        if (two === "Salvo Only") {
+            newToken.set("aura1_radius",5);
+        }
+        if (unitIDs.length === 0) {
+            outputCard.body.push("No Available Artillery");
+            barrageTeam.Kill();
+            PrintCard();
+            return;
+        }
+        let ids = [];
+        for (let i=0;i<unitIDs.length;i++) {
+            ids.push(unitIDs[i]);
+        }
+        let info = {
+            observerID: observerID,
+            artUnitIDs: ids,
+        }
+
+
+        state.FOW4.BarrageInfo = info;
+*/
+
+
+        outputCard.body.push("Place Barrage Marker");
+        outputCard.body.push("Choose Artillery When in Place");
+        PrintCard();
+    }
+
+const RemoveBarrageToken = () => {
+    let barrageID = state.FOW4.barrageID;
+    let barrageTeam = TeamArray[barrageID];
+    if (barrageTeam) {
+        //barrageTeam.Kill();
+    }
+}
+
+const BarrageLOS = (msg) => {
+    let Tag = msg.content.split(";");
+    let barrageID = Tag[1];
+    let barrageTeam = TeamArray[barrageID];
+
+    let observerID = state.TY.BarrageInfo.observerID;
+    let observerTeam = TeamArray[observerID];
+    let artUnitIDs = state.TY.BarrageInfo.artUnitIDs;
+    let artUnits = [];
+    let air = false;
+
+
+    for (let i=0;i<artUnitIDs.length;i++) {
+        let unitID = artUnitIDs[i];
+        let unit = UnitArray[unitID];
+        if (unit.type === "Aircraft" || unit.type === "Helicopter") {
+            air = true;
+        }
+        artUnits.push(unit);
+    }
+    SetupCard("Barrage Check","",observerTeam.nation);
+    //check LOS to Observer
+    let observerLOS = LOS(observerID,barrageID,"Spotter");
+
+    //check "Danger Close" - template within 4"  or 6" of edge if Salvo Template
+    let keys = Object.keys(TeamArray);
+    let tooClose = [false,false];
+
+    for (let i=0;i<keys.length;i++) {
+        let team2 = TeamArray[keys[i]];
+        if (team2.type === "Aircraft" || (team2.type === "Helicopter" && team2.token.get(SM.landed) === false) || team2.type === "System Unit" || hexMap[team2.hexLabel].terrain.includes("Offboard") || hexMap[team2.hexLabel].terrain.includes("Reserves")) {continue};
+        if (team2.player !== observerTeam.player) {continue};
+        let distance2 = team2.hex.distance(barrageTeam.hex);
+        if (air === true) {
+            if (distance2 < 11) {tooClose[0] = true};
+            if (distance2 < 13) {tooClose[1] = true};
+        } else {
+            if (distance2 < 7) {tooClose[0] = true};
+            if (distance2 < 11) {tooClose[1] = true};
+        }
+    }
+
+    //base bonuses or penalties
+    let base = 0;
+    let baseTips = "Range In Modifiers";
+    let crossTerrainCheck = false;
+    if (observerTeam.spotAttempts === 1) {
+        base -= 1;
+        baseTips += "<br>-1 as 2nd Spot Attempt";
+    }
+    if (observerTeam.spotAttempts === 2) {
+        base -= 2;
+        baseTips += "<br>-2 as 3rd Spot Attempt";
+    }
+
+    if (observerTeam.special.includes("Observer")) {
+        base += 1;
+        baseTips += "<br>+1 Specialist Observer";
+    }
+    //night time check
+    if (state.TY.darkness === true) {
+        base -= 1;
+        baseTips += "<br>-1 Night Time";
+    };
+
+    let base1 = base;
+    let base2 = base;
+    let base1Tips = baseTips;
+    let base2Tips = baseTips;
+
+    let terFlag1 = false;
+    let terFlag2 = false;
+    let radiusHexes = barrageTeam.hex.radius(3);
+    for (let i=0;i<radiusHexes.length;i++) {
+        let hex = hexMap[radiusHexes[i].label()];
+        if (hex.type !== "Flat" || hex.smoke === true || hex.smokescreen === true) {
+            terFlag1 = true;
+            terFlag2 = true;
+            break;
+        }
+    }
+
+    if (terFlag2 === false) {
+        radiusHexes = barrageTeam.hex.radius(5);
+        for (let i=0;i<radiusHexes.length;i++) {
+            let hex = hexMap[radiusHexes[i].label()];
+            if (hex.type !== "Flat" || hex.smoke === true || hex.smokescreen === true) {
+                terFlag2 = true;
+                break;
+            }
+        }
+    }
+
+    if (terFlag1 === true) {
+        base1 -= 1;
+        base1Tips += "<br>-1 Over Terrain/Smoke";
+        base2 -= 1;
+        base2Tips += "<br>-1 Over Terrain/Smoke";
+    }
+    if (terFlag2 === true && terFlag1 === false) {
+        base2 -= 1;
+        base2Tips += "<br>-1 Over Terrain/Smoke";
+    }
+
+
+    baseTips = '[🎲](#" class="showtip" title="' + baseTips + ')'; 
+
+    if (base1Tips !== "") {
+        base1Tips = '[🎲](#" class="showtip" title="' + base1Tips + ')';
+    }
+    if (base2Tips !== "") {
+        base2Tips = '[🎲](#" class="showtip" title="' + base2Tips + ')';
+    }
+
+    outputCard.body.push("[U]Units[/U]");
+
+    //check ranges and arc
+    for (let i=0;i<artUnits.length;i++) {
+        if (i>0) {outputCard.body.push("[hr]")};
+        let artUnit = artUnits[i];
+        let artIDs = artUnit.teamIDs;
+        let artTeam = TeamArray[artIDs[0]];
+        let rangeInNum = Math.max(observerTeam.skill,artTeam.skill);
+        let rangeInNum1 = rangeInNum - base1;
+        let rangeInNum2 = rangeInNum - base2;
+        let rangeInNum3 = rangeInNum - base;
+        let rangeIn1 = base1Tips + " Ranging In On: " + rangeInNum1 + "+";
+        let rangeIn2 = base2Tips + " Ranging In On: " + rangeInNum2 + "+";
+        let rangeIn3 = baseTips + " Ranging In On: " + rangeInNum3 + "+";
+
+        let name = artTeam.artillery.name;
+        outputCard.body.push(name);
+
+        let salvo = false;
+        if (artTeam.artillery.moving === "Salvo" || artTeam.artillery.halted === "Salvo") {
+            salvo = true;
+        }
+        let bomblets = false;
+        if (artTeam.special.includes("Bomblets")) {
+            bomblets = true;
+        }
+        let bombRI = false;
+        let smoke = false;
+        if (artTeam.artillery.notes.includes("Smoke Bombardment") && state.TY.smokeScreens[artUnit.player].includes(artUnit.id) === false && unitFiredThisTurn === false) {
+            smoke = true;
+        }
+        let smokeRI = false;
+        if (tooClose[0] === true) {
+            if (smoke === true) {
+                outputCard.body.push("[#FF0000]Too Close except for Smoke[/#]");
+                smokeRI = true;
+            } else {
+                outputCard.body.push("[#FF0000]Too Close to Friendlies[/#]");
+            }
+        } else if (tooClose[1] === true && salvo === true) {
+            outputCard.body.push(name + ": [#FF0000]Too Close to Friendlies[/#]");
+        } else if (tooClose[1] === true && bomblets === true) {
+            outputCard.body.push("[#FF0000]Too Close for Bomblets[/#]");
+            bombRI = true;
+        }
+
+        let num = 0;
+        for (let j=0;j<artIDs.length;j++) {
+            artTeam = TeamArray[artIDs[j]];
+            if (hexMap[artTeam.hexLabel].terrain.includes("Offboard") && artTeam.special.includes("Firebase") === true) {
+                num += 1;
+                continue;
+            }
+            let dist = artTeam.hex.distance(barrageTeam.hex);
+            if (dist > artTeam.artillery.maxRange || dist < artTeam.artillery.minRange) {continue};
+            if (artTeam.artillery.notes.includes("Forward Firing")) {
+                let facing = Facing(artTeam.id,barrageTeam.id);
+                if (facing !== "Front") {continue};
+            }
+            num += 1;
+        }
+        if (artTeam.special.includes("MLRS") || artTeam.special.includes("Mortar Group")) {num *= 2};
+        if (num === 0) {
+            outputCard.body.push("[#ff0000]Out of Range/Arc[/#]");
+        } else {
+            //repeat barrage here making base = auto
+            let auto = false;
+            if (RangedInArray[artUnit.id]) {
+                if (RangedInArray[artUnit.id].hexLabel === barrageTeam.hexLabel) {
+                    outputCard.body.push("Auto/Ranged In");
+                    outputCard.body.push("Saves are Rerolled");
+                    auto = true;
+                    if (observerLOS.los === false) {
+                        outputCard.body.push("+1 on To Hit Rolls due to LOS");
+                    }
+                }
+            }
+            if (auto === false) {
+                if (observerLOS.los === false) {
+                    outputCard.body.push("No LOS from Observer");
+                    continue;
+                }
+                if (salvo === true) {
+                    outputCard.body.push(rangeIn2);
+                } else if (bomblets === true && rangeIn2 !== rangeIn1 && bombRI === false) {
+                    outputCard.body.push("Bomblets: " + rangeIn2);
+                    outputCard.body.push("Other: " + rangeIn1);
+                } else if (smoke === true && rangeIn3 !== rangeIn1 && smokeRI === false) {
+                    outputCard.body.push("Smoke: " + rangeIn3);
+                    outputCard.body.push("Other: " + rangeIn1);
+                } else if (smokeRI === true) {
+                    outputCard.body.push("Smoke: " + rangeIn3);
+                } else {
+                    outputCard.body.push("All: " + rangeIn1);
+                }
+            }
+            if (num < 3) {
+                outputCard.body.push("Reroll Hits (< 3 Teams)");
+            }
+            if (num > 4) {
+                outputCard.body.push("Reroll Misses (> 4 Teams)");
+            }
+        }   
+    }
+    PrintCard();
+}
 
 
 
