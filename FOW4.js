@@ -2,6 +2,8 @@ const FOW4 = (() => {
     const version = '4.10.15b';
     if (!state.FOW4) {state.FOW4 = {}};
 
+    const gameScale = 1; //1 = Normal Movement, 0.5 = Half Movement
+
     //Constants and Persistent Variables
 
     const pageInfo = {name: "",page: "",gridType: "",scale: 0,width: 0,height: 0};
@@ -61,10 +63,10 @@ const FOW4 = (() => {
         "Heavy Weapon": "A Heavy Weapon Team cannot Charge into Contact",
         "HQ": "Always In Command and ignores Morale Checks. May Spot for Artillery",
         "Independent": "An Independent Team",
-        "Large Gun": 'Cannot be placed in Buildings and cannot be placed from Ambush within 16" of enemy',
+        "Large Gun": 'Cannot be placed in Buildings and cannot be placed from Ambush within ' + 16*gameScale + '" of enemy',
         "Limited 1": "Each time the Unit  shoots, one of its Teams may shoot this weapon rather than its usual weapons",
         "No HE": "A weapon with no HE targetting an Infantry or Gun Team add +1 to the score needed To Hit",
-        "Old Hand": 'An Old Hand Commander gives Units from their Formation whose Unit Leader is within 6" a Tactics rating of 3+',
+        "Old Hand": 'An Old Hand Commander gives Units from their Formation whose Unit Leader is within 6" a Tactics rating of 3+', //command not affected by scale
         "Observer": "Observer Teams can Spot for Artillery",
         "Overhead Fire": "Grenade Launchers and Light Mortars capable of Overhead Fire can fire over friendly team",
         "Overworked": "Overworked weapons add +1 to the score needed To Hit when moving",
@@ -746,11 +748,17 @@ const FOW4 = (() => {
             this.order = "";
             this.specialorder = "";
 
-            this.tactical = Number(attributeArray.tactical);
-            this.terraindash = Number(attributeArray.terrain);
-            this.countrydash = Number(attributeArray.country);
-            this.roaddash = Number(attributeArray.road);
+            this.tactical = Number(attributeArray.tactical) * gameScale;
+            this.terraindash = Number(attributeArray.terrain) * gameScale;
+            this.countrydash = Number(attributeArray.country) * gameScale;
+            this.roaddash = Number(attributeArray.road) * gameScale;
             this.cross = crossStat(attributeArray.cross);
+
+            //update sheet based on above
+            AttributeSet(char.id,"tacticaldisplay",this.tactical);
+            AttributeSet(char.id,"terraindisplay",this.terraindash);
+            AttributeSet(char.id,"countrydisplay",this.countrydash);
+            AttributeSet(char.id,"roaddisplay",this.roaddash;
 
             this.armourF = front;
             this.armourSR = side;
