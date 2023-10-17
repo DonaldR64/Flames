@@ -17,6 +17,7 @@ const FOW4 = (() => {
 
     let unitCreationInfo = {}; //used during unit creation 
     let unitIDs4Saves = []; //used during shooting routines
+    let unitFiredThisTurn = false; //marker for smoke bombardments
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -48,7 +49,7 @@ const FOW4 = (() => {
     }
 
     let specialInfo = {
-
+        "Artillery": "Team has weapon capable of an Artillery Barrage",
         "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
         "Bombs": "Bombs do not need to re-roll successful To Hit rolls for having only 1 or 2 weapons firing",
         "Brutal": "Infantry, Gun and Unarmoured Tank Teams re-roll successful Saves against Brutal Weapons",
@@ -568,10 +569,17 @@ const FOW4 = (() => {
                 let notes = attributeArray["weapon"+i+"notes"];
                 if (!notes || notes === "") {notes = " "};
 
-                let halted = parseInt(attributeArray["weapon"+i+"halted"]);
+                let halted = attributeArray["weapon"+i+"halted"];
+                let moving = attributeArray["weapon"+i+"moving"];
+
+                if (halted !== "Artillery" && halted !== "Salvo") {
+                    halted = parseInt(halted);
+                }
                 if (!halted || halted === "") {halted = 0};
 
-                let moving = parseInt(attributeArray["weapon"+i+"moving"]);
+                if (moving !== "Artillery" && moving !== "Salvo") {
+                    moving = parseInt(moving);
+                }
                 if (!moving || moving === "") {moving = 0};
 
                 let rangeText = attributeArray["weapon"+i+"range"];
@@ -625,7 +633,7 @@ const FOW4 = (() => {
 
 
                 weaponArray.push(weapon);
-                if (halted === "Artillery" || halted === "Salvo" || moving === "Artillery" || moving === "Salvo") {
+                if (weapon.halted === "Artillery" || weapon.halted === "Salvo" || weapon.moving === "Artillery" || weapon.moving === "Salvo") {
                     artillery = weapon;
                     artNum = i;
                 };
@@ -634,9 +642,6 @@ const FOW4 = (() => {
             if (bestAT <= 2) {
                 bestATWpnNum = 5; //Hand Grenades
             }
-log("BestAT: " + bestAT)
-log("#: " + bestATWpnNum)
-
 
             //update sheet with info
             let specials = attributeArray.special;
@@ -761,7 +766,9 @@ log("#: " + bestATWpnNum)
             this.assault = parse2ndStat(attributeArray.assault,this.skill);
             this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
             this.hit = parseStat(attributeArray.hit);
+
             this.artillery = artillery;
+log(this.artillery)
             this.artNum = artNum;
             this.spotAttempts = 0;
             this.rangedInHex = {};
@@ -2890,6 +2897,7 @@ log(hit)
         }
         state.FOW4.turn = turn;
         state.FOW4.currentPlayer = currentPlayer;
+        unitFiredThisTurn = false;
 
         SetupCard("Turn " + turn,"",state.FOW4.nations[currentPlayer][0]);
 
@@ -3680,6 +3688,8 @@ log(weapons)
 
         } //end shooter(s)
 
+        unitFiredThisTurn = true;
+
 /*
 //move to saves
         if (targetTeamArray.length > 1 && mistaken === true) {
@@ -3925,12 +3935,10 @@ log("Roll: " + roll)
 
 
         let num = 100 + parseInt(observerTeam.player);
-
-        let barrageFormation = FormationArray[num];
-        let barrageUnit = UnitArray[num];
         let barrageTeam = new Team(newToken.id,num,num);
 
         let ai = ArtilleryInfo(newToken.id,observerTeam,represents);//adds artillery options to barrage token
+log(ai)
         let unitIDs = ai.unitIDs;
         let two = ai.two;
         if (two === true) {
@@ -3942,7 +3950,7 @@ log("Roll: " + roll)
         }
         if (unitIDs.length === 0) {
             outputCard.body.push("No Available Artillery");
-            barrageTeam.Kill();
+            //barrageTeam.Kill();
             PrintCard();
             return;
         }
@@ -3970,15 +3978,18 @@ log("Roll: " + roll)
         let salvo = false;
         for (let i=0;i<keys.length;i++) {
             let team = TeamArray[keys[i]];
+log(team)
             if (team.player !== spotter.player) {continue};
             if (team.special.includes("Artillery") === false) {continue};
             let unit = UnitArray[team.unitID];
+log(unit)
             if (unit.pinned() === true) {continue};
             if (unitIDs.includes(unit.id)) {continue};
-            if (unit.order === "Failed Blitz" || unit.order.includes("Dig In")) {continue};
+            if (team.specialorder === "Failed Blitz" || team.specialorder.includes("Dig In")) {continue};
             let ids = unit.teamIDs;
             let artTeams = [];
             let weapon = team.artillery;
+log(weapon)
             for (let j=0;j<ids.length;j++) {
                 let artTeam = TeamArray[ids[j]];
                 if (artTeam.special.includes("Artillery") === false) {continue};
@@ -3993,11 +4004,12 @@ log("Roll: " + roll)
                 if (hexMap[artTeam.hexLabel].terrain.includes("Reserves")) {continue};
                 artTeams.push(artTeam);
             }
+        
             if (artTeams.length === 0) {continue};
-            if (weapon.moved === "Artillery" || weapon.halted === "Artillery") {
+            if (weapon.moving === "Artillery" || weapon.halted === "Artillery") {
                 normal = true;
             }
-            if (weapon.moved === "Salvo" || weapon.halted === "Salvo") {
+            if (weapon.moving === "Salvo" || weapon.halted === "Salvo") {
                 salvo = true;
             }    
             unitIDs.push(unit.id);
@@ -4039,23 +4051,13 @@ log("Roll: " + roll)
         return res;
     }
 
-
-
-
-
-
-
-
-
-
-
-const RemoveBarrageToken = () => {
-    let barrageID = state.FOW4.barrageID;
-    let barrageTeam = TeamArray[barrageID];
-    if (barrageTeam) {
-        //barrageTeam.Kill();
+    const RemoveBarrageToken = () => {
+        let barrageID = state.FOW4.barrageID;
+        let barrageTeam = TeamArray[barrageID];
+        if (barrageTeam) {
+            //barrageTeam.Kill();
+        }
     }
-}
 
 const BarrageLOS = (msg) => {
     let Tag = msg.content.split(";");
