@@ -758,7 +758,7 @@ const FOW4 = (() => {
             AttributeSet(char.id,"tacticaldisplay",this.tactical);
             AttributeSet(char.id,"terraindisplay",this.terraindash);
             AttributeSet(char.id,"countrydisplay",this.countrydash);
-            AttributeSet(char.id,"roaddisplay",this.roaddash;
+            AttributeSet(char.id,"roaddisplay",this.roaddash);
 
             this.armourF = front;
             this.armourSR = side;
