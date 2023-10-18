@@ -4289,9 +4289,24 @@ log(weapon)
         PrintCard();
     }
 
+    const ToggleSize = (msg) => {
+        let Tag = msg.content.split(";");
+        let id = Tag[1];
+        let token = findObjs({_type:"graphic", id: id})[0];
+        let radius = parseInt(token.get("aura1_radius"));
+        if (!radius || isNaN(radius)) {
+            radius = 4;
+        }
+        radius = (radius === 2) ? 4:2;
+        token.set("aura1_radius",radius);
+    }
 
 
 
+
+
+
+    
 
 
 
@@ -4420,8 +4435,12 @@ log(weapon)
             case '!BarrageLOS':
                 BarrageLOS(msg);
                 break;
-
-
+            case '!ToggleSize':
+                ToggleSize(msg);
+                break;
+            case '!Artillery':
+                Artillery(msg);
+                break;
         }
     };
 
