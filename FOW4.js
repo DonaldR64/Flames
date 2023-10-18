@@ -2050,7 +2050,7 @@ log(hit)
     }
 
     const LOS = (id1,id2,special) => {
-        if (!special || special === "") {special = " "}; //  overhead - ignores concealment/BP for Short and intervening units
+        if (!special || special === "") {special = " "}; //  overhead - ignores concealment/BP for Short and intervening units, Spotter
         
         let team1 = TeamArray[id1];
         let team2 = TeamArray[id2];
@@ -2167,7 +2167,7 @@ log(hit)
     //log("Type: " + interHex.type)
                     if (interHex.smoke === true) {smoke = true};
                     if (interHex.smokescreen === true) {
-                        if (distanceT1T2 > 6) {
+                        if (distanceT1T2 > (6*gameScale)) {
                             los = false;
                             break;
                         } else {
@@ -2243,15 +2243,18 @@ log(hit)
                             if (interHex.type === 2) {
                                 hexesWithTall++;
                             }
-                            if (hexesWithTall > 2*gameScale && distanceT1T2 > 6) {
+                            if (hexesWithTall > (2*gameScale) && distanceT1T2 > 6) {
                                 los = false;
-                                losReason = ">" + 2*gameScale + " hexes through Tall terrain at " + qrsLabel; 
+                                losReason = ">" + (2*gameScale) + " hexes through Tall terrain at " + qrsLabel; 
                                 break;
                             }
-                            if (interHex.type > 0) {
+                            if (interHex.type > 1) {
                                 concealed = true;
                             }
-                            if (interHex.bp === true) {
+                            if (interHex.type == 1 && special !== "Overhead") {
+                                concealed = true;
+                            }
+                            if (interHex.bp === true && special !== "Overhead") {
                                 bulletproof = true;
                             }
                         }
@@ -2372,7 +2375,6 @@ log(hit)
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
         let order = Tag[1];
-
         ActivateUnitTwo(teamID,order);
     }
 
