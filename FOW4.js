@@ -2158,7 +2158,7 @@ log(hit)
                 bulletproof = true;
             } else {
                 //not in same building
-                for (let i=2;i<interHexes.length;i++) {
+                for (let i=0;i<interHexes.length;i++) {
                     let qrs = interHexes[i];
                     let qrsLabel = qrs.label();
                     let interHex = hexMap[qrsLabel];
@@ -2174,6 +2174,7 @@ log(hit)
                             smoke = true;
                         }
                     }
+
                     let interHexElevation = parseInt(interHex.elevation) - teamLevel;
                     let interHexHeight = parseInt(interHex.height);
                     let B;
@@ -2223,34 +2224,36 @@ log(hit)
                             break;
                         }
         //log("Terrain higher than B")
-                        if (interHex.type === 3) {
-                            hexesWithBuild++;
-                        }
-                        if (hexesWithBuild > 2*gameScale) {
-                            los = false;
-                            losReason = ">" + 2*gameScale + " hexes into Building at " + qrsLabel;
-                            break;
-                        }
-                        if (hexesWithBuild > 1 && interHex.type < 3) {
-                            los = false;
-                            losReason = "Other side of Building at " + qrsLabel;
-                            break;
-                        }
+                        if (i>(2*gameScale)) {
+                            if (interHex.type === 3) {
+                                hexesWithBuild++;
+                            }
+                            if (hexesWithBuild > 2*gameScale) {
+                                los = false;
+                                losReason = ">" + 2*gameScale + " hexes into Building at " + qrsLabel;
+                                break;
+                            }
+                            if (hexesWithBuild > 1 && interHex.type < 3) {
+                                los = false;
+                                losReason = "Other side of Building at " + qrsLabel;
+                                break;
+                            }
 
 
-                        if (interHex.type === 2) {
-                            hexesWithTall++;
-                        }
-                        if (hexesWithTall > 2*gameScale && distanceT1T2 > 6) {
-                            los = false;
-                            losReason = ">" + 2*gameScale + " hexes through Tall terrain at " + qrsLabel; 
-                            break;
-                        }
-                        if (interHex.type > 0) {
-                            concealed = true;
-                        }
-                        if (interHex.bp === true) {
-                            bulletproof = true;
+                            if (interHex.type === 2) {
+                                hexesWithTall++;
+                            }
+                            if (hexesWithTall > 2*gameScale && distanceT1T2 > 6) {
+                                los = false;
+                                losReason = ">" + 2*gameScale + " hexes through Tall terrain at " + qrsLabel; 
+                                break;
+                            }
+                            if (interHex.type > 0) {
+                                concealed = true;
+                            }
+                            if (interHex.bp === true) {
+                                bulletproof = true;
+                            }
                         }
                     } else {
         //log("Terrain less than B")
