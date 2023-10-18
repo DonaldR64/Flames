@@ -16,6 +16,8 @@ const FOW4 = (() => {
     let SmokeArray = {};
     let FoxholeArray = [];
     let CheckArray = []; //used by Remount, Rally and Morale checks
+    let RangedInArray = {};
+
 
     let unitCreationInfo = {}; //used during unit creation 
     let unitIDs4Saves = []; //used during shooting routines
@@ -2193,7 +2195,7 @@ log(hit)
                     let friendlyFlag = false;
                     let friendlyHeight = 0;
         
-                    if (special !== "Overhead") {
+                    if (special !== "Overhead" && special !== "Spotter") {
             //check for intervening friendlies in 1 hexes of interHex - can ignore if same team
                         //if find one, flag and note height
             //log("Friendlies")
@@ -4080,7 +4082,6 @@ log(weapon)
         let artUnits = [];
         let air = false;
 
-
         for (let i=0;i<artUnitIDs.length;i++) {
             let unitID = artUnitIDs[i];
             let unit = UnitArray[unitID];
@@ -4099,15 +4100,17 @@ log(weapon)
 
         for (let i=0;i<keys.length;i++) {
             let team2 = TeamArray[keys[i]];
-            if (team2.type === "Aircraft" || (team2.type === "Helicopter" && team2.token.get(SM.landed) === false) || team2.type === "System Unit" || hexMap[team2.hexLabel].terrain.includes("Offboard") || hexMap[team2.hexLabel].terrain.includes("Reserves")) {continue};
+            if (team2.type === "Aircraft" || team2.type === "System Unit" || hexMap[team2.hexLabel].terrain.includes("Offboard") || hexMap[team2.hexLabel].terrain.includes("Reserves")) {continue};
             if (team2.player !== observerTeam.player) {continue};
             let distance2 = team2.hex.distance(barrageTeam.hex);
             if (air === true) {
-                if (distance2 < 11) {tooClose[0] = true};
-                if (distance2 < 13) {tooClose[1] = true};
+                //8" from edge of template
+                if (distance2 < (2+(8*gameScale))) {tooClose[0] = true};
+                if (distance2 < (4+(8*gameScale))) {tooClose[1] = true};
             } else {
-                if (distance2 < 7) {tooClose[0] = true};
-                if (distance2 < 11) {tooClose[1] = true};
+                //4" from edge of template
+                if (distance2 < (2+(4*gameScale))) {tooClose[0] = true};
+                if (distance2 < (4+(8*gameScale))) {tooClose[1] = true};
             }
         }
 
@@ -4141,10 +4144,10 @@ log(weapon)
 
         let terFlag1 = false;
         let terFlag2 = false;
-        let radiusHexes = barrageTeam.hex.radius(3);
+        let radiusHexes = barrageTeam.hex.radius(2);
         for (let i=0;i<radiusHexes.length;i++) {
             let hex = hexMap[radiusHexes[i].label()];
-            if (hex.type !== "Flat" || hex.smoke === true || hex.smokescreen === true) {
+            if (hex.type > 0 || hex.smoke === true || hex.smokescreen === true) {
                 terFlag1 = true;
                 terFlag2 = true;
                 break;
@@ -4152,10 +4155,10 @@ log(weapon)
         }
 
         if (terFlag2 === false) {
-            radiusHexes = barrageTeam.hex.radius(5);
+            radiusHexes = barrageTeam.hex.radius(4);
             for (let i=0;i<radiusHexes.length;i++) {
                 let hex = hexMap[radiusHexes[i].label()];
-                if (hex.type !== "Flat" || hex.smoke === true || hex.smokescreen === true) {
+                if (hex.type > 0 || hex.smoke === true || hex.smokescreen === true) {
                     terFlag2 = true;
                     break;
                 }
@@ -4172,7 +4175,6 @@ log(weapon)
             base2 -= 1;
             base2Tips += "<br>-1 Over Terrain/Smoke";
         }
-
 
         baseTips = '[🎲](#" class="showtip" title="' + baseTips + ')'; 
 
@@ -4206,11 +4208,7 @@ log(weapon)
             if (artTeam.artillery.moving === "Salvo" || artTeam.artillery.halted === "Salvo") {
                 salvo = true;
             }
-            let bomblets = false;
-            if (artTeam.special.includes("Bomblets")) {
-                bomblets = true;
-            }
-            let bombRI = false;
+
             let smoke = false;
             if (artTeam.artillery.notes.includes("Smoke Bombardment") && state.FOW4.smokeScreens[artUnit.player].includes(artUnit.id) === false && unitFiredThisTurn === false) {
                 smoke = true;
@@ -4225,19 +4223,17 @@ log(weapon)
                 }
             } else if (tooClose[1] === true && salvo === true) {
                 outputCard.body.push(name + ": [#FF0000]Too Close to Friendlies[/#]");
-            } else if (tooClose[1] === true && bomblets === true) {
-                outputCard.body.push("[#FF0000]Too Close for Bomblets[/#]");
-                bombRI = true;
             }
 
             let num = 0;
             for (let j=0;j<artIDs.length;j++) {
                 artTeam = TeamArray[artIDs[j]];
-                if (hexMap[artTeam.hexLabel].terrain.includes("Offboard") && artTeam.special.includes("Firebase") === true) {
-                    num += 1;
-                    continue;
-                }
-                let dist = artTeam.hex.distance(barrageTeam.hex);
+                let dist;
+                if (hexMap[artTeam.hexLabel].terrain.includes("Offboard") ){
+                    dist = 72;
+                } else {
+                    dist = artTeam.hex.distance(barrageTeam.hex);
+                } 
                 if (dist > artTeam.artillery.maxRange || dist < artTeam.artillery.minRange) {continue};
                 if (artTeam.artillery.notes.includes("Forward Firing")) {
                     let facing = Facing(artTeam.id,barrageTeam.id);
@@ -4268,9 +4264,6 @@ log(weapon)
                     }
                     if (salvo === true) {
                         outputCard.body.push(rangeIn2);
-                    } else if (bomblets === true && rangeIn2 !== rangeIn1 && bombRI === false) {
-                        outputCard.body.push("Bomblets: " + rangeIn2);
-                        outputCard.body.push("Other: " + rangeIn1);
                     } else if (smoke === true && rangeIn3 !== rangeIn1 && smokeRI === false) {
                         outputCard.body.push("Smoke: " + rangeIn3);
                         outputCard.body.push("Other: " + rangeIn1);
@@ -4419,7 +4412,9 @@ log(weapon)
             case '!CreateBarrages':
                 CreateBarrages(msg);
                 break;
-            
+            case '!BarrageLOS':
+                BarrageLOS(msg);
+                break;
 
 
         }
