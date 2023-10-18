@@ -1,5 +1,5 @@
 const FOW4 = (() => { 
-    const version = '4.10.15b';
+    const version = '4.10.18';
     if (!state.FOW4) {state.FOW4 = {}};
 
     const gameScale = .5; //1 = Normal Movement, 0.5 = Half Movement
@@ -4306,7 +4306,7 @@ log(weapon)
 
 
 
-    
+
 
 
 
