@@ -1717,7 +1717,18 @@ log(hit)
             let truncName = token.get("name").toLowerCase();
             truncName = truncName.trim();
             let t = MapTokenInfo[truncName];
-            if (!t) {return};
+            if (!t) {
+                if (token.get("name") === "rangedin") {
+                    let unitID = decodeURIComponent(token.get("gmnotes")).toString();
+                    let loc = new Point(token.get("left"),token.get("top"));
+                    let hex = pointToHex(loc);
+                    RangedInArray[unitID] = {
+                        hexLabel: hex.label(),
+                        tokenID: token.id,
+                    }
+                }   
+                return;
+            };
 
             let vertices = TokenVertices(token);
             let centre = new Point(token.get('left'),token.get('top'));
@@ -1788,7 +1799,9 @@ log(hit)
         let s = (1===c?'':'s');     
         tokens.forEach((token) => {
             let character = getObj("character", token.get("represents"));           
-            if (character === null || character === undefined) {return};
+            if (character === null || character === undefined) {
+                return;
+            };
             let nation = Attribute(character,"nation");
             let info = decodeURIComponent(token.get("gmnotes")).toString();
             if (!info) {return};
@@ -1862,6 +1875,10 @@ log(hit)
         if (teamIDs.length === 0) {return};
         let refToken = findObjs({_type:"graphic", id: teamIDs[0]})[0];
         let refChar = getObj("character", refToken.get("represents")); 
+        if (!refChar) {
+            sendChat("","Error, NonCharacter Token");
+            return;
+        }
         let nation = Attribute(refChar,"nation");
         let player = (Allies.includes(nation)) ? 0:1;
 
@@ -2597,7 +2614,10 @@ log(hit)
         let mg = false;
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
-            if (weapon.type === "Artillery") {continue};
+            if (weapon.type === "Artillery" || weapon.type === "Rockets") {
+                AddAbility("Preplan","!PlaceRangedIn",char.id);
+                continue;
+            };
             //if weapon has direct fire should classify type as gun
             let abName = weapon.name;
             let wtype = weapon.type;
@@ -3284,11 +3304,14 @@ log(hit)
                 } else {
                     outputCard.body.push("Failure! Unit Flees the Field!");
                     outputCard.body.push("(Any associated Transports Should be Removed)");
+/*
                     FormationArray[unit.formationID].remove(unit);
                     for (let i=0;i<unit.teamIDs;i++) {
                         let id = unit.teamIDs[i];
                         TeamArray[id].Kill();
                     }
+*/
+
                 }
                 let part1 = "Done";
                 if (CheckArray.length > 0) {
@@ -3357,7 +3380,7 @@ log(hit)
         } else {
             let keys = Object.keys(UnitArray);
             for (let i=0;i<keys.length;i++) {
-                let unit = UnitArray[formation.unitIDs[i]];
+                let unit = UnitArray[keys[i]];
                 if (unit.hqUnit === true && unit.player === team.player) {
                     let leader = TeamArray[unit.teamIDs[0]];
                     formationLeaders.push(leader);
@@ -3888,8 +3911,8 @@ log("Roll: " + roll)
 
 
     const CreateBarrages = (observerID) => {
-        //RemoveBarrageToken();
-        //RemoveLines();
+        RemoveBarrageToken();
+        RemoveLines();
         let observerTeam = TeamArray[observerID];
         let errorMsg = [];
 
@@ -3942,8 +3965,6 @@ log("Roll: " + roll)
         });
         toFront(newToken);
         state.FOW4.barrageID = newToken.id;
-        //let barrageChar = getObj("character", newToken.get("represents")); 
-
 
         let num = 100 + parseInt(observerTeam.player);
         let barrageTeam = new Team(newToken.id,num,num);
@@ -3964,7 +3985,7 @@ log(ai)
         }
         if (unitIDs.length === 0) {
             outputCard.body.push("No Available Artillery");
-            //barrageTeam.Kill();
+            RemoveBarrageToken(newToken.id);
             PrintCard();
             return;
         }
@@ -3972,7 +3993,6 @@ log(ai)
             observerID: observerID,
             artUnitIDs: unitIDs,
         }
-
 
         state.FOW4.BarrageInfo = info;
 
@@ -4051,12 +4071,18 @@ log(artUnits)
         return res;
     }
 
-    const RemoveBarrageToken = () => {
-        let barrageID = state.FOW4.barrageID;
-        let barrageTeam = TeamArray[barrageID];
-        if (barrageTeam) {
-            //barrageTeam.Kill();
+    const RemoveBarrageToken = (barrageID) => {
+        if (!barrageID) {
+            barrageID = state.FOW4.barrageID;
         }
+        state.FOW4.barrageID = "";
+        let barrageTeam = TeamArray[barrageID];
+        if (!barrageTeam) {return};
+        let barrageToken = barrageTeam.token;
+        if (barrageToken) {
+            barrageToken.remove();
+        }
+        delete TeamArray[barrageID]
     }
 
 
@@ -4201,7 +4227,7 @@ log(artUnits)
             if (RangedInArray[artUnitID].hexLabel === targetHex.label()) {
                 rangedIn = true;
             } else {
-                //RemoveRangedInMarker(artUnitID);
+                RemoveRangedInMarker(artUnitID);
             }
         }
     
@@ -4380,7 +4406,7 @@ log(artUnits)
             let text = ["","1st","2nd","3rd"];
             let text2 = ["","","+1 to Roll Needed to Hit","+2 to Roll Needed to Hit"];
             if ((observerTeam.type !== "Aircraft") && rangedIn === false) {
-                //PlaceRangedInMarker(artilleryUnit,targetHex);
+                PlaceRangedInMarker(artilleryUnit,targetHex);
             }
             let success = '[🎲](#" class="showtip" title="' + hittip + ') Ranged in on the ' + text[spotAttempts] + ' Attempt';
             if (addBattery === true) {
@@ -4472,12 +4498,100 @@ log(artUnits)
         //ProcessSaves();
     }
 
+    const RemoveLines = () => {
+        let lineIDArray = state.FOW4.LOSLines;
+        if (!lineIDArray) {
+            state.FOW4.LOSLines = [];
+            return;
+        }
+        for (let i=0;i<lineIDArray.length;i++) {
+            let id = lineIDArray[i];
+            let path = findObjs({_type: "path", id: id})[0];
+            if (path) {
+                path.remove();
+            }
+        }
+        state.FOW4.LOSLines = [];  
+    }
 
+    const PlaceRangedInMarker = (artilleryUnit,targetHex) => {
+        let nation = artilleryUnit.nation;
+        let img = getCleanImgSrc(Nations[nation].rangedIn);
+        let team = TeamArray[artilleryUnit.teamIDs[0]];
+        let markers = team.token.get("statusmarkers").split(",");
+log("Markers")       
+log(markers)
+        let marker = returnCommonElements(markers,Nations[nation].platoonmarkers);
+log("Platoon Marker")
+log(marker);
+        marker = "status_" + marker;
 
+        let location = hexMap[targetHex.label()].centre;
+        let newToken = createObj("graphic", {   
+            left: location.x,
+            top: location.y,
+            width: 70, 
+            height: 70,
+            name: "rangedin",  
+            isdrawing: true,
+            pageid: team.token.get("pageid"),
+            imgsrc: img,
+            layer: "map",
+            gmnotes: artilleryUnit.id,
+            statusmarkers: marker,
+        });
+        toFront(newToken);
+        RangedInArray[artilleryUnit.id] = {
+            hexLabel: targetHex.label(),
+            tokenID: newToken.id,
+        }
+        return newToken; //used for preplanning
+    }
 
+    const RemoveRangedInMarker = (unitID) => {
+        if (!RangedInArray[unitID]) {return};
+        let tok = findObjs({_type:"graphic", id: RangedInArray[unitID].tokenID})[0];
+        if (tok) {
+            tok.remove();
+        }
+        delete RangedInArray[unitID];
+    }
 
+    const PlaceRangedIn = (msg) => {
+        if (state.FOW4.turn > 0) {
+            sendChat("","Only useable at Start of Game");
+            return;
+        }
+        let artTeamID = msg.selected[0]._id;
+        let artTeam = TeamArray[artTeamID];
+        let artUnit = UnitArray[artTeam.unitID];
+        //create token
+        if (RangedInArray[artUnit.id]) {
+            RemoveRangedInMarker(artUnit.id);
+        }
+        let token = PlaceRangedInMarker(artUnit,artTeam.hex);
+        token.set("layer","objects");
+        SetupCard("Preplan Artillery",artUnit.name,artUnit.nation);
+        outputCard.body.push("Place Token where desired");
+        outputCard.body.push("Then Click Button to Finalize");
+        ButtonInfo("Place","!FinalizeRangedIn;" + token.id);
+        PrintCard();
+    }
 
-
+    const FinalizeRangedIn = (msg) => {
+        let Tag = msg.content.split(";");
+        let id = Tag[1];
+        let token = findObjs({_type:"graphic", id: id})[0];
+        let location = new Point(token.get("left"),token.get("top"));
+        let hex = pointToHex(location);
+        let label = hex.label();
+        location = hexMap[label].centre;
+        token.set({
+            left: location.x,
+            top: location.y,
+            layer: "map",
+        });
+    }
 
     const changeGraphic = (tok,prev) => {
         if (tok.get('subtype') === "token") {
@@ -4540,6 +4654,8 @@ log(artUnits)
                 log(UnitArray);
                 log("Formation Array");
                 log(FormationArray);
+                log("Ranged In Array");
+                log(RangedInArray)
                 break;
             case '!TokenInfo':
                 TokenInfo(msg);
@@ -4606,6 +4722,12 @@ log(artUnits)
                 break;
             case '!Artillery':
                 Artillery(msg);
+                break;
+            case '!PlaceRangedIn':
+                PlaceRangedIn(msg);
+                break;
+            case '!FinalizeRangedIn':
+                FinalizeRangedIn(msg);
                 break;
         }
     };
