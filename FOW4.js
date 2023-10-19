@@ -18,7 +18,6 @@ const FOW4 = (() => {
     let CheckArray = []; //used by Remount, Rally and Morale checks
     let RangedInArray = {};
 
-
     let unitCreationInfo = {}; //used during unit creation 
     let unitIDs4Saves = []; //used during shooting routines
     let unitFiredThisTurn = false; //marker for smoke bombardments
@@ -2483,12 +2482,13 @@ log(hit)
             marker = SM.assault;
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
-            marker = SM.radio;
         }
 
         outputCard.body.push(extraLine);
         for (let i=0;i<targetArray.length;i++) {
-            targetArray[i].token.set(marker,true);
+            if (marker !== undefined) {
+                targetArray[i].token.set(marker,true);
+            }
             targetArray[i].order = order;
             if (targetArray[i].specialorder === "") {
                 targetArray[i].specialorder = specialorder;
@@ -2610,7 +2610,7 @@ log(hit)
                 }
             }
             let shellType = "Regular";
-            if (weapon.notes.includes("Smoke") && weapon.type !== "Artillery") {
+            if (weapon.notes.includes("Smoke")) {
                 shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
             }
             abilityName = "Fire: " + abName;
@@ -4108,7 +4108,6 @@ log(artUnits)
         }
         outputCard.body.push("[U]Units[/U]");
 
-        //check ranges and arc
         for (let i=0;i<artUnits.length;i++) {
             if (i>0) {outputCard.body.push("[hr]")};
             let artUnit = artUnits[i];
@@ -4136,6 +4135,7 @@ log(artUnits)
                 outputCard.body.push(name + ": [#FF0000]Too Close to Friendlies[/#]");
             }
 
+            //check ranges and arc
             let oor = false;
             let oof = false;
             let num = 0;
@@ -4177,20 +4177,299 @@ log(artUnits)
         }
         PrintCard();
     }
-    
-    const ToggleSize = (msg) => {
+
+    const Artillery = (msg) => {
         let Tag = msg.content.split(";");
-        let id = Tag[1];
-        let token = findObjs({_type:"graphic", id: id})[0];
-        let radius = parseInt(token.get("aura1_radius"));
-        if (!radius || isNaN(radius)) {
-            radius = 4;
+        let barrageID = Tag[1];
+        let observerID = Tag[2];
+        let artUnitID = Tag[3];
+        let ammoType = Tag[4]; //Normal, Smoke Bombardment
+        let direction = Tag[5]; //in Smoke BOmbardment
+        let barrageTeam = TeamArray[barrageID];
+        let observerTeam = TeamArray[observerID];
+        let artilleryUnit = UnitArray[artUnitID];
+    
+        unitIDs4Saves = {};
+        let rangedIn = false;
+        let targetHex = barrageTeam.hex;
+
+        SetupCard("Barrage","",observerTeam.nation);
+        outputCard.body.push(artilleryUnit.name + " Firing");
+    
+        if (RangedInArray[artUnitID]) {
+            if (RangedInArray[artUnitID].hexLabel === targetHex.label()) {
+                rangedIn = true;
+            } else {
+                //RemoveRangedInMarker(artUnitID);
+            }
         }
-        radius = (radius === 2) ? 4:2;
-        token.set("aura1_radius",radius);
+    
+        //check LOS to Observer
+        let observerLOS = LOS(observerID,barrageID,"Spotter");
+        if (observerLOS.los === false && rangedIn === false) {
+            outputCard.body.push("[#ff0000]Observer does not have LOS[/#]");
+            PrintCard();
+            return;
+        }
+
+        let artilleryTeams = []; 
+        let weapon;
+        for (let i=0;i<artilleryUnit.teamIDs.length;i++) {
+            let team = TeamArray[artilleryUnit.teamIDs[i]];
+            if (team.artillery !== undefined) {
+                let dist;
+                if (hexMap[team.hexLabel].terrain.includes("Offboard") ){
+                    dist = 48;
+                } else {
+                    dist = team.hex.distance(barrageTeam.hex);
+                } 
+                if (dist > team.artillery.maxRange || dist < team.artillery.minRange) {
+                    continue;
+                };
+                if (team.artillery.notes.includes("Forward Firing") && hexMap[team.hexLabel].terrain.includes("Offboard") === false) {
+                    let facing = Facing(team.id,barrageTeam.id);
+                    if (facing !== "Front") {
+                        continue;
+                    };
+                }
+                artilleryTeams.push(team);
+                weapon = team.artillery;
+            }
+        }
+    
+        if (artilleryTeams.length === 0) {
+            outputCard.body.push("[#ff0000]No Teams have Range or Arc[/#]");
+            PrintCard();
+            return;
+        }
+    
+        let templateRadius = 2;
+        let tooCloseDist = 6; //4" to template radius
+        if (weapon.moving === "Salvo" || weapon.halted === "Salvo") {
+            templateRadius = 4;
+            tooCloseDist = 10; //6" to template radius
+        }
+        if (artilleryTeams[0].type === "Aircraft") {
+            tooCloseDist = templateRadius + 8;
+        }
+    
+        if (ammoType !== "Smoke Bombardment") {
+            //check "Danger Close"
+            let keys = Object.keys(TeamArray);
+            for (let i=0;i<keys.length;i++) {
+                let team2 = TeamArray[keys[i]];
+                if (team2.type === "Aircraft" || team2.type === "System Unit" || hexMap[team2.hexLabel].terrain.includes("Offboard") ||team2.player !== observerTeam.player ) {continue};
+                let distance2 = team2.hex.distance(barrageTeam.hex);
+                if (distance2 < tooCloseDist) {
+                    outputCard.body.push("[#ff0000]Barrage is too close to Friendlies[/#]");
+                    PrintCard();
+                    return;
+                };
+            }
+        }
+    
+        //in range,arc of at least one team; rotate to face, mark as fired - weapon will be the weapon info, gun num will be # of teams firing
+        let gunNum = artilleryTeams.length;
+        for (let i=0;i<artilleryUnit.teamIDs.length;i++) {
+            let artTeam = artilleryTeams[i]; //catch any art units that werent in facing, as they still rotate to fire
+            if (artTeam.artillery === undefined) {continue};
+            let phi = Angle(artTeam.hex.angle(barrageTeam.hex));
+            artTeam.token.set("rotation",phi);
+            artTeam.token.set(SM.fired,true);
+            artTeam.token.set(SM.gtg,false);
+            if (state.FOW4.darkness === true) {
+                shooterTeam.token.set(SM.flare,true);
+            }   
+        }
+        let addBattery = false;
+        if (observerTeam.spotAttempts > 0) {
+            addBattery = true;
+        }
+        let spotAttempts = 3 - observerTeam.spotAttempts; //as spotter may spot more than once, zeroed in Reset Flags routine
+    
+        let spotRolls = [];
+        let needed = Math.max(observerTeam.skill,artilleryTeams[0].skill);
+        let success = false;
+        let crossTerrainCheck = false;
+        let radiusHexes = [];
+        let targetArray = [];
+    
+        if (ammoType !== "Smoke Bombardment") {
+            //check if template over terrain and build array of any tokens in template
+            radiusHexes = targetHex.radius(templateRadius);
+            for (let i=0;i<radiusHexes.length;i++) {
+                let hex = hexMap[radiusHexes[i].label()];
+                if (hex.type > 0) {
+                    crossTerrainCheck = true;
+                }
+                if (hex.tokenIDs.length !== 0) {
+                    for (let j=0;j<hex.tokenIDs.length;j++) {
+                        let team = TeamArray[hex.tokenIDs[j]];
+                        if (team.type === "Aircraft" || team.type === "System Unit") {continue};
+                        targetArray.push(team);
+                    }
+                }
+            }
+            targetArray = [...new Set(targetArray)]; //eliminate duplicates
+        }
+    
+        let tip2 = "";
+        if (crossTerrainCheck) {
+            needed += 1;
+            tip2 += "<br>+1 Template over Terrain or Smoke"; 
+        };
+            if (state.FOW4.darkness === true) {
+            needed += 1;
+            tip2 += "<br>+1 Night Time";
+        };
+
+    
+        if (rangedIn) {needed = 0};
+        let neededText = needed.toString();
+        if (needed < 6) {neededText += "+"}; 
+        if (needed === 0) {
+            neededText = "AUTO"
+            tip2 = "<br>Automatic Due to Repeat Barrage";
+        };
+    
+        for (let i=0;i<spotAttempts;i++) {
+            let roll = randomInteger(6);
+            spotRolls.push(roll);
+            if (roll >= needed) {
+                success = true;
+                break;
+            }
+        }
+    
+        weaponName = weapon.name;
+        let extra = "";
+        if (ammoType === "Smoke Bombardment") {extra = "Smoke Screen with "};
+    
+        outputCard.body.push("Firing " + extra + weaponName)
+        observerTeam.token.set(SM.radio,true);
+        let hittip = "Ranging In Rolls: " + spotRolls.toString() + " vs. " + neededText + tip2;
+    
+        observerTeam.spotAttempts += spotRolls.length;
+        spotAttempts = observerTeam.spotAttempts
+    
+        let sound;
+        if (weapon.type === "Small Arms") {
+            sound = "Mortars";
+        } else if (weapon.type === "Artillery") {
+            sound = "Artillery";
+        } else if (weapon.type === "Rockets") {
+            if (artilleryTeams[0].type === "Aircraft") {
+                sound = "ATG"
+            } else {
+                sound = "Katyusha";
+            }
+        }
+        PlaySound(sound);
+
+        let rerollException = false;
+        if (weapon.notes.includes("Bombs")) {rerollException = true};        
+
+        if (success === false) {
+            let fail = '[🎲](#" class="showtip" title="' + hittip + ')' + "Failed to Range In";
+            outputCard.body.push(fail);
+            //barrageTeam.Kill();
+            PrintCard();
+            return
+        } else {
+            let text = ["","1st","2nd","3rd"];
+            let text2 = ["","","+1 to Roll Needed to Hit","+2 to Roll Needed to Hit"];
+            if ((observerTeam.type !== "Aircraft") && rangedIn === false) {
+                //PlaceRangedInMarker(artilleryUnit,targetHex);
+            }
+            let success = '[🎲](#" class="showtip" title="' + hittip + ') Ranged in on the ' + text[spotAttempts] + ' Attempt';
+            if (addBattery === true) {
+                outputCard.body.push("(Ranging in Additional Battery)")
+            }
+            outputCard.body.push(success);
+            if (ammoType !== "Smoke Bombardment") {
+                outputCard.body.push(text2[spotAttempts]);
+            }
+            if (neededText === "AUTO") {
+                outputCard.subtitle = "Repeat Bombardment";
+            }
+    
+            if (ammoType === "Smoke Bombardment") {
+                let num = gunNum * 3;
+                SmokeScreen(targetHex,num,direction,artilleryUnit.player);
+                state.FOW4.smokeScreens[artilleryUnit.player].push(artilleryUnit.id);
+                outputCard.body.push("Smoke Screen successfully placed");
+                //barrageTeam.Kill();
+                PrintCard();
+                return;
+            } else {
+                if (observerLOS.los === false) {
+                    outputCard.body.push("+1 to Roll Needed to Hit due to Spotter LOS");
+                }
+                if (gunNum < 3  && rerollException === false) {
+                    outputCard.body.push("Hits Will be Rerolled Due to # of Guns");
+                } else if (gunNum > 4) {
+                    outputCard.body.push("Misses Will be Rerolled Due to # of Guns");
+                }
+                if (observerTeam.spotAttempts < 3 && observerTeam.unitID !== artilleryUnit.id) {
+                    outputCard.body.push("The Spotting Unit can still Spot for other Artillery Units");
+                    outputCard.body.push((3 - observerTeam.spotAttempts) + " Spot Attempts Left");
+                }
+                unitFiredThisTurn = true;
+            }
+        }
+        //roll hits and saves
+        outputCard.body.push("[hr]");
+    
+        if (targetArray.length === 0) {
+            outputCard.body.push("No Targets Under Template");
+        }
+    
+        for (let i=0;i<targetArray.length;i++) {
+            let team = targetArray[i];
+            let unitID = team.unitID;
+            let unit = UnitArray[unitID];
+            let neededToHit = parseInt(team.hit) + (spotAttempts - 1);
+            if (observerLOS.los === false) {neededToHit += 1};//repeat bombardment, spotter doesnt have LOS
+            let roll = randomInteger(6);
+            if (gunNum < 3 && roll >= neededToHit && rerollException === false) {
+                //reroll hits if only 1 or 2 guns
+                roll = randomInteger(6);
+            }
+            if (gunNum > 4 && roll < neededToHit) {
+                //reroll misses if 5+ guns
+                roll = randomInteger(6);
+            }
+            let tip =  "To Hit: " + roll + " vs. " + neededToHit + "+";
+    
+            let hit = {
+                weapon: weapon,
+                bp: hexMap[team.hexLabel].bp,
+                facing: "Top",
+                range: 0,
+                shooterType: artilleryTeams[0].type,
+                rangedIn: rangedIn,
+                closeCombat: false,
+            }
+
+            if (roll >= neededToHit) {
+                team.hitArray = [hit];
+                if (team.type === "Infantry" || team.type === "Unarmoured Tank") {
+                    let unitLeaderToken = TeamArray[unit.teamIDs[0]].token;
+                    unitLeaderToken.set("aura1_color",Colours.yellow);                 
+                }
+                if (!unitIDs4Saves[unitID]) {
+                    unitIDs4Saves[unitID] = false; //no mistaken for artillery
+                }
+                outputCard.body.push('[🎲](#" class="showtip" title="' + tip + ')' + team.name + ": Hit");
+            } else {
+                outputCard.body.push('[🎲](#" class="showtip" title="' + tip + ')' + team.name + ": Missed");
+            }
+        }
+        //barrageTeam.Kill();
+    
+        PrintCard();
+        //ProcessSaves();
     }
-
-
 
 
 
@@ -4323,9 +4602,6 @@ log(artUnits)
                 break;
             case '!BarrageLOS':
                 BarrageLOS(msg);
-                break;
-            case '!ToggleSize':
-                ToggleSize(msg);
                 break;
             case '!Artillery':
                 Artillery(msg);
