@@ -4098,12 +4098,12 @@ log(artUnits)
             let distance2 = team2.hex.distance(barrageTeam.hex);
             if (air === true) {
                 //8" from edge of template
-                if (distance2 < (2+(8*gameScale))) {tooClose[0] = true};
-                if (distance2 < (4+(8*gameScale))) {tooClose[1] = true};
+                if (distance2 < (3+(8*gameScale))) {tooClose[0] = true};
+                if (distance2 < (5+(8*gameScale))) {tooClose[1] = true};
             } else {
-                //4" from edge of template
-                if (distance2 < (2+(4*gameScale))) {tooClose[0] = true};
-                if (distance2 < (4+(8*gameScale))) {tooClose[1] = true};
+                //4" from edge of template or 6" for Salvo
+                if (distance2 < (3+(4*gameScale))) {tooClose[0] = true};
+                if (distance2 < (5+(6*gameScale))) {tooClose[1] = true};
             }
         }
         outputCard.body.push("[U]Units[/U]");
