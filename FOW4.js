@@ -19,7 +19,7 @@ const FOW4 = (() => {
     let RangedInArray = {};
 
     let unitCreationInfo = {}; //used during unit creation 
-    let unitIDs4Saves = []; //used during shooting routines
+    let unitIDs4Saves = {}; //used during shooting routines
     let unitFiredThisTurn = false; //marker for smoke bombardments
 
     let hexMap = {}; 
@@ -1979,7 +1979,7 @@ log(hit)
             unit.hqUnit = true;
             name = Rank(team.nation,rank) + Name(team.nation);
         } else {
-            if (team.type === "Aircraft") {
+            if (team.type === "Aircraft" || team.special.includes("Independent")) {
                 rank = 2;
                 unit.aircraft = true;
                 if (team.nation === "Soviet") {rank=3};
@@ -1988,6 +1988,7 @@ log(hit)
                 name = "Komissar " + Name(team.nation);
             } else if (i === 0) {
                 rank = 2;
+                if (team.nation === "Soviet" && unit.artillery === true) {rank=3};
                 name = Rank(team.nation,rank) + Name(team.nation);
             } 
         }
@@ -3711,8 +3712,8 @@ log(weapons)
 */
         for (let i=0;i<targetTeamArray.length;i++) {
             let tt = TeamArray[targetTeamArray[i].id];
-            if (unitIDs4Saves.includes(tt.unitID) === false) {
-                unitIDs4Saves.push(tt.unitID);
+            if (unitIDs4Saves[tt.unitID] === false) {
+                unitIDs4Saves[tt.unitID] = mistaken;
             }
         }
 
