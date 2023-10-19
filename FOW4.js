@@ -3953,11 +3953,13 @@ log(ai)
         let unitIDs = ai.unitIDs;
         let two = ai.two;
         if (two === true) {
-            abilityAction = "!ToggleSize;@{selected|token_id}";
-            AddAbility("Toggle",abilityAction,represents);
+            newToken.set({
+                aura2_radius: 4,
+                aura2_color: "#d9d9d9",
+            });
         }
         if (two === "Salvo Only") {
-            newToken.set("aura1_radius",5);
+            newToken.set("aura1_radius",4);
         }
         if (unitIDs.length === 0) {
             outputCard.body.push("No Available Artillery");
@@ -4168,6 +4170,9 @@ log(artUnits)
                 }      
             } else {
                 outputCard.body.push("Unit has Range");
+                if (salvo === true) {
+                    outputCard.body.push("Will use larger Salvo Template");
+                }
             }   
         }
         PrintCard();
