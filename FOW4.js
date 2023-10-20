@@ -1304,6 +1304,8 @@ log(hit)
         SmokeArray = {};
         FoxholeArray = [];
         
+        RemoveDead("All");
+
         //clear token info
         let tokens = findObjs({
             _pageid: Campaign().get("playerpageid"),
@@ -1311,6 +1313,7 @@ log(hit)
             _subtype: "token",
             layer: "objects",
         });
+
         tokens.forEach((token) => {
             token.set({
                 name: "",
@@ -1323,8 +1326,6 @@ log(hit)
                 statusmarkers: "",
             });                
         })
-
-        RemoveDead("All");
 
         state.FOW4 = {
             nations: [[],[]],
@@ -1614,6 +1615,7 @@ log(hit)
                     let temp = DeepCopy(hexMap[key]);
                     for (let t=0;t<taKeys.length;t++) {
                         let polygon = TerrainArray[taKeys[t]];
+                        if (!polygon) {continue};
                         if (temp.terrain.includes(polygon.name) || polygon.linear === true) {continue};
                         let check = false;
                         let pts = [];
@@ -3139,11 +3141,11 @@ log(hit)
         for (let j=0;j<keys.length;j++) {
             let unit = UnitArray[keys[j]];
             if (unit.player === state.FOW4.currentPlayer) {
-                SetStatus(unit.teamIDs,sm.fired,false);
-                SetStatus(unit.teamIDs,sm.tactical,false);
-                SetStatus(unit.teamIDs,sm.dash,false);
-                SetStatus(unit.teamIDs,sm.flare,false);
-                SetStatus(unit.teamIDs,sm.radio,false);
+                SetStatus(unit.teamIDs,SM.fired,false);
+                SetStatus(unit.teamIDs,SM.tactical,false);
+                SetStatus(unit.teamIDs,SM.dash,false);
+                SetStatus(unit.teamIDs,SM.flare,false);
+                SetStatus(unit.teamIDs,SM.radio,false);
                 if (turn === 1) {
                     GTG(unit);
                 }
@@ -3189,9 +3191,9 @@ log(hit)
             if (moved === true && team.special.includes("Scout") === false) {gtg = false};
             if (team.token.get(SM.fired) === true || team.token.get(SM.aafire) === true || team.order === "Assault") {gtg = false};
             if (gtg === true) {
-                team.token.set(sm.gtg,true);
+                team.token.set(SM.gtg,true);
             } else {
-                team.token.set(sm.gtg,false);
+                team.token.set(SM.gtg,false);
             }
         }
     }
