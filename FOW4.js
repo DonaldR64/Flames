@@ -2636,16 +2636,15 @@ log(hit)
         let mg = false;
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
-            if ((weapon.type === "Artillery" || weapon.type === "Rockets") && team.type !== "Aircraft") {
-                AddAbility("Preplan","!PlaceRangedIn",char.id);
-                continue;
-            };
-            if (team.type === "Aircraft" && weapon.type === "Artillery") {
-                
-
-
-
-
+            if (weapon.type === "Artillery" || weapon.type === "Rockets") {
+                if (team.type === "Aircraft") {
+                    let ab = "Drop: "
+                    if (weapon.type === "Rockets") {ab = "Fire: "};
+                    AddAbility(ab + weapon.name,"!Activate;Spot",char.id);
+                } else {
+                    AddAbility("Preplan","!PlaceRangedIn",char.id);
+                }
+                continue; //no direct fire on this line
             }
             //if weapon has direct fire should classify type as gun
             let abName = weapon.name;
