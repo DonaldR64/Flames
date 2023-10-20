@@ -2392,7 +2392,7 @@ log(hit)
 
 
     const ActivateUnit = (msg) => {
-        //RemoveLines();
+        RemoveLines();
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
         let order = Tag[1];
@@ -2481,14 +2481,16 @@ log(hit)
                 outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
                 outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
             }
-            marker = SM.tactical
+            marker = SM.tactical;
+            RemoveRangedInMarker(unit.id);
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
             outputCard.body.push(noun + ' cannot move within ' + 8*gameScale + ' hexes of visible enemies');
             if (state.FOW4.darkness === true) {
                 outputCard.body.push("Darkness limits speed to Terrain Dash");
             }
-            marker = SM.dash
+            marker = SM.dash;
+            RemoveRangedInMarker(unit.id);
         } else if (order.includes("Hold")) {
             outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
             outputCard.body.push(noun + verb + "Gone to Ground if not Firing");
@@ -2498,6 +2500,7 @@ log(hit)
             outputCard.body.push('Teams must target an enemy within ' + 8*gameScale + ' hexes of the Team it will charge into');
             outputCard.body.push("Eligible Teams can complete the charge");
             marker = SM.assault;
+            RemoveRangedInMarker(unit.id);
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
         }
@@ -2678,7 +2681,7 @@ log(hit)
     }
 
     const SpecialOrders = (msg) => {
-        //RemoveLines();
+        RemoveLines();
         //!Orders;?{Order|Blitz|Cross Here|Dig In|Follow Me|Shoot and Scoot} - and which varies by team type
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
@@ -2792,6 +2795,7 @@ log(hit)
                         }
                     }
                     */
+                    RemoveRangedInMarker(unit.id);
                     ActivateUnitTwo(unitLeader.id,"Hold",specialorder);
                 } else {    
                     outputCard.body.push("Teams from the Unit count as Moving at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
@@ -2811,6 +2815,7 @@ log(hit)
                     outputCard.body.push("The Unit failed to Dig In");
                     specialorder = "Failed Dig In";
                 }
+                RemoveRangedInMarker(unit.id);
                 outputCard.body.push("The Teams can fire at their moving ROF (but cannot fire a Bombardment)");
                 outputCard.body.push("If they do not Shoot or Assault, they are Gone to Ground");
                 ActivateUnitTwo(unitLeader.id,"Tactical",specialorder)
@@ -2822,6 +2827,7 @@ log(hit)
                     outputCard.body.push("Teams remain where they are")
                     specialorder = "Failed Follow Me";
                 }
+                RemoveRangedInMarker(unit.id);
                 outputCard.body.push("Teams may not fire");
                 PrintCard();
                 break;
@@ -2831,6 +2837,7 @@ log(hit)
                 } else {
                     outputCard.body.push("Teams remain where they are")
                 }
+                RemoveRangedInMarker(unit.id);
                 PrintCard();
                 break;
             case "Clear Minefield":
@@ -2898,7 +2905,7 @@ log(hit)
     }
     
     const NewTurn = () => {
-        //RemoveLines();
+        RemoveLines();
         if (state.FOW4.nations[0].length === 0 && state.FOW4.nations[1].length === 0) {
             sendChat("","No Units Created Yet");
             return;
@@ -4595,7 +4602,7 @@ log(marker);
 
     const changeGraphic = (tok,prev) => {
         if (tok.get('subtype') === "token") {
-            //RemoveLines();
+            RemoveLines();
             log(tok.get("name") + " moving");
             if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
                 let team = TeamArray[tok.id];
