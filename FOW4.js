@@ -155,7 +155,7 @@ const FOW4 = (() => {
         "road block": {name: "Road Block",height: 0,bp: true,type: 1,group: "Obstacle"},
         "crater": {name: "Craters",height: 0,bp: true,type: 0,group: "Rough"},        
         "crops": {name: "Crops",height: 0,bp: false,type: 1,group: "Crops"},
-        "foxhole": {name: "Foxhole",height: 0,bp: true,type: 0,group: "Foxhole"},
+        "foxhole": {name: "Foxhole",height: 0,bp: false,type: 0,group: "Foxhole"}, //bp tracked in LOS, and in hexMap
         "smoke": {name: "Smoke",height: 0,bp: false,type: 0,group: "Smoke"},
         "smokescreen": {name: "SmokeScreen",height: 10,bp:false,type: 0,group: "Smoke"},
         "rangedin": {name: "rangedin",height: 0,bp:false,type: 0,group: "Marker"},
@@ -852,7 +852,7 @@ log(hit)
 
             if (bp === "Artillery") {
                 bp = hexMap[this.hexLabel].bp;
-                if (hexMap[this.hexLabel].terrain.includes("Foxholes") && this.type === "Infantry") {bp = true};
+                if (hexMap[this.hexLabel].foxhole === true && this.type === "Infantry") {bp = true};
             } 
             if (bp === "Passenger") {
                 bp = false;
@@ -1344,6 +1344,7 @@ log(hit)
             BarrageInfo: [],
             smokeScreens: [[],[]],
         }
+        BuildMap();
         sendChat("","Cleared State/Arrays");
     }
 
@@ -1354,7 +1355,7 @@ log(hit)
             _subtype: "token",
             layer: "map",
         });
-        let removals = ["SmokeScreen","rangedin","Foxholes"];
+        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke"];
         tokens.forEach((token) => {
             if (token.get("status_dead") === true) {
                 token.remove();
@@ -1477,13 +1478,6 @@ log(hit)
         outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: [],};
     }
 
-    const SetStatus = (ids,status,setting) => {
-        for (let i=0;i<ids.length;i++) {
-            let team = TeamArray[ids[i]];
-            team.token.set(status,setting);
-        }
-    }
-
     const parseStat = (x) => {
         if (x) {
             p = x.replace(/[^\d]/g, "");
@@ -1586,6 +1580,7 @@ log(hit)
                     height: 0, //height of top of terrain over elevation
                     smoke: false,
                     smokescreen: false,
+                    foxhole: false,
                     type: 0,
                     bp: false,
                 };
@@ -1662,6 +1657,7 @@ log(hit)
                                     id: polygon.id, //id of the Foxhole token, can be used to remove later
                                 }
                                 FoxholeArray[key] = fInfo;
+                                temp.foxhole = true;
                             }
                             if (polygon.name === "rangedin") {
                                 let rInfo = {
@@ -2161,7 +2157,7 @@ log(hit)
     
         let fKeys = Object.keys(TeamArray);
 
-        if (team2Hex.bp === true || (team2Hex.terrain.includes("Foxholes") && team2.type === "Infantry")) {
+        if ((team2Hex.bp === true || team2Hex.foxhole === true) && team2.type === "Infantry") {
             //this catches foxholes, craters and similar
             concealed = true;
             bulletproof = true;
@@ -2209,14 +2205,10 @@ log(hit)
     //log(i + ": " + qrsLabel)
     //log(interHex.terrain)
     //log("Type: " + interHex.type)
-                    if (interHex.smoke === true) {smoke = true};
-                    if (interHex.smokescreen === true) {
-                        if (distanceT1T2 > (6*gameScale)) {
-                            los = false;
-                            break;
-                        } else {
-                            smoke = true;
-                        }
+                    if (interHex.smoke === true || interHex.smokescreen === true) {smoke = true};
+                    if (interHex.smokescreen === true && distanceT1T2 > (6*gameScale)) {
+                        los = false;
+                        break;
                     }
 
                     let interHexElevation = parseInt(interHex.elevation) - teamLevel;
@@ -2416,6 +2408,7 @@ log(hit)
 
     const ActivateUnit = (msg) => {
         RemoveLines();
+        RemoveBarrageToken();
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
         let order = Tag[1];
@@ -2898,7 +2891,8 @@ log(hit)
                 gmnotes: "GM"
             });
             toFront(newToken);
-            hexMap[team.hexLabel].terrain.push("Foxholes")
+            hexMap[team.hexLabel].terrain.push("Foxholes");
+            hexMap[team.hexLabel].foxhole = true;
             let fInfo = {
                 hexLabel: team.hexLabel,
                 id: newToken.id, //id of the Foxholes token, can be used to remove later
@@ -2915,6 +2909,7 @@ log(hit)
                 let index = hexMap[foxhole.hexLabel].terrain.indexOf("Foxholes");
                 if (index > -1) {
                     hexMap[foxhole.hexLabel].terrain.splice(index,1);
+                    hexMap[foxhole.hexLabel].foxhole = false;
                 }
                 let tok = findObjs({_type:"graphic", id: foxhole.id})[0];
                 if (tok) {
@@ -3123,9 +3118,9 @@ log(hit)
         if (pass === "Final") {
             SetupCard("Turn: " + state.FOW4.turn,"Start Phase",nat);
             //SendToRear();
-            //ClearSmoke();
+            ClearSmoke();
             RemoveFoxholes();
-            //ResetFlags();
+            ResetFlags();
             if (state.FOW4.turn === 1 && state.FOW4.currentPlayer === state.FOW4.startingPlayer) {
                 outputCard.body.push("Aircraft cannot Arrive this turn");
                 outputCard.body.push("All Teams are treated as having moved in the Shooting Step");
@@ -3136,6 +3131,68 @@ log(hit)
                 outputCard.body.push("3 - Roll for Strike Aircraft");
             }
             PrintCard();
+        }
+    }
+
+    const ResetFlags = () => {
+        let keys = Object.keys(UnitArray);
+        for (let j=0;j<keys.length;j++) {
+            let unit = UnitArray[keys[j]];
+            if (unit.player === state.FOW4.currentPlayer) {
+                SetStatus(unit.teamIDs,sm.fired,false);
+                SetStatus(unit.teamIDs,sm.tactical,false);
+                SetStatus(unit.teamIDs,sm.dash,false);
+                SetStatus(unit.teamIDs,sm.flare,false);
+                SetStatus(unit.teamIDs,sm.radio,false);
+                if (turn === 1) {
+                    GTG(unit);
+                }
+            } else {
+                GTG(unit);
+            }
+            for (let i=0;i<unit.teamIDs.length;i++) {
+                let team = TeamArray[unit.teamIDs[i]];
+                team.spotAttempts = 0;
+                team.hitArray = [];
+                team.eta = [];
+                team.nightvisibility = 0;
+                team.order = "";
+                team.specialorder = "";
+            }
+            unit.order = ""; 
+            unit.specialorder = "";
+            //TeamArray[unit.leaderID].token.set("aura1_color",colours.green);
+        }
+    }
+
+    const SetStatus = (ids,status,setting) => {
+        for (let i=0;i<ids.length;i++) {
+            let team = TeamArray[ids[i]];
+            if (!team) {continue};
+            if (team.type === "System Unit") {continue};
+            let token = team.token;
+            if (token) {
+                token.set(status,setting);
+            }
+        }
+    }
+
+    const GTG = (unit) => {
+        let teamIDs = unit.teamIDs;
+        for (let i=0;i<teamIDs.length;i++) {
+            let team = TeamArray[teamIDs[i]];
+            if (team.type === "System Unit" || team.type === "Aircraft") {continue};
+            let gtg = true;
+            let moved = false;
+            if (team.token.get(SM.tactical) === true && team.specialorder !== "Dig In") {moved = true};
+            if (team.token.get(SM.dash) === true) {moved = true};
+            if (moved === true && team.special.includes("Scout") === false) {gtg = false};
+            if (team.token.get(SM.fired) === true || team.token.get(SM.aafire) === true || team.order === "Assault") {gtg = false};
+            if (gtg === true) {
+                team.token.set(sm.gtg,true);
+            } else {
+                team.token.set(sm.gtg,false);
+            }
         }
     }
 
@@ -4429,7 +4486,7 @@ log(artUnits)
         if (success === false) {
             let fail = '[🎲](#" class="showtip" title="' + hittip + ')' + "Failed to Range In";
             outputCard.body.push(fail);
-            //barrageTeam.Kill();
+            RemoveBarrageToken()
             PrintCard();
             return
         } else {
@@ -4453,9 +4510,9 @@ log(artUnits)
             if (ammoType === "Smoke Bombardment") {
                 let num = gunNum * 4;
                 SmokeScreen(targetHex,num,direction,artilleryUnit.player);
-                state.FOW4.smokeScreens[artilleryUnit.player].push(artilleryUnit.id);
+                state.FOW4.smokeScreens[artilleryUnit.player].push(artilleryUnit.id); //tracks that unit fired its one smoke bombardment
                 outputCard.body.push("Smoke Screen successfully placed");
-                //barrageTeam.Kill();
+                RemoveBarrageToken()
                 PrintCard();
                 return;
             } else {
@@ -4522,7 +4579,7 @@ log(artUnits)
                 outputCard.body.push('[🎲](#" class="showtip" title="' + tip + ')' + team.name + ": Missed");
             }
         }
-        //barrageTeam.Kill();
+        //RemoveBarrageToken()
     
         PrintCard();
         //ProcessSaves();
@@ -4650,9 +4707,70 @@ log(marker);
             }
             SmokeArray.push(sInfo); 
             hexMap[currentHex.label()].smokescreen = true;
+            hexMap[currentHex.label()].smoke = true;
             currentHex = currentHex.neighbour(direction);
         }   
     }
+
+    const ClearSmoke = () => {
+        let newSmoke = []
+        for (let i=0;i<SmokeArray.length;i++) {
+            let info = SmokeArray[i];
+            let hexLabel = info.hexLabel;
+            let player = parseInt(info.player);
+            if (player !== currentPlayer) {
+                newSmoke.push(info);
+            } else {
+                if (hexMap[hexLabel]) {
+                    hexMap[hexLabel].smoke = false;
+                    hexMap[hexLabel].smokescreen = false;
+                }
+                let token = findObjs({_type:"graphic", id: info.id})[0];
+                if (!token) {
+                    log(info)
+                } else {
+                    token.remove();
+                }
+            }
+        }
+        SmokeArray = newSmoke;
+    }
+
+    const DirectSmoke = (id) => {
+        //place smoke on team
+        let team = TeamArray[id];
+        let location = team.location;
+        let rotation = randomInteger(12) * 30;
+        let img = getCleanImgSrc("https://s3.amazonaws.com/files.d20.io/images/196609276/u8gp3vcjYAunqphuw6tgWw/thumb.png?1611938031");
+        let newToken = createObj("graphic", {   
+            left: location.x,
+            top: location.y,
+            width: 100, 
+            height: 100,  
+            rotation: rotation,
+            name: "Smoke",
+            isdrawing: true,
+            pageid: Campaign().get("playerpageid"),
+            imgsrc: img,
+            layer: "map",
+            gmnotes: currentPlayer,
+        });
+        toFront(newToken);
+        //add to hexMap
+        hexMap[team.hexLabel].smoke = true;
+        //add to Smoke Array
+        let sInfo = {
+            hexLabel: team.hexLabel,
+            id: newToken.id, //id of the Smoke token, can be used to remove later
+            player: currentPlayer,
+        }
+        SmokeArray.push(sInfo);
+    }
+    
+
+
+
+
 
 
 
