@@ -2515,6 +2515,9 @@ log(hit)
             RemoveRangedInMarker(unit.id);
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
+        } else if (order.includes("Aircraft")) {
+            outputCard.body.push('Aircraft Teams may be moved anywhere on the board');
+            marker = SM.tactical;
         }
 
         outputCard.body.push(extraLine);
@@ -3157,7 +3160,6 @@ log(hit)
             }
             unit.order = ""; 
             unit.specialorder = "";
-            //TeamArray[unit.leaderID].token.set("aura1_color",colours.green);
         }
     }
 
@@ -4761,6 +4763,7 @@ log(marker);
         let id = msg.selected[0]._id;
         let team = TeamArray[id];
         let unit = UnitArray[team.unitID];
+        let unitLeader = TeamArray[unit.teamIDs[0]];
         let needed = 4;
         if (team.special.includes("Observer")) {
             needed = 3;
@@ -4769,14 +4772,22 @@ log(marker);
         let roll = randomInteger(6);
         outputCard.body.push("Roll: " + DisplayDice(roll,team.nation,36));
         if (roll >= needed) {
-           outputCard.body.push("The Unit may enter the Battlefield this turn");
+            outputCard.body.push("Success!")
+            ActivateUnitTwo(team.id,"Aircraft","");
         } else {
-           outputCard.body.push("[#ff0000]The Unit is Refuelling/Refitting this turn[/#]");
+            outputCard.body.push("[#ff0000]The Unit is Refuelling/Refitting this turn[/#]");
+            PrintCard();
         }
-        PrintCard();
     }
 
+    const SwapLeader = (unit) => {
+        if (unit.teamIDs.length < 2) {return}; 
 
+
+
+
+
+    }
 
 
 
