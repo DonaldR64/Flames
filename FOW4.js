@@ -155,7 +155,7 @@ const FOW4 = (() => {
         "road block": {name: "Road Block",height: 0,bp: true,type: 1,group: "Obstacle"},
         "crater": {name: "Craters",height: 0,bp: true,type: 0,group: "Rough"},        
         "crops": {name: "Crops",height: 0,bp: false,type: 1,group: "Crops"},
-        "foxhole": {name: "Foxhole",height: 0,bp: false,type: 0,group: "Foxhole"}, //bp tracked in LOS, and in hexMap
+        "foxholes": {name: "Foxholes",height: 0,bp: false,type: 0,group: "Foxholes"}, //bp tracked in LOS, and in hexMap
         "smoke": {name: "Smoke",height: 0,bp: false,type: 0,group: "Smoke"},
         "smokescreen": {name: "SmokeScreen",height: 10,bp:false,type: 0,group: "Smoke"},
         "rangedin": {name: "rangedin",height: 0,bp:false,type: 0,group: "Marker"},
@@ -852,7 +852,7 @@ log(hit)
 
             if (bp === "Artillery") {
                 bp = hexMap[this.hexLabel].bp;
-                if (hexMap[this.hexLabel].foxhole === true && this.type === "Infantry") {bp = true};
+                if (hexMap[this.hexLabel].foxholes === true && this.type === "Infantry") {bp = true};
             } 
             if (bp === "Passenger") {
                 bp = false;
@@ -1581,7 +1581,7 @@ log(hit)
                     height: 0, //height of top of terrain over elevation
                     smoke: false,
                     smokescreen: false,
-                    foxhole: false,
+                    foxholes: false,
                     type: 0,
                     bp: false,
                 };
@@ -1634,32 +1634,25 @@ log(hit)
                         if (num > 2) {
                             temp.terrain.push(polygon.name);
                             temp.terrainIDs.push(polygon.id);
-                            if (polygon.name === "SmokeScreen") {
-                                temp.smokescreen = true;
+                            if (polygon.name.includes("Smoke")) {
                                 temp.smoke = true;
+                                if (polygon.name === "SmokeScreen") {
+                                    temp.smokescreen = true;
+                                }
                                 let sInfo = {
                                     hex: key,
-                                    id: polygon.id,
+                                    id: polygon.tokenID, 
                                     player: polygon.gmnotes,
                                 }
-                                SmokeArray[key] = sInfo; 
+                                SmokeArray.push(sInfo); 
                             }
-                            if (polygon.name === "Smoke") {
-                                temp.smoke = true;
-                                let sInfo = {
-                                    hex: key,
-                                    id: polygon.id, 
-                                    player: polygon.gmnotes,
-                                }
-                                SmokeArray[key] = sInfo;                            
-                            }
-                            if (polygon.name === "Foxhole") {
+                            if (polygon.name === "Foxholes") {
                                 let fInfo = {
                                     hex: key,
                                     id: polygon.id, //id of the Foxhole token, can be used to remove later
                                 }
                                 FoxholeArray[key] = fInfo;
-                                temp.foxhole = true;
+                                temp.foxholes = true;
                             }
                             if (polygon.name === "rangedin") {
                                 let rInfo = {
@@ -1759,6 +1752,7 @@ log(hit)
             let info = {
                 name: t.name,
                 id: id,
+                tokenID: t.id,
                 gmnotes: decodeURIComponent(token.get("gmnotes")),
                 vertices: vertices,
                 centre: centre,
@@ -2057,9 +2051,9 @@ log(hit)
         let elevation = teamHeight(team);
         let unit = UnitArray[team.unitID];
         outputCard.body.push("Terrain: " + terrain);
-        let covers = ["the Open","Short Terrain","Tall Terrain","a Building"];
+        let covers = ["Flat Terrain","Short Terrain","Tall Terrain","a Building"];
         outputCard.body.push(team.name + " is in " + covers[h.type]);
-        if (h.bp === true) {
+        if (h.bp === true || h.foxholes === true) {
             outputCard.body.push("(Bulletproof Cover)");
         }
         outputCard.body.push("Elevation: " + (elevation * 25) + " Feet");
@@ -2159,7 +2153,7 @@ log(hit)
     
         let fKeys = Object.keys(TeamArray);
 
-        if ((team2Hex.bp === true || team2Hex.foxhole === true) && team2.type === "Infantry") {
+        if ((team2Hex.bp === true || team2Hex.foxholes === true) && team2.type === "Infantry") {
             //this catches foxholes, craters and similar
             concealed = true;
             bulletproof = true;
@@ -2894,7 +2888,7 @@ log(hit)
             });
             toFront(newToken);
             hexMap[team.hexLabel].terrain.push("Foxholes");
-            hexMap[team.hexLabel].foxhole = true;
+            hexMap[team.hexLabel].foxholes = true;
             let fInfo = {
                 hexLabel: team.hexLabel,
                 id: newToken.id, //id of the Foxholes token, can be used to remove later
@@ -2911,7 +2905,7 @@ log(hit)
                 let index = hexMap[foxhole.hexLabel].terrain.indexOf("Foxholes");
                 if (index > -1) {
                     hexMap[foxhole.hexLabel].terrain.splice(index,1);
-                    hexMap[foxhole.hexLabel].foxhole = false;
+                    hexMap[foxhole.hexLabel].foxholes = false;
                 }
                 let tok = findObjs({_type:"graphic", id: foxhole.id})[0];
                 if (tok) {
@@ -4714,7 +4708,7 @@ log(marker);
             let info = SmokeArray[i];
             let hexLabel = info.hexLabel;
             let player = parseInt(info.player);
-            if (player !== currentPlayer) {
+            if (player !== state.FOW4.currentPlayer) {
                 newSmoke.push(info);
             } else {
                 if (hexMap[hexLabel]) {
