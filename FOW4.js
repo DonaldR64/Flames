@@ -2489,9 +2489,22 @@ log(hit)
 
         let marker;
         if (order.includes("Tactical")) {
-            if (specialorder.includes("Dig In") === false) {
-                outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
-                outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
+            if (unit.type === "Aircraft") {
+                let needed = 4;
+                if (unitLeader.special.includes("Observer")) {needed = 3};
+                let roll = randomInteger(6);
+                outputCard.body.push("Arrival Roll: " + DisplayDice(roll,team.nation,24));
+                if (roll >= needed) {
+                    outputCard.body.push("Aircraft Arrives and can be placed anywhere on the Field");
+                    outputCard.body.push("Enemy AA Fire can happen anytime before the Aircraft attacks");
+                } else {
+                    outputCard.body.push("[#ff0000]The Unit is Refuelling/Refitting this turn[/#]");
+                }
+            } else {
+                if (specialorder.includes("Dig In") === false) {
+                    outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
+                    outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
+                }
             }
             marker = SM.tactical;
             RemoveRangedInMarker(unit.id);
@@ -2515,9 +2528,6 @@ log(hit)
             RemoveRangedInMarker(unit.id);
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
-        } else if (order.includes("Aircraft")) {
-            outputCard.body.push('Aircraft Teams may be moved anywhere on the board');
-            marker = SM.tactical;
         }
 
         outputCard.body.push(extraLine);
@@ -2563,12 +2573,6 @@ log(hit)
             AddAbility(abilityName,action,char.id);        
         }
 */
-        if (type === "Aircraft") {
-            abilityName = "Arrive ?";
-            action = "!EnterAircraft";
-            AddAbility(abilityName,action,char.id);
-        }
-
         if (char.get("name").includes("Mine") && type === "System Unit") {
             abilityName = "Minefield Check";
             action = "!MinefieldCheck;@{selected|token_id};@{target|token_id}";
@@ -2584,10 +2588,10 @@ log(hit)
         } else if (type === "Unarmoured Tank") {
             action = "!Activate;?{Order|Tactical|Dash|Hold";
         } else if (type === "Aircraft") {
-            action = "!Activate;Aircraft";
+            action = "!Activate;Tactical";
         }
 
-        if (special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) {
+        if ((special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) && type !== "Aircraft") {
             action += "|Spot";
         }
         action += "}";
@@ -2632,10 +2636,17 @@ log(hit)
         let mg = false;
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
-            if (weapon.type === "Artillery" || weapon.type === "Rockets") {
+            if ((weapon.type === "Artillery" || weapon.type === "Rockets") && team.type !== "Aircraft") {
                 AddAbility("Preplan","!PlaceRangedIn",char.id);
                 continue;
             };
+            if (team.type === "Aircraft" && weapon.type === "Artillery") {
+                
+
+
+
+
+            }
             //if weapon has direct fire should classify type as gun
             let abName = weapon.name;
             let wtype = weapon.type;
@@ -2643,7 +2654,7 @@ log(hit)
                 wtype = "MG"
                 if (mg === true) {
                     continue;
-                } else {
+                } else {misc
                     abName = "MGs"
                     mg = true;
                 }
@@ -4758,27 +4769,7 @@ log(marker);
         }
         SmokeArray.push(sInfo);
     }
-    
-    const EnterAircraft = (msg) => {
-        let id = msg.selected[0]._id;
-        let team = TeamArray[id];
-        let unit = UnitArray[team.unitID];
-        let unitLeader = TeamArray[unit.teamIDs[0]];
-        let needed = 4;
-        if (team.special.includes("Observer")) {
-            needed = 3;
-        }
-        SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
-        let roll = randomInteger(6);
-        outputCard.body.push("Roll: " + DisplayDice(roll,team.nation,36));
-        if (roll >= needed) {
-            outputCard.body.push("Success!")
-            ActivateUnitTwo(team.id,"Aircraft","");
-        } else {
-            outputCard.body.push("[#ff0000]The Unit is Refuelling/Refitting this turn[/#]");
-            PrintCard();
-        }
-    }
+
 
     const SwapLeader = (unit) => {
         if (unit.teamIDs.length < 2) {return}; 
@@ -4928,9 +4919,6 @@ log(marker);
                 break;
             case '!FinalizeRangedIn':
                 FinalizeRangedIn(msg);
-                break;
-            case '!EnterAircraft':
-                EnterAircraft(msg);
                 break;
         }
     };
