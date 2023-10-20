@@ -13,7 +13,7 @@ const FOW4 = (() => {
     let TeamArray = {}; //Individual Squads, Tanks etc
     let UnitArray = {}; //Units of Teams eg. Platoon
     let FormationArray = {}; //to track formations
-    let SmokeArray = {};
+    let SmokeArray = [];
     let FoxholeArray = [];
     let CheckArray = []; //used by Remount, Rally and Morale checks
     let RangedInArray = {};
@@ -158,6 +158,7 @@ const FOW4 = (() => {
         "foxhole": {name: "Foxhole",height: 0,bp: true,type: 0,group: "Foxhole"},
         "smoke": {name: "Smoke",height: 0,bp: false,type: 0,group: "Smoke"},
         "smokescreen": {name: "SmokeScreen",height: 10,bp:false,type: 0,group: "Smoke"},
+        "rangedin": {name: "rangedin",height: 0,bp:false,type: 0,group: "Marker"},
     }
 
     const Nations = {
@@ -753,10 +754,10 @@ const FOW4 = (() => {
             this.order = "";
             this.specialorder = "";
 
-            this.tactical = Math.round(Number(attributeArray.tactical) * gameScale);
-            this.terraindash = Math.round(Number(attributeArray.terrain) * gameScale);
-            this.countrydash = Math.round(Number(attributeArray.country) * gameScale);
-            this.roaddash = Math.round(Number(attributeArray.road) * gameScale);
+            this.tactical = Math.max(0,Math.round(Number(attributeArray.tactical) * gameScale));
+            this.terraindash = Math.max(0,Math.round(Number(attributeArray.terrain) * gameScale));
+            this.countrydash = Math.max(0,Math.round(Number(attributeArray.country) * gameScale));
+            this.roaddash = Math.max(0,Math.round(Number(attributeArray.road) * gameScale));
             this.cross = crossStat(attributeArray.cross);
 
             //update sheet based on above
@@ -1078,6 +1079,7 @@ log(hit)
 
     const AttributeSet = (characterID,attributename,newvalue,max) => {
         if (!max) {max = false};
+        if (!newvalue) {newvalue = 0};
         let attributeobj = findObjs({type:'attribute',characterid: characterID, name: attributename})[0]
         if (attributeobj) {
             if (max === true) {
@@ -1322,7 +1324,7 @@ log(hit)
             });                
         })
 
-        //RemoveDead("All");
+        RemoveDead("All");
 
         state.FOW4 = {
             nations: [[],[]],
@@ -1343,6 +1345,26 @@ log(hit)
             smokeScreens: [[],[]],
         }
         sendChat("","Cleared State/Arrays");
+    }
+
+    const RemoveDead = (info) => {
+        let tokens = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+            _subtype: "token",
+            layer: "map",
+        });
+        let removals = ["SmokeScreen","rangedin","Foxholes"];
+        tokens.forEach((token) => {
+            if (token.get("status_dead") === true) {
+                token.remove();
+            }
+            for (let i=0;i<removals.length;i++) {
+                if (removals[i] === token.get("name") && info === "All") {
+                    token.remove();
+                }
+            }
+        });
     }
 
 
@@ -1620,7 +1642,8 @@ log(hit)
                                 temp.smoke = true;
                                 let sInfo = {
                                     hex: key,
-                                    id: polygon.id, //id of the Smoke token, can be used to remove later
+                                    id: polygon.id,
+                                    player: polygon.gmnotes,
                                 }
                                 SmokeArray[key] = sInfo; 
                             }
@@ -1628,7 +1651,8 @@ log(hit)
                                 temp.smoke = true;
                                 let sInfo = {
                                     hex: key,
-                                    id: polygon.id, //id of the Smoke token, can be used to remove later, its bar1 will have # activations left
+                                    id: polygon.id, 
+                                    player: polygon.gmnotes,
                                 }
                                 SmokeArray[key] = sInfo;                            
                             }
@@ -1638,6 +1662,13 @@ log(hit)
                                     id: polygon.id, //id of the Foxhole token, can be used to remove later
                                 }
                                 FoxholeArray[key] = fInfo;
+                            }
+                            if (polygon.name === "rangedin") {
+                                let rInfo = {
+                                    hex: key,
+                                    id: polygon.id,
+                                }
+                                RangedInArray[polygon.gmnotes] = rInfo; 
                             }
 
                             if (polygon.bp === true) {temp.bp = true};
@@ -1718,15 +1749,6 @@ log(hit)
             truncName = truncName.trim();
             let t = MapTokenInfo[truncName];
             if (!t) {
-                if (token.get("name") === "rangedin") {
-                    let unitID = decodeURIComponent(token.get("gmnotes")).toString();
-                    let loc = new Point(token.get("left"),token.get("top"));
-                    let hex = pointToHex(loc);
-                    RangedInArray[unitID] = {
-                        hexLabel: hex.label(),
-                        tokenID: token.id,
-                    }
-                }   
                 return;
             };
 
@@ -1739,6 +1761,7 @@ log(hit)
             let info = {
                 name: t.name,
                 id: id,
+                gmnotes: decodeURIComponent(token.get("gmnotes")),
                 vertices: vertices,
                 centre: centre,
                 height: t.height,
@@ -4428,7 +4451,7 @@ log(artUnits)
             }
     
             if (ammoType === "Smoke Bombardment") {
-                let num = gunNum * 3;
+                let num = gunNum * 4;
                 SmokeScreen(targetHex,num,direction,artilleryUnit.player);
                 state.FOW4.smokeScreens[artilleryUnit.player].push(artilleryUnit.id);
                 outputCard.body.push("Smoke Screen successfully placed");
@@ -4599,6 +4622,40 @@ log(marker);
             layer: "map",
         });
     }
+
+    const SmokeScreen = (targetHex,number,direction,player) => {
+        let currentHex = targetHex;
+        for (let i=0;i<number;i++) {
+            let rotation = randomInteger(12) * 30;
+            let location = hexMap[currentHex.label()].centre
+            let img = getCleanImgSrc("https://s3.amazonaws.com/files.d20.io/images/254450996/PZo4LXP6LH6yN3tt674bDg/thumb.png?1636311012");
+            let newToken = createObj("graphic", {   
+                left: location.x,
+                top: location.y,
+                width: 100, 
+                height: 100,  
+                rotation: rotation,
+                name: "SmokeScreen",
+                isdrawing: true,
+                pageid: Campaign().get("playerpageid"),
+                imgsrc: img,
+                layer: "map",
+                gmnotes: player,
+            });
+            toFront(newToken);
+            let sInfo = {
+                hexLabel: currentHex.label(),
+                id: newToken.id,
+                player: player,
+            }
+            SmokeArray.push(sInfo); 
+            hexMap[currentHex.label()].smokescreen = true;
+            currentHex = currentHex.neighbour(direction);
+        }   
+    }
+
+
+
 
     const changeGraphic = (tok,prev) => {
         if (tok.get('subtype') === "token") {
