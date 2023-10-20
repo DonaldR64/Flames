@@ -3146,7 +3146,7 @@ log(hit)
                 SetStatus(unit.teamIDs,SM.dash,false);
                 SetStatus(unit.teamIDs,SM.flare,false);
                 SetStatus(unit.teamIDs,SM.radio,false);
-                if (turn === 1) {
+                if (state.FOW4.turn === 1) {
                     GTG(unit);
                 }
             } else {
@@ -3648,7 +3648,7 @@ log(weapons)
                 let los = eta[0].los;
                 if (los.distance > Math.max(16,Math.round(weapon.maxRange/2))) {
                     toHit++;
-                    toHitTips += "<br>> 1/2 Range +1";
+                    toHitTips += "<br>Long Range +1";
                 }
                 if (los.concealed === true) {
                     toHit++;
