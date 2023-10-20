@@ -4757,7 +4757,24 @@ log(marker);
         SmokeArray.push(sInfo);
     }
     
-
+    const EnterAircraft = (msg) => {
+        let id = msg.selected[0]._id;
+        let team = TeamArray[id];
+        let unit = UnitArray[team.unitID];
+        let needed = 4;
+        if (team.special.includes("Observer")) {
+            needed = 3;
+        }
+        SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
+        let roll = randomInteger(6);
+        outputCard.body.push("Roll: " + DisplayDice(roll,team.nation,36));
+        if (roll >= needed) {
+           outputCard.body.push("The Unit may enter the Battlefield this turn");
+        } else {
+           outputCard.body.push("[#ff0000]The Unit is Refuelling/Refitting this turn[/#]");
+        }
+        PrintCard();
+    }
 
 
 
@@ -4900,6 +4917,9 @@ log(marker);
                 break;
             case '!FinalizeRangedIn':
                 FinalizeRangedIn(msg);
+                break;
+            case '!EnterAircraft':
+                EnterAircraft(msg);
                 break;
         }
     };
