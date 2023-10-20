@@ -2440,9 +2440,11 @@ log(hit)
             SetupCard(targetName,order,unit.nation);
         };
 
-        for (let i=0;i<targetArray.length;i++) {
-            for (let j=0;j<sms.length;j++) {
-                targetArray[i].token.set(sms[j],false);
+        if (targetTeam.type !== "Aircraft") {
+            for (let i=0;i<targetArray.length;i++) {
+                for (let j=0;j<sms.length;j++) {
+                    targetArray[i].token.set(sms[j],false);
+                }
             }
         }
 
@@ -2594,8 +2596,10 @@ log(hit)
         if ((special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) && type !== "Aircraft") {
             action += "|Spot";
         }
-        action += "}";
-        abilityName = "Orders";
+        if (type !== "Aircraft") {
+            action += "}";
+        }
+        abilityName = "Activate";
         AddAbility(abilityName,action,char.id);
 
         let specOrders;
@@ -2638,9 +2642,7 @@ log(hit)
             let weapon = team.weaponArray[i];
             if (weapon.type === "Artillery" || weapon.type === "Rockets") {
                 if (team.type === "Aircraft") {
-                    let ab = "Drop: "
-                    if (weapon.type === "Rockets") {ab = "Fire: "};
-                    AddAbility(ab + weapon.name,"!Activate;Spot",char.id);
+                    AddAbility("Target " + weapon.name,"!Activate;Spot",char.id);
                 } else {
                     AddAbility("Preplan","!PlaceRangedIn",char.id);
                 }
@@ -4000,6 +4002,7 @@ log("Roll: " + roll)
 
 
     const CreateBarrages = (observerID) => {
+log("In Create Barrages")        
         RemoveBarrageToken();
         RemoveLines();
         let observerTeam = TeamArray[observerID];
@@ -4008,7 +4011,7 @@ log("Roll: " + roll)
         if (observerTeam.spotAttempts >= 3) {
             errorMsg.push("No further Spotting Attempts by this Team/Unit");
         }
-        if (observerTeam.token.get(SM.tactical) === true || observerTeam.token.get(SM.dash) === true) {
+        if ((observerTeam.token.get(SM.tactical) === true && observerTeam.type !== "Aircraft") || observerTeam.token.get(SM.dash) === true) {
             errorMsg.push("Spotter Team Moved or Dug In");
         }
         if (observerTeam.token.get(SM.fired) === true) {
@@ -4022,7 +4025,6 @@ log("Roll: " + roll)
             for (let i=0;i<errorMsg.length;i++) {
                 outputCard.body.push(errorMsg[i]);
             }
-            PrintCard();
             return;
         }
         let img = Nations[observerTeam.nation].barrageimage;
@@ -4421,6 +4423,7 @@ log(artUnits)
                 if (hex.tokenIDs.length !== 0) {
                     for (let j=0;j<hex.tokenIDs.length;j++) {
                         let team = TeamArray[hex.tokenIDs[j]];
+                        if (!team) {continue};
                         if (team.type === "Aircraft" || team.type === "System Unit") {continue};
                         targetArray.push(team);
                     }
