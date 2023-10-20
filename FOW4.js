@@ -3654,13 +3654,7 @@ log(weapons)
                     if (target.token.get(SM.gtg) === true) {
                         toHit++;
                         toHitTips += " and Gone to Ground +1";
-                    } else if (target.special.includes("Scout") && target.token.get(SM.fired) === false) {
-//plus not if assaulting - have to figure out how to put that in here
-                        toHit++;
-                        toHitTips += " and Scout +1";
-                    }
-
-
+                    } 
                 }
                 if (los.smoke === true) {
                     toHit++;
