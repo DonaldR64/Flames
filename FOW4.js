@@ -545,18 +545,21 @@ const FOW4 = (() => {
             this.teamIDs = newTeamIDs;
         }
 
-        inCommand() {
+        IC() {
             if (this.hqUnit === true || this.type === "System Unit") {return};
-            let unitLeader = this.teamIDs[0];
+            let unitLeader = TeamArray[this.teamIDs[0]];
+            log(unitLeader)            
             let commandRadius = (this.teamIDs.length < 8) ? 6:8;
             for (let j=0;j<this.teamIDs.length;j++) {
                 let team = TeamArray[this.teamIDs[j]];
+                log(team)
+                if (!team) {continue};
                 let dist = team.hex.distance(unitLeader.hex);
+                let IC = true;
                 if (dist > commandRadius) {
-                    team.inCommand(true);
-                } else {
-                    team.inCommand(false);
-                }
+                    IC = false
+                } 
+                team.IC(IC);
             }
         }
 
@@ -845,7 +848,7 @@ log(this.artillery)
             return bailed;
         }
 
-        inCommand(IC) {
+        IC(IC) {
             this.inCommand = IC;
             let colour = "transparent";
             if (IC === false) {
@@ -4896,11 +4899,11 @@ log(unitIDs4Saves)
                 let unit = UnitArray[unitKeys[i]];
                 if (team !== "All" && team !== unit.player) {continue};
                 unit.checkTeamIDs();
-                unit.inCommand();
+                unit.IC();
             }
         } else {
             let unit = UnitArray[team.unitID];
-            unit.inCommand();
+            unit.IC();
         }
     }
 
