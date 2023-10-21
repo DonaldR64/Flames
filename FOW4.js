@@ -477,6 +477,8 @@ const FOW4 = (() => {
             this.artillery = false;
             this.type = "";
             this.number = 0;
+            this.linkedUnitID = ""; //used in Mistaken for HQ units
+
             UnitArray[id] = this;
         }
 
@@ -710,8 +712,7 @@ const FOW4 = (() => {
                 special = " ";
             }
 
-            let unique = attributeArray.unique;
-            if (unique === 0) {unique = false};
+            let unique = (attributeArray.unique === "true") ? true:false;
 
             //armour
             let front = parseInt(attributeArray.armourF);
@@ -798,6 +799,9 @@ log(this.artillery)
             this.weaponArray = weaponArray;
             this.hitArray = [];
             this.eta = [];
+            this.shooterIDs = [];
+            this.priority = 0;
+
             //this.maxPass = maxPass;
 
             TeamArray[tokenID] = this;
@@ -2655,7 +2659,7 @@ log(hit)
                 wtype = "MG"
                 if (mg === true) {
                     continue;
-                } else {misc
+                } else {
                     abName = "MGs"
                     mg = true;
                 }
@@ -3172,6 +3176,12 @@ log(hit)
             }
             unit.order = ""; 
             unit.specialorder = "";
+            let unitLeader = TeamArray[unit.teamIDs[0]];
+            if (unitLeader) {
+                if (unitLeader.bailed() === true) {
+                    SwapLeader(unit);
+                }
+            }
         }
     }
 
@@ -3818,17 +3828,11 @@ log(weapons)
 
         unitFiredThisTurn = true;
 
-/*
-//move to saves
-        if (targetTeamArray.length > 1 && mistaken === true) {
-            Mistaken(targetTeamArray,shooterTeamArray);
-        }
-*/
         for (let i=0;i<targetTeamArray.length;i++) {
             let tt = TeamArray[targetTeamArray[i].id];
-            if (unitIDs4Saves[tt.unitID] === false) {
-                unitIDs4Saves[tt.unitID] = mistaken;
-            }
+            if (!unitIDs4Saves[tt.unitID]) {
+                unitIDs4Saves[tt.unitID] = mistaken
+            } 
         }
 
         //total hits
@@ -3847,19 +3851,12 @@ log(weapons)
         if (allFired === false) {
             outputCard.body.push("[hr]");
             outputCard.body.push("Not all Teams have fired");
+//button            
         }    
-
-        if (allFired === true) {
-            //can run saves
-            //ProcessSaves();
-        } 
-
-
-
-
         PrintCard();
-
-
+        if (allFired === true) {
+            ProcessSaves();
+        } 
     }
 
     const CompareHits = (ta1,ta2) => {
@@ -3918,6 +3915,7 @@ log(weapons)
                     if (team3.hex.distance(targetTeam.hex) <= commandRadius[0]) {
                         //a valid team - add its unit IDs, rest will get sorted in/out below
                         ids = ids.concat(unit.teamIDs);
+                        targetUnit.linkedUnitID = unit.id;
                         break btaLoop1;
                     }
                 }
@@ -3926,28 +3924,23 @@ log(weapons)
 
         for (let i=0;i<ids.length;i++) {
             let team = TeamArray[ids[i]];
-            let priority = 0;
-            if (i === 0) {priority = 1};
             let refDistance = targetTeam.hex.distance(team.hex);//distance from targeted team to this team
             if (refDistance > 6 || team.type !== targetTeam.type) {continue}; //too far or not same type
-            if (team.special.includes("HQ") || team.special.includes("Independent")) {priority = 3};
-            if (team.unique === true) {priority = 2};
-            if (team.bailed() === true && team.type === "Tank") {priority = -2};
 
-            let shooterIDs = []; //used for Mistaken Swaps
             for (let j=0;j<shooterUnit.teamIDs.length;j++) {
                 let ttLOS = LOS(team.id,shooterUnit.teamIDs[j],"Overhead");
                 if (ttLOS.los === true) {
-                    shooterIDs.push(shooterUnit.teamIDs[j]);
+                    team.shooterIDs.push(shooterUnit.teamIDs[j]);
                 }
             }
+
+
+
 
             let info = {
                 name: team.name,
                 id: team.id,
-                priority: priority,
                 refDistance: refDistance,
-                shooterIDs: shooterIDs,
             }
             array.push(info);
         }
@@ -3964,15 +3957,40 @@ log(weapons)
 
 
 
-    const Mistaken = (targetTeamArray,shooterTeamArray) => {
+    const Mistaken = (unit) => {
 log("In Mistaken")
-        //applies mistaken target rule to targets 
-        let roll = randomInteger(6);
-log("Roll: " + roll)
-        let array = targetTeamArray.sort(function(a,b){
+
+        let array = [];
+        for (let i=0;i<unit.teamIDs.length;i++) {
+            let team = TeamArray[unit.teamIDs[i]];
+            if (team.hitArray.length === 0) {continue};
+            team.priority = 0;
+            if (i===0) {team.priority = 1};
+            if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
+            if (team.unique === true) {team.priority = 2};
+            if (team.bailed() === true && team.type === "Tank") {team.priority = -2};
+            array.push(team);
+        }
+        if (unit.hqUnit === true && unit.linkedUnitID !== "") {
+            let linkedUnit = UnitArray[unit.linkedUnitID];
+            for (let i=0;i<linkedUnit.teamIDs.length;i++) {
+                let team = TeamArray[linkedUnit.teamIDs[i]];
+                if (team.hitArray.length === 0) {continue};
+                team.priority = 0;
+                if (i===0) {team.priority = 1};
+                if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
+                if (team.unique === true) {team.priority = 2};
+                if (team.bailed() === true && team.type === "Tank") {team.priority = -2};
+                array.push(team);
+            }
+        }
+log("Array Length: " + array.length)
+        array = array.sort(function(a,b){
             return b.priority - a.priority;
         })
-log(array)
+        let roll = randomInteger(6);
+log("Roll: " + roll)
+
         for (let i=0;i<array.length;i++) {
             if (roll < 3) {break};
             let t1 = array[i];
@@ -3986,6 +4004,7 @@ log("Hit Info")
 log(hitInfo)
                 if (hitInfo.hits2.swappable.length < hitInfo.hits1.swappable.length) {
 log("A Swap Occurs")
+                    outputCard.body.push("Hits on " + t1.name + " swapped to " + t2.name);
                     let h1 = hitInfo.hits1.unswappable.concat(hitInfo.hits2.swappable);
                     let h2 = hitInfo.hits2.unswappable.concat(hitInfo.hits1.swappable);
 log("Team1 New Hits: " + h1.length);
@@ -4587,7 +4606,7 @@ log(artUnits)
         //RemoveBarrageToken()
     
         PrintCard();
-        //ProcessSaves();
+        ProcessSaves();
     }
 
     const RemoveLines = () => {
@@ -4775,12 +4794,77 @@ log(marker);
 
     const SwapLeader = (unit) => {
         if (unit.teamIDs.length < 2) {return}; 
-
-
-
-
-
+        let team1 = TeamArray[unit.teamIDs[0]];
+        for (let i=1;i<unit.teamIDs.length;i++) {
+            let team2 = TeamArray[unit.teamIDs[i]];
+            if (team2.hex.distance(team1.hex) <= 6) {
+                if (team2.characterID === team1.characterID) {
+                    let name1 = team1.name;
+                    let name2 = team2.name;
+                    team2.token.set("name",name1);
+                    team2.name = name1;
+                    team1.token.set("name",name2);
+                    team1.name = name2;
+                    let t2ID = team2.id;
+                    let pos = unit.teamIDs.indexOf(t2ID);
+                    unit.teamIDs.splice(pos,1);
+                    unit.teamIDs.unshift(t2ID);
+                    outputCard.body.push(name1 + " takes command of " + name2);
+                    break;
+                }
+            }
+        }
     }
+
+    const ProcessSaves = () => {
+log("In Process Saves")
+log(unitIDs4Saves)
+        let keys = Object.keys(unitIDs4Saves);
+        if (keys.length === 0) {return};
+        for (let i=0;i<keys.length;i++) {
+            let unit = UnitArray[keys[i]];            
+            SetupCard(unit.name,"Saves",unit.nation);
+            if (unitIDs4Saves[keys[i]] === true) {
+                //run Mistaken
+                Mistaken(unit);
+            }
+            for (let j=0;j<unit.teamIDs.length;j++) {
+                let team = TeamArray[unit.teamIDs[j]];
+                if (team.hitArray.length === 0) {continue};
+                outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
+
+
+
+
+
+
+
+
+
+
+                team.hitArray = [];
+                team.shooterIDs = [];
+            }
+
+
+
+
+
+
+
+
+            unit.linkedUnitID = "";
+            PrintCard();
+        }
+        unitIDs4Saves = {};
+    }
+
+
+
+
+
+
+
 
 
 
