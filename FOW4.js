@@ -20,7 +20,7 @@ const FOW4 = (() => {
 
     let unitCreationInfo = {}; //used during unit creation 
     let unitIDs4Saves = {}; //used during shooting routines
-    let unitFiredThisTurn = false; //marker for smoke bombardments
+    let unitFiredThisTurn = false; //marker for smoke bombardments, inCommand
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -533,6 +533,33 @@ const FOW4 = (() => {
             leaderTeam.token.set("aura1_color",Colours.green);
         }
 
+        checkTeamIDs() {
+            let newTeamIDs = [];
+            for (let i=0;i<this.teamIDs.length;i++) {
+                let id = this.teamIDs[i];
+                let team = TeamArray[id];
+                if (!team) {continue};
+                if (!team.token) {continue};
+                newTeamIDs.push(id);
+            }
+            this.teamIDs = newTeamIDs;
+        }
+
+        inCommand() {
+            if (this.hqUnit === true || this.type === "System Unit") {return};
+            let unitLeader = this.teamIDs[0];
+            let commandRadius = (this.teamIDs.length < 8) ? 6:8;
+            for (let j=0;j<this.teamIDs.length;j++) {
+                let team = TeamArray[this.teamIDs[j]];
+                let dist = team.hex.distance(unitLeader.hex);
+                if (dist > commandRadius) {
+                    team.inCommand(true);
+                } else {
+                    team.inCommand(false);
+                }
+            }
+        }
+
 
 
     }
@@ -754,6 +781,7 @@ const FOW4 = (() => {
 
             this.order = "";
             this.specialorder = "";
+            this.inCommand = true;
 
             this.tactical = Math.max(0,Math.round(Number(attributeArray.tactical) * gameScale));
             this.terraindash = Math.max(0,Math.round(Number(attributeArray.terrain) * gameScale));
@@ -809,28 +837,21 @@ log(this.artillery)
 
         }
 
-        inCommand() {
-            if (this.special.includes("HQ")) {return true};
-            let inC = false;
-            let unit = UnitArray[this.unitID];
-            let unitLeader = TeamArray[unit.teamIDs[0]];
-            let unitSize = unit.teamIDs.length;
-            let commandRadius = 6;
-            if (unitSize >= 8) {
-                commandRadius = 8;
-            }
-            if (this.hex.distance(unitLeader.hex) <= commandRadius) {
-                inC = true;
-            }
-            return inC;
-        }
-
         bailed() {
             let bailed = false;
             if (this.type === "Tank" && this.token.get("aura1_color") === Colours.yellow) {
                 bailed = true;
             }
             return bailed;
+        }
+
+        inCommand(IC) {
+            this.inCommand = IC;
+            let colour = "transparent";
+            if (IC === false) {
+                colour = Colours.black;
+            }
+            this.token.set("tint_color",colour);
         }
     
         Save(hit,hitNum) {
@@ -1691,6 +1712,8 @@ log(hit)
         log("Hex Map Built in " + elapsed/1000 + " seconds");
         //add tokens to hex map, rebuild Team/Unit Arrays
         TA();
+        //check what is in command
+        inCommand("All");
     }
 
     const BuildTerrainArray = () => {
@@ -2062,7 +2085,7 @@ log(hit)
         }
         outputCard.body.push("Elevation: " + (elevation * 25) + " Feet");
         outputCard.body.push("[hr]");
-        if (team.inCommand() === true) {
+        if (team.inCommand === true) {
             outputCard.body.push("Team is In Command");
         } else {
             outputCard.body.push("Team is NOT In Command");
@@ -2418,18 +2441,17 @@ log(hit)
     const ActivateUnitTwo = (teamID,order,specialorder) => {
         let team = TeamArray[teamID];
         let unit = UnitArray[team.unitID];
-        let inCommand = team.inCommand();
         let unitLeader = TeamArray[unit.teamIDs[0]];
         let targetTeam,targetName;
         let targetArray = [];
         let sms = [SM.tactical,SM.dash,SM.hold,SM.assault];
 
-        if (inCommand === true && order !== "Spot") {
+        if (team.inCommand === true && order !== "Spot") {
             targetTeam = unitLeader;
             targetName = unit.name;
             for (let i=0;i<unit.teamIDs.length;i++) {
                 let tm = TeamArray[unit.teamIDs[i]];
-                if (tm.inCommand() === true) {
+                if (tm.inCommand === true) {
                     targetArray.push(tm);
                 }
             }
@@ -2457,7 +2479,7 @@ log(hit)
         let noun2 = " their ";
 
         let extraLine = ""
-        if (inCommand === false) {
+        if (team.inCommand === false) {
             noun = "The Team ";
             verb = " is ";
             noun2 = " its ";
@@ -2548,7 +2570,7 @@ log(hit)
                 outputCard.body.push('[' + targetArray[i].name + " already has " + targetArray[i].specialorder + "]");
             }
         }
-        if (inCommand === true && order !== "Spot") {
+        if (team.inCommand === true && order !== "Spot") {
             unit.order = order;
             unit.specialorder = specialorder;
         }
@@ -2887,7 +2909,7 @@ log(hit)
         for (let i=0;i<unit.teamIDs.length;i++) {
             let team = TeamArray[unit.teamIDs[i]];
             if (team.type !== "Infantry" && team.type !== "Gun") {continue};
-            if (team.inCommand() === false) {continue};
+            if (team.inCommand === false) {continue};
             let hex = hexMap[team.hexLabel];
             if (hex.terrain.includes("Building") || hex.terrain.includes("Foxholes")) {continue};
             if (hex.terrain.includes("Offboard") || hex.terrain.includes("Reserves")) {continue};
@@ -3098,7 +3120,7 @@ log(hit)
                             continue;
                         }
                     }
-                    if (team.inCommand() === true) {
+                    if (team.inCommand === true) {
                         count++;
                     }   
                 }
@@ -3517,7 +3539,7 @@ log(hit)
         let leader = TeamArray[unit.teamIDs[0]];
         for (let i=0;i<unit.teamIDs.length;i++) {
             let team = TeamArray[unit.teamIDs[i]];
-            if (team.special.includes("Komissar") && team.inCommand() === true) {
+            if (team.special.includes("Komissar") && team.inCommand === true) {
                 komCheck = true;
             }
         }
@@ -3533,6 +3555,11 @@ log(hit)
         let shooter = TeamArray[shooterID];
         let shooterUnit = UnitArray[shooter.unitID];
         let unitFire = false;
+
+        if (unitFiredThisTurn === false) {
+            //check what is in command
+            inCommand(shooter.player);
+        }
 
         let sname = shooter.name;
         if (shooterID === shooterUnit.teamIDs[0]) {
@@ -3555,7 +3582,7 @@ log("Mistaken: " + mistaken)
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let st = TeamArray[shooterUnit.teamIDs[i]];
             if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
-            if (st.inCommand() === false && unitFire === true) {continue};
+            if (st.inCommand === false && unitFire === true) {continue};
             if (st.token.get(SM.fired) === true || st.token.get(SM.aafire) === true) {continue}; //fired already
             if (st.token.get(SM.dash) === true) {continue}; //dashed or clear minefield
             if (st.token.get(SM.radio) === true) {continue}; //called artillery
@@ -3680,7 +3707,7 @@ log(weapons)
                     toHit++;
                     toHitTips += "<br>Smoke +1";
                 }
-                if (sTeam.inCommand() === false) {
+                if (sTeam.inCommand === false) {
                     toHit++;
                     toHitTips += "<br>Not in Command +1";
                 }
@@ -4861,14 +4888,21 @@ log(unitIDs4Saves)
 
 
 
-
-
-
-
-
-
-
-
+    const inCommand = (team) => {
+        //'team' could be an actual team or could be "All" or the player #
+        if (team === "All" || team === 0 || team === 1) {
+            let unitKeys = Object.keys(UnitArray);
+            for (let i=0;i<unitKeys.length;i++) {
+                let unit = UnitArray[unitKeys[i]];
+                if (team !== "All" && team !== unit.player) {continue};
+                unit.checkTeamIDs();
+                unit.inCommand();
+            }
+        } else {
+            let unit = UnitArray[team.unitID];
+            unit.inCommand();
+        }
+    }
 
     const changeGraphic = (tok,prev) => {
         if (tok.get('subtype') === "token") {
@@ -4883,11 +4917,11 @@ log(unitIDs4Saves)
                 let newHex = pointToHex(newLocation);
                 let newHexLabel = newHex.label();
                 newLocation = hexToPoint(newHex); //centres it in hex
-                let newRotation = oldHex.angle(newHex);
+                //let newRotation = oldHex.angle(newHex);
                 tok.set({
                     left: newLocation.x,
                     top: newLocation.y,
-                    rotation: newRotation,
+                    //rotation: newRotation,
                 });
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
@@ -4897,7 +4931,7 @@ log(unitIDs4Saves)
                     hexMap[oldHexLabel].tokenIDs.splice(index,1);
                 }
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
-               
+                inCommand(team);
             };
 /*
             if ((tok.get("height") !== prev.height || tok.get("width") !== prev.width) && state.CoC.labmode === false) {
