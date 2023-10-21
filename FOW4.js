@@ -535,6 +535,11 @@ const FOW4 = (() => {
             leaderTeam.token.set("aura1_color",Colours.green);
         }
 
+        pin() {
+            let leaderTeam = TeamArray[this.teamIDs[0]];
+            leaderTeam.token.set("aura1_color",Colours.yellow);
+        }
+
         updateTeamIDs() {
             let newTeamIDs = [];
             for (let i=0;i<this.teamIDs.length;i++) {
@@ -2327,7 +2332,7 @@ log(hit)
                     }
                 }
             }
-            if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false) {
+            if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false && team2.token.get(SM.assault) === false) {
                 concealed = true //infantry teams that didnt move are concealed to all but Aircraft
         //log("Infantry didnt move = Concealed")
             }
@@ -3209,6 +3214,7 @@ log(hit)
             unit.specialorder = "";
             let unitLeader = TeamArray[unit.teamIDs[0]];
             if (unitLeader) {
+                unitLeader.token.set("bar3_value",0);
                 if (unitLeader.bailed() === true) {
                     SwapLeader(unit);
                 }
@@ -3573,8 +3579,10 @@ log(hit)
         SetupCard(sname,"Shooting",shooter.nation);
 
         let defensive = false;
+        let phase = "Shooting";
         if (shooter.player !== state.FOW4.currentPlayer) {
             defensive = true;
+            phase = "Defensive";
             outputCard.subtitle = "Defensive Fire";
             if (shooter.ccIDs.includes(targetID) === false) {
                 outputCard.body.push('Defensive Fire can only fire ' + (8*gameScale) + '"');
@@ -3907,7 +3915,7 @@ log(weapons)
         }    
         PrintCard();
         if (allFired === true) {
-            ProcessSaves();
+            ProcessSaves(phase);
         } 
     }
 
@@ -4089,6 +4097,10 @@ log("In Create Barrages")
         if (observerTeam.token.get(SM.fired) === true) {
             errorMsg.push("Spotter Team has Fired");
         }
+        if (observerTeam.player !== state.FOW4.currentPlayer) {
+            errorMsg.push("Cannot Fire Barrage in Defensive Fire");
+        }
+
 
         if (state.FOW4.turn === 1 && state.FOW4.gametype === "Meeting Engagement" && state.FOW4.startingPlayer === state.FOW4.currentPlayer) {
             errorMsg.push("No Barrages for First Player this Turn");
@@ -4659,7 +4671,7 @@ log(artUnits)
         //RemoveBarrageToken()
     
         PrintCard();
-        ProcessSaves();
+        ProcessSaves("Artillery");
     }
 
     const RemoveLines = () => {
@@ -4869,22 +4881,29 @@ log(marker);
         }
     }
 
-    const ProcessSaves = () => {
+    const ProcessSaves = (phase) => {
 log("In Process Saves")
 log(unitIDs4Saves)
         let keys = Object.keys(unitIDs4Saves);
         if (keys.length === 0) {return};
         for (let i=0;i<keys.length;i++) {
-            let unit = UnitArray[keys[i]];            
+            let unit = UnitArray[keys[i]];
+            let pinMargin = 5;
+            if (unit.teamIDs.length > 11) {pinMargin = 8};
+            let casualties = 0;
+            let bailedOut = 0;
             SetupCard(unit.name,"Saves",unit.nation);
             if (unitIDs4Saves[keys[i]] === true) {
                 //run Mistaken
                 Mistaken(unit);
             }
+            let unitLeader = TeamArray[unit.teamIDs[0]];
+            let unitHits = parseInt(unitLeader.token.get("bar3_value"));
             for (let j=0;j<unit.teamIDs.length;j++) {
                 let team = TeamArray[unit.teamIDs[j]];
                 if (team.hitArray.length === 0) {continue};
                 outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
+                unitHits += team.hitArray.length;
 
 
 
@@ -4893,15 +4912,33 @@ log(unitIDs4Saves)
 
 
 
-
-
+                
                 team.hitArray = [];
                 team.shooterIDs = [];
             }
 
 
-
-
+            if (unit) {
+                if (unit.type === "Infantry" || unit.type === "Gun") {
+                    unitLeader = TeamArray[unit.teamIDs[0]]; //in case original killed
+                    unitLeader.token.set("bar3_value",unitHits);
+                    if (unitHits >= pinMargin && unit.pinned() === false) {
+                        outputCard.body.push("The Unit is Pinned");
+                        unit.pin();
+                        if (phase === "Defensive") {
+                            outputCard.body.push("The Unit must Fall Back");
+                        }
+                    }
+                } else if (unit.type === "Tank" && phase === "Defensive") {
+                    unitLeader = TeamArray[unit.teamIDs[0]]; //in case original killed
+                    if ((bailedOut + casualties) >= 2) {
+                        outputCard.body.push("The Unit must Fall Back");
+                    }
+                    if (unit.teamIDs.length === 1 && unitLeader.bailed() === true) {
+                        outputCard.body.push("The Unit must Fall Back");
+                    }
+                }
+            }
 
 
 
@@ -5033,6 +5070,7 @@ log(unitIDs4Saves)
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
                 InCC(team);
+                team.token.set(SM.gtg,false);
             };
 /*
             if ((tok.get("height") !== prev.height || tok.get("width") !== prev.width) && state.CoC.labmode === false) {
