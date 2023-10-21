@@ -21,6 +21,7 @@ const FOW4 = (() => {
     let unitCreationInfo = {}; //used during unit creation 
     let unitIDs4Saves = {}; //used during shooting routines
     let unitFiredThisTurn = false; //marker for smoke bombardments, inCommand
+    let CCTeamIDs = []; //array of teams (IDs) in a CC, updated when charge/move
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -49,6 +50,7 @@ const FOW4 = (() => {
         "flare": "status_Flare::5867553",
         "radio": "status_Radio::5864350",
         "aafire": "status_sentry-gun",
+        "defensive": "status_green",
     }
 
     let specialInfo = {
@@ -533,7 +535,7 @@ const FOW4 = (() => {
             leaderTeam.token.set("aura1_color",Colours.green);
         }
 
-        checkTeamIDs() {
+        updateTeamIDs() {
             let newTeamIDs = [];
             for (let i=0;i<this.teamIDs.length;i++) {
                 let id = this.teamIDs[i];
@@ -548,18 +550,16 @@ const FOW4 = (() => {
         IC() {
             if (this.hqUnit === true || this.type === "System Unit") {return};
             let unitLeader = TeamArray[this.teamIDs[0]];
-            log(unitLeader)            
             let commandRadius = (this.teamIDs.length < 8) ? 6:8;
             for (let j=0;j<this.teamIDs.length;j++) {
                 let team = TeamArray[this.teamIDs[j]];
-                log(team)
                 if (!team) {continue};
                 let dist = team.hex.distance(unitLeader.hex);
-                let IC = true;
+                let ic = true;
                 if (dist > commandRadius) {
-                    IC = false
+                    ic = false
                 } 
-                team.IC(IC);
+                team.IC(ic);
             }
         }
 
@@ -832,6 +832,7 @@ log(this.artillery)
             this.eta = [];
             this.shooterIDs = [];
             this.priority = 0;
+            this.ccIDs = []; //ids of team in defensive fire range
 
             //this.maxPass = maxPass;
 
@@ -848,10 +849,10 @@ log(this.artillery)
             return bailed;
         }
 
-        IC(IC) {
-            this.inCommand = IC;
+        IC(ic) {
+            this.inCommand = ic;
             let colour = "transparent";
-            if (IC === false) {
+            if (ic === false) {
                 colour = Colours.black;
             }
             this.token.set("tint_color",colour);
@@ -2258,7 +2259,7 @@ log(hit)
                     let friendlyFlag = false;
                     let friendlyHeight = 0;
         
-                    if (special !== "Overhead" && special !== "Spotter") {
+                    if (special !== "Overhead" && special !== "Spotter" && special !== "Defensive") {
             //check for intervening friendlies in 1 hexes of interHex - can ignore if same team
                         //if find one, flag and note height
             //log("Friendlies")
@@ -2333,7 +2334,10 @@ log(hit)
 
         }
     
-        if (special.includes("Defensive")) {bulletproof = false};
+        if (special.includes("Defensive")) {
+            bulletproof = false
+            facing = "Side/Rear"
+        };
     
         let result = {
             los: los,
@@ -2997,6 +3001,7 @@ log(hit)
         state.FOW4.turn = turn;
         state.FOW4.currentPlayer = currentPlayer;
         unitFiredThisTurn = false;
+        CCTeamIDs = [];
 
         SetupCard("Turn " + turn,"",state.FOW4.nations[currentPlayer][0]);
 
@@ -3189,6 +3194,7 @@ log(hit)
                 }
             } else {
                 GTG(unit);
+                SetStatus(unit.teamIDs,SM.fired,false); //allows defensive fire
             }
             for (let i=0;i<unit.teamIDs.length;i++) {
                 let team = TeamArray[unit.teamIDs[i]];
@@ -3558,17 +3564,29 @@ log(hit)
         let shooter = TeamArray[shooterID];
         let shooterUnit = UnitArray[shooter.unitID];
         let unitFire = false;
-
-        if (unitFiredThisTurn === false) {
-            //check what is in command
-            inCommand(shooter.player);
-        }
-
         let sname = shooter.name;
         if (shooterID === shooterUnit.teamIDs[0]) {
             unitFire = true
             sname = shooterUnit.name;
         };
+
+        SetupCard(sname,"Shooting",shooter.nation);
+
+        let defensive = false;
+        if (shooter.player !== state.FOW4.currentPlayer) {
+            defensive = true;
+            outputCard.subtitle = "Defensive Fire";
+            if (shooter.ccIDs.includes(targetID) === false) {
+                outputCard.body.push('Defensive Fire can only fire ' + (8*gameScale) + '"');
+                PrintCard();
+                return;
+            }
+        }
+        if (unitFiredThisTurn === false && defensive === false) {
+            //check what is in command as now Movement phase is done
+            inCommand(shooter.player);
+        }
+
         let weapons = [];
         let shooterTeamArray = [];
         let target = TeamArray[targetID];
@@ -3579,16 +3597,16 @@ log(hit)
         if (shooter.hex.distance(target.hex) < 8 && target.type === "Tank" && shooter.hex.distance(target.hex) < 4) {
             mistaken = false;
         }
+        if (defensive === true) {mistaken = false};
 log("Mistaken: " + mistaken)
-        SetupCard(sname,"Shooting",shooter.nation);
 
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let st = TeamArray[shooterUnit.teamIDs[i]];
             if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
             if (st.inCommand === false && unitFire === true) {continue};
-            if (st.token.get(SM.fired) === true || st.token.get(SM.aafire) === true) {continue}; //fired already
-            if (st.token.get(SM.dash) === true) {continue}; //dashed or clear minefield
-            if (st.token.get(SM.radio) === true) {continue}; //called artillery
+            if ((st.token.get(SM.fired) === true || st.token.get(SM.aafire) === true) && defensive === false) {continue}; //fired already
+            if (st.token.get(SM.dash) === true && defensive === false) {continue}; //dashed or clear minefield
+            if (st.token.get(SM.radio) === true && defensive === false) {continue}; //called artillery
             if (st.type === "Tank") {
                 if (st.bailed() === true) {continue}; //bailed out
             }
@@ -3648,14 +3666,18 @@ log("Mistaken: " + mistaken)
             let st = shooterTeamArray[i];
             for (let j=0;j<targetTeamArray.length;j++) {
                 let tt = TeamArray[targetTeamArray[j].id];
+                if (defensive === true && st.ccIDs.includes(tt.id) === false) {
+                    continue;
+                }
                 if (tt.id === targetID) {continue} //already in ETA
                 let weaponFlag = false;
                 let ttLOS;
                 for (let k=0;k<weapons.length;k++) {
                     let weapon = weapons[k];
-                    let overhead = "";
-                    if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
-                    ttLOS = LOS(st.id,tt.id,overhead);
+                    let special = "";
+                    if (weapon.notes.includes("Overhead")) {special = "Overhead"};
+                    if (defensive === true) {special = "Defensive"};
+                    ttLOS = LOS(st.id,tt.id,special);
                     if (ttLOS.los === false) {continue};
                     if (ttLOS.distance > weapon.maxRange) {continue};
                     if (ttLOS.distance < weapon.minRange) {continue};
@@ -3956,6 +3978,7 @@ log(weapons)
             let team = TeamArray[ids[i]];
             let refDistance = targetTeam.hex.distance(team.hex);//distance from targeted team to this team
             if (refDistance > 6 || team.type !== targetTeam.type) {continue}; //too far or not same type
+            
 
             for (let j=0;j<shooterUnit.teamIDs.length;j++) {
                 let ttLOS = LOS(team.id,shooterUnit.teamIDs[j],"Overhead");
@@ -4898,7 +4921,7 @@ log(unitIDs4Saves)
             for (let i=0;i<unitKeys.length;i++) {
                 let unit = UnitArray[unitKeys[i]];
                 if (team !== "All" && team !== unit.player) {continue};
-                unit.checkTeamIDs();
+                unit.updateTeamIDs();
                 unit.IC();
             }
         } else {
@@ -4906,6 +4929,80 @@ log(unitIDs4Saves)
             unit.IC();
         }
     }
+
+    const InCC = (team1) => {
+        if (team1.token.get(SM.assault) === false) {return};
+        //determine if this team is now in B2B or if infantry in 2nd row
+        let teamKeys = Object.keys(TeamArray);
+        let inCC = false;
+        for (let i=0;i<teamKeys.length;i++) {
+            let team2 = TeamArray[teamKeys[i]];
+            if (team2.id === team1.id) {continue};
+            let dist = team1.hex.distance(team2.hex);
+            if (dist > 1) {continue};
+            if (team2.player !== team1.player && team2.type !== "System Unit") {
+                inCC = true
+                break;
+            } else {
+                if (team1.type === "Infantry" && team2.type === "Infantry" && CCTeamIDs.includes(team2.id)) {
+                    inCC = true;
+                    break;
+                }
+            }
+        }
+        log(inCC)
+        if (inCC === false) {
+            let index = CCTeamIDs.indexOf(team1.id);
+            log(index)
+            if (index > -1) {
+                CCTeamIDs.splice(index,1);
+                Defensive(team1,"Remove");
+            }
+        } else {
+            if (CCTeamIDs.includes(team1.id) === false) {
+                CCTeamIDs.push(team1.id);
+                Defensive(team1,"Add");
+            }
+        }
+    }
+
+    const Defensive = (team1,action) => {
+        //mark/update tokens able to defensive fire
+        let teamKeys = Object.keys(TeamArray);
+        for (let i=0;i<teamKeys.length;i++) {
+            let team2 = TeamArray[teamKeys[i]];
+            if (team2.id === team1.id || team2.player === team1.player) {continue};
+            let dist = team1.hex.distance(team2.hex);
+            if (action === "Add" && dist <= (8*gameScale)) {
+                team2.ccIDs.push(team1.id);
+                team2.token.set(SM.defensive,true);   
+            }
+            if (action === "Remove") {
+                let index = team2.ccIDs.indexOf(team1.id);
+                if (index > -1) {
+                    team2.ccIDs.splice(index,1);
+                }
+                if (team2.ccIDs.length === 0) {
+                    team2.token.set(SM.defensive,false);
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     const changeGraphic = (tok,prev) => {
         if (tok.get('subtype') === "token") {
@@ -4935,6 +5032,7 @@ log(unitIDs4Saves)
                 }
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
+                InCC(team);
             };
 /*
             if ((tok.get("height") !== prev.height || tok.get("width") !== prev.width) && state.CoC.labmode === false) {
@@ -4970,6 +5068,8 @@ log(unitIDs4Saves)
                 log(FormationArray);
                 log("Ranged In Array");
                 log(RangedInArray)
+                log("CC Team IDs");
+                log(CCTeamIDs);
                 break;
             case '!TokenInfo':
                 TokenInfo(msg);
