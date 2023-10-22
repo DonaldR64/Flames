@@ -3895,7 +3895,7 @@ log(weapons)
                 //assign hits
                 for (let q=0;q<hits;q++) {
     log("Hit " + (q+1))
-                    let targNum = 0
+                    let targNum = 0;
                     for (let t=0;t<(eta.length - 1);t++) {
                         let t1 = TeamArray[eta[t].targetID];
                         let num1 = t1.hitArray.length;
@@ -5087,7 +5087,8 @@ log(unitIDs4Saves)
         let id = Tag[1];
         let team = TeamArray[id];
         let attackingPlayer = team.player;
-        let defendingPlayer = (team.player === 0) ? 1:0;
+        SetupCard("Assault","",team.nation);
+        let errorMsg;
         let array1 = [];
         for (let i=0;i<CCTeamIDs.length;i++) {
             let team = TeamArray[CCTeamIDs[i]];
@@ -5111,6 +5112,19 @@ log(unitIDs4Saves)
             attackingTeamIDs = array2;
             defendingTeamIDs = array1;
         }
+        if (attackingTeamIDs.length === 0) {
+            errorMsg = "No Attackers in Base to Base Contact";
+        }
+        if (defendingTeamIDs.length === 0) {
+            errorMsg = "No Defenders left";
+        }
+
+        if (errorMsg !== undefined) {
+            outputCard.body.push(errorMsg);
+            PrintCard();
+            return;
+        }
+
         //define possible targets for attacking teams
         for (let i=0;i<attackingTeamIDs.length;i++) {
             let team1 = TeamArray[attackingTeamIDs[i]];
@@ -5143,17 +5157,67 @@ log(unitIDs4Saves)
         //for each attacker, roll to hit etc
         for (let i=0;i<attackingTeamIDs.length;i++) {
             let attTeam = TeamArray[attackingTeamIDs[i]];
-            
-
-
-
+            let needed = attTeam.assault;
+            let roll = randomInteger(6);
+            let line,end;
+            if (roll < needed) {
+                end = " Misses"
+            } else {
+                let targNum = 0;
+                let weapon = attTeam.weaponArray[0];
+                let facing = "Side/Rear";
+                let tIDs = attTeam.assaultTargetIDs;
+                for (let t=0;t<tIDs.length;t++) {
+                    let t1 = TeamArray[tIDs[t]];
+                    let num1 = t1.hitArray.length;
+                    let t2 = TeamArray[tIDs[t+1]];
+                    let num2 = t2.hitArray.length;
+                    if (num2 < num1) {
+                        targNum = (t+1);
+                        break;
+                    }
+                }
+                let targetTeam = TeamArray[tIDs[targNum]];
+                end = " Hits " + targetTeam.name;
+                if (targetTeam.type === "Tank") {
+                    if (attTeam.assaultWpn < 5) {
+                        weapon = attTeam.weaponArray[attTeam.assaultWpn];
+                    } else {
+                        weapon = {
+                            name: "Hand Grenades",
+                            minRange: 1,
+                            maxRange: 1,
+                            halted: 1,
+                            moving: 1,
+                            at: 2,
+                            fp: 1,
+                            notes: " ",
+                            type: "Handheld AT",
+                        }
+                        facing = "Top";
+                    }
+                } 
+                hit = {
+                    weapon: weapon,
+                    bp: false,
+                    facing: facing,
+                    range: 1,
+                    shooterID: attTeam.id,
+                    shooterType: attTeam.type,
+                    rangedIn: false,
+                    closeCombat: true,
+                    special: "nil",
+                }
+                targetTeam.hitArray.push(hit);
+            }
+            line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + attTeam.name + end;
+            outputCard.body.push(line)
 
         }
 
 
-
         
-
+        PrintCard();
 
 
 
