@@ -842,8 +842,7 @@ log(this.artillery)
             this.priority = 0;
             this.ccIDs = []; //ids of team in defensive fire range
             this.assaultTargetIDs = []; //ids of teams in CC with
-
-
+            this.frontLine = false;
 
             //this.maxPass = maxPass;
 
@@ -5084,7 +5083,9 @@ log(unitIDs4Saves)
 
     const CloseCombat = (msg) => {
         let id = msg.selected[0]._id
+        if (!id) {return};
         let team = TeamArray[id];
+        if (!team) {return};
         let attackingPlayer = team.player;
         SetupCard("Assault","",team.nation);
         let errorMsg;
@@ -5133,12 +5134,14 @@ log(defendingTeamIDs)
             let team1 = TeamArray[attackingTeamIDs[i]];
 log("Attacker: " + team1.name)
             team1.assaultTargetIDs = [];
+            team1.frontLine = false;
             let team2;
             for (let j=0;j<defendingTeamIDs.length;j++) {
                 team2 = TeamArray[defendingTeamIDs[j]];
+                if (team1.type === "Tank" && team2.type === "Tank") {continue}
                 if (team1.hex.distance(team2.hex) === 1) {
-                    if (team1.type === "Tank" && team2.type === "Tank") {continue}
                     team1.assaultTargetIDs.push(team2.id);
+                    team1.frontLine = true;
 log("Target: " + team2.name)
                 }
             }
@@ -5146,6 +5149,7 @@ log("Target: " + team2.name)
                 //check if 2nd row infantry
                 for (let j=0;j<attackingTeamIDs.length;j++) {
                     let team3 = TeamArray[attackingTeamIDs[j]];
+                    if (team3.frontLine === false) {continue};
                     if (team3.type !== "Infantry" || team3.id === team1.id) {continue};
                     if (team1.hex.distance(team3.hex) === 1) {
 log("2nd Row to " + team3.name)
