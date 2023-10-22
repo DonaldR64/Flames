@@ -52,6 +52,7 @@ const FOW4 = (() => {
         "aafire": "status_sentry-gun",
         "defensive": "status_green",
         "sneak": "status_Darkness::2006483",
+        "surprised": "status_yellow",
     }
 
     let specialInfo = {
@@ -3604,7 +3605,7 @@ log(wn)
             phase = "Defensive";
             outputCard.subtitle = "Defensive Fire";
             if (shooter.ccIDs.includes(targetID) === false) {
-                outputCard.body.push('Defensive Fire can only fire ' + (8*gameScale) + '"');
+                outputCard.body.push('This Team cannot conduct Defensive Fire');
                 PrintCard();
                 return;
             }
@@ -5045,8 +5046,12 @@ log(unitIDs4Saves)
             let team2 = TeamArray[teamKeys[i]];
             if (team2.id === team1.id || team2.player === team1.player) {continue};
             let dist = team1.hex.distance(team2.hex);
-            if (action === "Add" && dist <= (8*gameScale)) {
-                if (dist === 1 && team1.order === "Sneak Assault" && hexMap[team1.prevHexLabel].type > 0) {continue};
+            if (action === "Add" && dist <= (8*gameScale) && team2.token.get(SM.surprised) === false) {
+                if (dist === 1 && team1.order === "Sneak Assault" && hexMap[team1.prevHexLabel].type > 0) {
+                    team2.token.set(SM.defensive,false);
+                    team2.token.set(SM.surprised,true);
+                    continue;
+                };
                 team2.ccIDs.push(team1.id);
                 team2.token.set(SM.defensive,true);   
             }
