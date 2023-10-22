@@ -480,6 +480,7 @@ const FOW4 = (() => {
             this.type = "";
             this.number = 0;
             this.linkedUnitID = ""; //used in Mistaken for HQ units
+            this.limited = 0; //used to track limited use weapons
 
             UnitArray[id] = this;
         }
@@ -2696,6 +2697,15 @@ log(hit)
             if (weapon.notes.includes("Smoke")) {
                 shellType = "?{Fire Smoke|No,Regular|Yes,Smoke}";
             }
+            if (weapon.notes.includes("Limited")) {
+                let wn = weapon.notes.split(";");
+                for (let i=0;i<wn.length;i++) {
+                    if (wn[i].includes("Limited")) {
+                        abName += " (" + wn[i] + ")";
+                        break;
+                    }
+                }
+            }
             abilityName = "Fire: " + abName;
             action = "!Shooting;@{selected|token_id};@{target|token_id};" + wtype + ";" + shellType;
             AddAbility(abilityName,action,char.id);
@@ -3213,6 +3223,7 @@ log(hit)
             }
             unit.order = ""; 
             unit.specialorder = "";
+            unit.limited = 0;
             let unitLeader = TeamArray[unit.teamIDs[0]];
             if (unitLeader) {
                 unitLeader.token.set("bar3_value",0);
