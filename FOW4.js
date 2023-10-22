@@ -841,7 +841,10 @@ log(this.artillery)
             this.shooterIDs = [];
             this.priority = 0;
             this.ccIDs = []; //ids of team in defensive fire range
+            this.assaultTargetIDs = []; //ids of teams in CC with
 
+
+            
             //this.maxPass = maxPass;
 
             TeamArray[tokenID] = this;
@@ -3514,7 +3517,7 @@ log(wn)
                 } else {
                     outputCard.body.push("Failure! Unit must Break Off");
                     outputCard.body.push("Any remaining Teams in the Unit(s) must now Break Off at Tactical Speed");
-                    outputCard.body.push('Any Teams not able to get ' + 6*gameScale + '" away from an Assaulting Team surrender and are Destroyed');
+                    outputCard.body.push('Any Teams not able to get ' + 6*gameScale + '" away from an Attacking Team surrender and are Destroyed');
                     if (unitLeader.type === "Infantry") {
                         outputCard.body.push("Unit is also Pinned");
                         unit.pin();
@@ -3923,7 +3926,7 @@ log(weapons)
             //place markers on shooter
             if (target.type === "Aircraft") {
                 sTeam.token.set(SM.aafire,true);
-            } else {
+            } else if (defensive === false) {
                 sTeam.token.set(SM.fired,true);
             }
             if (state.FOW4.darkness === true) {
@@ -5079,7 +5082,80 @@ log(unitIDs4Saves)
         }
     }
 
+    const CloseCombat = (msg) => {
+        let Tag = msg.content.split(";");
+        let id = Tag[1];
+        let team = TeamArray[id];
+        let attackingPlayer = team.player;
+        let defendingPlayer = (team.player === 0) ? 1:0;
+        let array1 = [];
+        for (let i=0;i<CCTeamIDs.length;i++) {
+            let team = TeamArray[CCTeamIDs[i]];
+            if (team) {
+                let token = team.token;
+                if (token) {array1.push(team.id)};
+            }
+        }
+        let array2 = [],attackingTeamIDs = [],defendingTeamIDs = [];
+        let teamKeys = Object.keys(TeamArray);
+        for (let i=0;i<teamKeys.length;i++) {
+            let team = TeamArray[teamKeys[i]];
+            if (team.token.get(SM.defensive) === true || team.token.get(SM.surprised) === true) {
+                array2.push(team.id); //filter out the further away ones later
+            }
+        }
+        if (attackingPlayer === state.FOW4.currentPlayer) {
+            attackingTeamIDs = array1;
+            defendingTeamIDs = array2;
+        } else {
+            attackingTeamIDs = array2;
+            defendingTeamIDs = array1;
+        }
+        //define possible targets for attacking teams
+        for (let i=0;i<attackingTeamIDs.length;i++) {
+            let team1 = TeamArray[attackingTeamIDs[i]];
+            team1.assaultTargetIDs = [];
+            let team2;
+            for (let j=0;j<defendingTeamIDs.length;j++) {
+                team2 = TeamArray[defendingTeamIDs[j]];
+                if (team1.hex.distance(team2.hex) === 1) {
+                    if (team1.type === "Tank" && team2.type === "Tank") {continue}
+                    team1.assaultTargetID.push(team2.id);
+                }
+            }
+            if (team1.assaultTargetIDs.length === 0) {
+                //check if 2nd row infantry
+                if (team1.type === "Infantry") {
+                    for (let j=0;j<attackingTeamIDs.length;j++) {
+                        let team3 = TeamArray[attackingTeamIDs[j]];
+                        if (team3.type !== "Infantry" || team3.id === team1.id) {continue};
+                        if (team1.hex.distance(team3.hex) === 1) {
+                            if (team3.assaultTargetIDs.length !== 0) {
+                                team1.assaultTargetIDs = team1.assaultTargetIDs.concat(team3.assaultTargetIDs);
+                            }
+                        }
+                    }
+                } else {
+                    continue;
+                }
+            }
+        }
+        //for each attacker, roll to hit etc
+        for (let i=0;i<attackingTeamIDs.length;i++) {
 
+
+
+
+        }
+
+
+
+        
+
+
+
+
+    }
 
 
 
@@ -5238,6 +5314,9 @@ log(unitIDs4Saves)
                 break;
             case '!FinalizeRangedIn':
                 FinalizeRangedIn(msg);
+                break;
+            case '!CloseCombat':
+                CloseCombat(msg);
                 break;
         }
     };
