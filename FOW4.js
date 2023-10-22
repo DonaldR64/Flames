@@ -2508,14 +2508,6 @@ log(hit)
             } 
         }
 
-        if (targetTeam.specialorder === "Failed Blitz" && order === "Dash") {
-            outputCard.body.push("Team defaults to a Tactical Order");
-            order = "Tactical";
-        }
-        if (targetTeam.specialorder === "Cross Here" && order !== "Dash") {
-            outputCard.body.push("Team defaults to a Dash Order");
-            order = "Tactical";
-        }
         if (order === "Assault") {
             if (unit.pinned() === true) {
                 outputCard.body.push("Team is Pinned, cannot Assault");
@@ -2525,7 +2517,6 @@ log(hit)
             //shot at aircraft prev turn here
 
         }
-
 
         let marker;
         if (order.includes("Tactical")) {
@@ -2547,7 +2538,6 @@ log(hit)
                 }
             }
             marker = SM.tactical;
-            RemoveRangedInMarker(unit.id);
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
             outputCard.body.push(noun + ' cannot move within ' + 8*gameScale + ' hexes of visible enemies');
@@ -2555,7 +2545,6 @@ log(hit)
                 outputCard.body.push("Darkness limits speed to Terrain Dash");
             }
             marker = SM.dash;
-            RemoveRangedInMarker(unit.id);
         } else if (order.includes("Hold")) {
             outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
             outputCard.body.push(noun + verb + "Gone to Ground if not Firing");
@@ -2565,7 +2554,6 @@ log(hit)
             outputCard.body.push('Teams must target an enemy within ' + 8*gameScale + ' hexes of the Team it will charge into');
             outputCard.body.push("Eligible Teams can complete the charge");
             marker = SM.assault;
-            RemoveRangedInMarker(unit.id);
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
         }
@@ -2578,13 +2566,19 @@ log(hit)
             targetArray[i].order = order;
             if (targetArray[i].specialorder === "") {
                 targetArray[i].specialorder = specialorder;
+            } else if (targetArray[i].special.includes("Stormtroopers")) {
+                targetArray[i].specialorder += "," + specialorder;
             } else {
                 outputCard.body.push('[' + targetArray[i].name + " already has " + targetArray[i].specialorder + "]");
             }
         }
         if (team.inCommand === true && order !== "Spot") {
             unit.order = order;
-            unit.specialorder = specialorder;
+            if (unit.specialorder !== "") {
+                unit.specialorder += "," + specialorder;
+            } else {
+                unit.specialorder = specialorder;
+            }
         }
         PrintCard();
     }
@@ -2728,7 +2722,7 @@ log(hit)
         SetupCard(team.name,"Cross",team.nation);
         let roll = randomInteger(6);
         let cross = team.cross;
-        if (team.specialorder === "Cross Here") {
+        if (team.specialorder.includes("Cross Here")) {
             cross--;
         }
         if (state.FOW4.darkness === true) {
@@ -2767,7 +2761,15 @@ log(hit)
         }
 
         if (targetTeam.specialorder !== "") {
-            errorMsg.push("Teams can only have one Special Order per turn");
+            if (targetTeam.special.includes("Stormtroopers") === false) {
+                errorMsg.push("Teams can only have one Special Order per turn");
+            } else if (targetTeam.specialorder.includes("Failed")) {
+                errorMsg.push("Cannot have a 2nd Special Order after a failed one");
+            } else if (targetTeam.specialorder.includes(",")) {
+                errorMsg.push("Cannot have a 3rd Special Order");
+            } else if (specialorder === "Clear Minefield" || specialorder === "Dig In") {
+                errorMsg.push(specialorder + " takes a Teams entire turn");
+            }
         }
 
         let movedFlag = (targetTeam.token.get(SM.dash) === true || targetTeam.token.get(SM.tactical) === true) ? true:false;
@@ -2860,7 +2862,6 @@ log(hit)
                         }
                     }
                     */
-                    RemoveRangedInMarker(unit.id);
                     ActivateUnitTwo(unitLeader.id,"Hold",specialorder);
                 } else {    
                     outputCard.body.push("Teams from the Unit count as Moving at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
@@ -2880,7 +2881,6 @@ log(hit)
                     outputCard.body.push("The Unit failed to Dig In");
                     specialorder = "Failed Dig In";
                 }
-                RemoveRangedInMarker(unit.id);
                 outputCard.body.push("The Teams can fire at their moving ROF (but cannot fire a Bombardment)");
                 outputCard.body.push("If they do not Shoot or Assault, they are Gone to Ground");
                 ActivateUnitTwo(unitLeader.id,"Tactical",specialorder)
@@ -2892,7 +2892,6 @@ log(hit)
                     outputCard.body.push("Teams remain where they are")
                     specialorder = "Failed Follow Me";
                 }
-                RemoveRangedInMarker(unit.id);
                 outputCard.body.push("Teams may not fire");
                 PrintCard();
                 break;
@@ -2902,7 +2901,6 @@ log(hit)
                 } else {
                     outputCard.body.push("Teams remain where they are")
                 }
-                RemoveRangedInMarker(unit.id);
                 PrintCard();
                 break;
             case "Clear Minefield":
@@ -2923,6 +2921,9 @@ log(hit)
             if (team.type !== "Infantry" && team.type !== "Gun") {continue};
             if (team.inCommand === false) {continue};
             let hex = hexMap[team.hexLabel];
+            if (team.artillery !== undefined) {
+                RemoveRangedInMarker(unit.id);
+            }
             if (hex.terrain.includes("Building") || hex.terrain.includes("Foxholes")) {continue};
             if (hex.terrain.includes("Offboard") || hex.terrain.includes("Reserves")) {continue};
             let dimensions = Math.max(team.token.get("height"), team.token.get("width")) + 25
@@ -3241,7 +3242,7 @@ log(hit)
             if (team.type === "System Unit" || team.type === "Aircraft") {continue};
             let gtg = true;
             let moved = false;
-            if (team.token.get(SM.tactical) === true && team.specialorder !== "Dig In") {moved = true};
+            if (team.token.get(SM.tactical) === true && team.specialorder.includes("Dig In") === false) {moved = true};
             if (team.token.get(SM.dash) === true) {moved = true};
             if (moved === true && team.special.includes("Scout") === false) {gtg = false};
             if (team.token.get(SM.fired) === true || team.token.get(SM.aafire) === true || team.order === "Assault") {gtg = false};
@@ -4978,7 +4979,7 @@ log(unitIDs4Saves)
             let dist = team1.hex.distance(team2.hex);
             if (dist > 1) {continue};
             if (team2.player !== team1.player && team2.type !== "System Unit") {
-                inCC = true
+                inCC = true;
                 break;
             } else {
                 if (team1.type === "Infantry" && team2.type === "Infantry" && CCTeamIDs.includes(team2.id)) {
@@ -4987,7 +4988,6 @@ log(unitIDs4Saves)
                 }
             }
         }
-        log(inCC)
         if (inCC === false) {
             let index = CCTeamIDs.indexOf(team1.id);
             log(index)
@@ -4999,6 +4999,9 @@ log(unitIDs4Saves)
             if (CCTeamIDs.includes(team1.id) === false) {
                 CCTeamIDs.push(team1.id);
                 Defensive(team1,"Add");
+            }
+            if (team1.special.includes("Heavy Weapon")) {
+                sendChat("","This Team is a Heavy Weapons Team and cannot Charge into Contact");
             }
         }
     }
@@ -5070,7 +5073,12 @@ log(unitIDs4Saves)
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
                 InCC(team);
-                team.token.set(SM.gtg,false);
+                if (team.hex !== oldHex) {
+                    team.token.set(SM.gtg,false);
+                    if (team.artillery !== undefined) {
+                        RemoveRangedInMarker(team.unitID);
+                    }
+                }
             };
 /*
             if ((tok.get("height") !== prev.height || tok.get("width") !== prev.width) && state.CoC.labmode === false) {
