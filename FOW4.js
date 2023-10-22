@@ -2335,7 +2335,7 @@ log(hit)
                     }
                 }
             }
-            if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false && team2.token.get(SM.assault) === false) {
+            if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false && team2.token.get(SM.assault) === false && team2.token.get(SM.sneak) === false) {
                 concealed = true //infantry teams that didnt move are concealed to all but Aircraft
         //log("Infantry didnt move = Concealed")
             }
@@ -3610,6 +3610,7 @@ log(wn)
                 return;
             }
         }
+
         if (unitFiredThisTurn === false && defensive === false) {
             //check what is in command as now Movement phase is done
             inCommand(shooter.player);
@@ -3631,6 +3632,12 @@ log("Mistaken: " + mistaken)
         let limited = parseInt(shooterUnit.limited);
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let st = TeamArray[shooterUnit.teamIDs[i]];
+            if (CCTeamIDs.includes(st.id)) {
+                outputCard.body.push("Teams that have Charged In cannot fire");
+                outputCard.body.push("Use the Assault Button");
+                PrintCard();
+                return;
+            }
             if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
             if (st.inCommand === false && unitFire === true) {continue};
             if ((st.token.get(SM.fired) === true || st.token.get(SM.aafire) === true) && defensive === false) {continue}; //fired already
@@ -3667,6 +3674,7 @@ log("Mistaken: " + mistaken)
                     continue;
                 } 
                 let initialLOS = LOS(st.id,targetID,overhead);
+
                 if (initialLOS.los === false) {continue};
                 if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {continue};
                 if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {continue};
