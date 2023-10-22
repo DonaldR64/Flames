@@ -844,7 +844,7 @@ log(this.artillery)
             this.assaultTargetIDs = []; //ids of teams in CC with
 
 
-            
+
             //this.maxPass = maxPass;
 
             TeamArray[tokenID] = this;
@@ -5142,6 +5142,8 @@ log(unitIDs4Saves)
         }
         //for each attacker, roll to hit etc
         for (let i=0;i<attackingTeamIDs.length;i++) {
+            let attTeam = TeamArray[attackingTeamIDs[i]];
+            
 
 
 
