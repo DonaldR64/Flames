@@ -61,7 +61,7 @@ const FOW4 = (() => {
         "Bombs": "Bombs do not need to re-roll successful To Hit rolls for having only 1 or 2 weapons firing",
         "Brutal": "Infantry, Gun and Unarmoured Tank Teams re-roll successful Saves against Brutal Weapons",
         "Dedicated AA": "Dedicated AA Weapons can Shoot at Aircraft using their Halted ROF",
-        "Flamethrower": "",
+        "Flamethrower": "Infantry, Gun, and Unarmoured Tank Teams re-roll successful Saves when hit by a Flame-thrower and the Unit is automatically Pinned Down. Armoured Tank Teams use their Top armour for Armour Saves when hit by a Flame-thrower.",
         "Forward Firing": "Forward Firing Weapons can only target Teams fully in front of the Shooter",
         "Gun Shield": "Gives Bulletproof Cover when shot at from the Front. No protection against Bombardments or if the Team moved at Dash speed",
         "HEAT": "A Team's Armour is not increased by +1 if at long Range vs HEAT",
