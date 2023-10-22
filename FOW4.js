@@ -822,7 +822,6 @@ const FOW4 = (() => {
             this.hit = parseStat(attributeArray.hit);
 
             this.artillery = artillery;
-log(this.artillery)
             this.artNum = artNum;
             this.spotAttempts = 0;
             this.rangedInHex = {};
@@ -836,6 +835,9 @@ log(this.artillery)
             //this.transport = ""; //id of transport if a passenger
             //this.passengers = []; //id of any passengers
             this.weaponArray = weaponArray;
+            this.assaultWpn = bestATWpnNum;
+log(this.name)
+log(this.assaultWpn)
             this.hitArray = [];
             this.eta = [];
             this.shooterIDs = [];
