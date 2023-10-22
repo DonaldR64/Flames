@@ -5083,8 +5083,7 @@ log(unitIDs4Saves)
     }
 
     const CloseCombat = (msg) => {
-        let Tag = msg.content.split(";");
-        let id = Tag[1];
+        let id = msg.selected[0]._id
         let team = TeamArray[id];
         let attackingPlayer = team.player;
         SetupCard("Assault","",team.nation);
@@ -5125,94 +5124,103 @@ log(unitIDs4Saves)
             return;
         }
 
+log(attackingTeamIDs)
+log(defendingTeamIDs)
+
+
         //define possible targets for attacking teams
         for (let i=0;i<attackingTeamIDs.length;i++) {
             let team1 = TeamArray[attackingTeamIDs[i]];
+log("Attacker: " + team1.name)
             team1.assaultTargetIDs = [];
             let team2;
             for (let j=0;j<defendingTeamIDs.length;j++) {
                 team2 = TeamArray[defendingTeamIDs[j]];
                 if (team1.hex.distance(team2.hex) === 1) {
                     if (team1.type === "Tank" && team2.type === "Tank") {continue}
-                    team1.assaultTargetID.push(team2.id);
+                    team1.assaultTargetIDs.push(team2.id);
+log("Target: " + team2.name)
                 }
             }
-            if (team1.assaultTargetIDs.length === 0) {
+            if (team1.assaultTargetIDs.length === 0 && team1.type === "Infantry") {
                 //check if 2nd row infantry
-                if (team1.type === "Infantry") {
-                    for (let j=0;j<attackingTeamIDs.length;j++) {
-                        let team3 = TeamArray[attackingTeamIDs[j]];
-                        if (team3.type !== "Infantry" || team3.id === team1.id) {continue};
-                        if (team1.hex.distance(team3.hex) === 1) {
-                            if (team3.assaultTargetIDs.length !== 0) {
-                                team1.assaultTargetIDs = team1.assaultTargetIDs.concat(team3.assaultTargetIDs);
-                            }
+                for (let j=0;j<attackingTeamIDs.length;j++) {
+                    let team3 = TeamArray[attackingTeamIDs[j]];
+                    if (team3.type !== "Infantry" || team3.id === team1.id) {continue};
+                    if (team1.hex.distance(team3.hex) === 1) {
+log("2nd Row to " + team3.name)
+                        if (team3.assaultTargetIDs.length !== 0) {
+                            team1.assaultTargetIDs = team1.assaultTargetIDs.concat(team3.assaultTargetIDs);
                         }
                     }
-                } else {
-                    continue;
                 }
             }
         }
         //for each attacker, roll to hit etc
         for (let i=0;i<attackingTeamIDs.length;i++) {
             let attTeam = TeamArray[attackingTeamIDs[i]];
-            let needed = attTeam.assault;
-            let roll = randomInteger(6);
-            let line,end;
-            if (roll < needed) {
-                end = " Misses"
+            let line;
+            if (attTeam.assaultTargetIDs.length === 0) {
+                line = attTeam.name + " has no Targets";
             } else {
-                let targNum = 0;
-                let weapon = attTeam.weaponArray[0];
-                let facing = "Side/Rear";
-                let tIDs = attTeam.assaultTargetIDs;
-                for (let t=0;t<tIDs.length;t++) {
-                    let t1 = TeamArray[tIDs[t]];
-                    let num1 = t1.hitArray.length;
-                    let t2 = TeamArray[tIDs[t+1]];
-                    let num2 = t2.hitArray.length;
-                    if (num2 < num1) {
-                        targNum = (t+1);
-                        break;
-                    }
-                }
-                let targetTeam = TeamArray[tIDs[targNum]];
-                end = " Hits " + targetTeam.name;
-                if (targetTeam.type === "Tank") {
-                    if (attTeam.assaultWpn < 5) {
-                        weapon = attTeam.weaponArray[attTeam.assaultWpn];
-                    } else {
-                        weapon = {
-                            name: "Hand Grenades",
-                            minRange: 1,
-                            maxRange: 1,
-                            halted: 1,
-                            moving: 1,
-                            at: 2,
-                            fp: 1,
-                            notes: " ",
-                            type: "Handheld AT",
+                let needed = attTeam.assault;
+                let roll = randomInteger(6);
+                let end;
+                if (roll < needed) {
+                    end = " Misses"
+                } else {
+                    let targNum = 0;
+                    let weapon = attTeam.weaponArray[0];
+                    let facing = "Side/Rear";
+                    let tIDs = attTeam.assaultTargetIDs;
+                    if (tIDs.length > 1) {    
+                        for (let t=0;t<(tIDs.length-1);t++) {
+                            let t1 = TeamArray[tIDs[t]];
+                            let num1 = t1.hitArray.length;
+                            let t2 = TeamArray[tIDs[t+1]];
+                            let num2 = t2.hitArray.length;
+                            if (num2 < num1) {
+                                targNum = (t+1);
+                                break;
+                            }
                         }
-                        facing = "Top";
                     }
-                } 
-                hit = {
-                    weapon: weapon,
-                    bp: false,
-                    facing: facing,
-                    range: 1,
-                    shooterID: attTeam.id,
-                    shooterType: attTeam.type,
-                    rangedIn: false,
-                    closeCombat: true,
-                    special: "nil",
-                }
-                targetTeam.hitArray.push(hit);
+                    let targetTeam = TeamArray[tIDs[targNum]];
+                    end = " Hits " + targetTeam.name;
+                    if (targetTeam.type === "Tank") {
+                        if (attTeam.assaultWpn < 5) {
+                            weapon = attTeam.weaponArray[attTeam.assaultWpn];
+                        } else {
+                            weapon = {
+                                name: "Hand Grenades",
+                                minRange: 1,
+                                maxRange: 1,
+                                halted: 1,
+                                moving: 1,
+                                at: 2,
+                                fp: 1,
+                                notes: " ",
+                                type: "Handheld AT",
+                            }
+                            facing = "Top";
+                        }
+                    } 
+                    hit = {
+                        weapon: weapon,
+                        bp: false,
+                        facing: facing,
+                        range: 1,
+                        shooterID: attTeam.id,
+                        shooterType: attTeam.type,
+                        rangedIn: false,
+                        closeCombat: true,
+                        special: "nil",
+                    }
+                    targetTeam.hitArray.push(hit);
+                }            
+                line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + attTeam.name + end;
             }
-            line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + attTeam.name + end;
             outputCard.body.push(line)
-
         }
 
 
