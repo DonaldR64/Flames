@@ -896,6 +896,10 @@ log(hit)
             }
 
             if (this.type === "Tank") {
+                if (weapon.type === "Flamethrower") {
+                    facing = "Top";
+                }
+
                 if (facing === "Front") {saveNeeded = this.armourF};
                 if (facing === "Side/Rear") {
                     if (weapon.fp > 4 && shooterType === "Infantry" && this.special.includes("Skirts")) {
