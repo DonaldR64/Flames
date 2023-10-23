@@ -5275,34 +5275,28 @@ log("2nd Row to " + team3.name)
         //Process Saves for defenders and output these
         
         let divider = false;
+        let finalDUnitIDs = [];
         for (let i=0;i<defendingUnitIDs.length;i++) {
             let unit = UnitArray[defendingUnitIDs[i]];
-            if (unit.type !== Tank) {
-                if (divider === false) {
-                    outputCard.body.push("[hr]");
-                    divider = true;
-                }
-                unit.pin();
-                outputCard.body.push(unit.name + " is Pinned");
-            }
-
-
-
+            if (!unit) {continue};
+            finalDUnitIDs.push(unit.id);
         }
-        //print card for saves here
+        //print card for saves here, have pinning in saves also
 
         //See if remaining defenders
         let combatOver = true;
-        for (let i=0;i<attackingTeamIDs.length;i++) {
-            let team1 = TeamArray[attackingTeamIDs[i]];
-            for (let j=0;j<defendingTeamIDs.length;j++) {
-                let team2 = TeamArray[defendingTeamIDs[j]];
-                if (!team2) {continue};
-                if (team2.type === "Unarmoured Tank") {continue}; //cant counterattack
-                let dist = team1.hex.distance(team2.hex);
-                if (dist <= (4*gameScale) && team2.bailed() === false) {
-                    combatOver = false;
-                    break;
+        if (finalDUnitIDs.length > 0) {
+            for (let i=0;i<attackingTeamIDs.length;i++) {
+                let team1 = TeamArray[attackingTeamIDs[i]];
+                for (let j=0;j<defendingTeamIDs.length;j++) {
+                    let team2 = TeamArray[defendingTeamIDs[j]];
+                    if (!team2) {continue};
+                    if (team2.type === "Unarmoured Tank") {continue}; //cant counterattack
+                    let dist = team1.hex.distance(team2.hex);
+                    if (dist <= (4*gameScale) && team2.bailed() === false) {
+                        combatOver = false;
+                        break;
+                    }
                 }
             }
         }
@@ -5310,26 +5304,36 @@ log("2nd Row to " + team3.name)
         if (combatOver === true) {
             SetupCard("Assault Over","",attackingNation);
             outputCard.body.push("The Assault is Over");
-            //pin down units
-            outputCard.body.push("Any surviving Defending Units must move at Tactical speed the shorted distance to be further than " + 6*gameScale + '" away from all Assaulting Teams');
+            outputCard.body.push("Any surviving Losing Teams must move at Tactical speed the shortest distance to be further than " + 6*gameScale + '" away from all enemy Teams');
             outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
-            outputCard.body.push("The Assaulting Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.')            
-            PrintCard();
+            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.')            
         } else {
-            SetupCard("Assault ","",defendingNation);
-            
-
-
-
-
+            let noun = "The ";
+            SetupCard("Counterattack","",defendingNation);
+            if (finalDUnitIDs.length > 1) {
+                outputCard.body.push("The following Units may choose to Counterattack or Break Off");
+                noun = "Each ";
+            } else {
+                outputCard.body.push("The Unit may choose to Counterattack or Break Off");
+            }
+            outputCard.body.push(noun + "Unit tests against its Counterattack below and if successful may Charge into Contact if needed");
+            for (let i=0;i<finalDUnitIDs.length;i++) {
+                let unit = UnitArray[finalDUnitIDs[i]];
+                let unitLeader = TeamArray[unit.teamIDs[0]];
+                let reroll = CommandReroll(unitLeader);
+                let rerollText = "";
+                if (reroll > 0) {
+                    rerollText = " (Reroll)"
+                }
+                outputCard.body.push(unit.name + ": " + unitLeader.counterattack + "+" + rerollText);
+            }
+            outputCard.body.push("[hr]");
+            outputCard.body.push("Alternatively (or if the Counterattack roll is failed), " + noun + " Unit may Break Off");
+            outputCard.body.push("Breaking Off Teams must move at Tactical speed the shortest distance to be further than " + 6*gameScale + '" away from all Assaulting Teams');
+            outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
+            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.') 
         }
-
-
-
-        
-
-
-
+        PrintCard();
     }
 
 
