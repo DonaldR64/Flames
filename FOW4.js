@@ -176,6 +176,7 @@ const FOW4 = (() => {
             "borderStyle": "5px groove",
             "atWeapon": "Molotov Cocktails",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
+            "pinned": "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
             "barrageChar": "-NUlUj2snn9vRtAo2k2l", 
             "platoonmarkers": ["letters_and_numbers0099::4815235","letters_and_numbers0100::4815236","letters_and_numbers0101::4815237","letters_and_numbers0102::4815238","letters_and_numbers0103::4815239","letters_and_numbers0104::4815240","letters_and_numbers0105::4815241","letters_and_numbers0106::4815242","letters_and_numbers0107::4815243","letters_and_numbers0108::4815244","letters_and_numbers0109::4815245","letters_and_numbers0110::4815246","letters_and_numbers0111::4815247","letters_and_numbers0112::4815248","letters_and_numbers0113::4815249","letters_and_numbers0114::4815250","letters_and_numbers0115::4815251","letters_and_numbers0116::4815252","letters_and_numbers0117::4815253","letters_and_numbers0118::4815254","letters_and_numbers0119::4815255","letters_and_numbers0120::4815256","letters_and_numbers0121::4815257","letters_and_numbers0122::4815258","letters_and_numbers0123::4815259","letters_and_numbers0124::4815260"],
@@ -190,6 +191,7 @@ const FOW4 = (() => {
             "borderStyle": "5px double",
             "atWeapon": "Stielhandgranates",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
+            "pinned": "https://s3.amazonaws.com/files.d20.io/images/364580773/vg85YjKhl8LBdp-FSbTBtQ/thumb.png?1698089517",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
             "barrageChar": "-NUD72rOu6QMJVJHOU-q",  
             "platoonmarkers": ["letters_and_numbers0197::4815333","letters_and_numbers0198::4815334","letters_and_numbers0199::4815335","letters_and_numbers0200::4815336","letters_and_numbers0201::4815337","letters_and_numbers0202::4815338","letters_and_numbers0203::4815339","letters_and_numbers0204::4815340","letters_and_numbers0205::4815341","letters_and_numbers0206::4815342","letters_and_numbers0207::4815343","letters_and_numbers0208::4815344","letters_and_numbers0209::4815345","letters_and_numbers0210::4815346","letters_and_numbers0211::4815347","letters_and_numbers0212::4815348","letters_and_numbers0213::4815349","letters_and_numbers0214::4815350","letters_and_numbers0215::4815351","letters_and_numbers0216::4815352","letters_and_numbers0217::4815353","letters_and_numbers0218::4815354","letters_and_numbers0219::4815355","letters_and_numbers0220::4815356","letters_and_numbers0221::4815357","letters_and_numbers0222::4815358"],
@@ -231,6 +233,7 @@ const FOW4 = (() => {
             "borderColour": "#FF0000",
             "borderStyle": "5px ridge",
             "atWeapon": "Stielhandgranates",
+            "pinned": "https://s3.amazonaws.com/files.d20.io/images/364582421/bch-fy0ku5CnfNwo9rfxYA/thumb.png?1698090354",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
             "barrageChar": "-NUD72rOu6QMJVJHOU-q",  
@@ -489,7 +492,7 @@ const FOW4 = (() => {
             this.linkedUnitID = ""; //used in Mistaken for HQ units
             this.limited = 0; //used to track limited use weapons
             this.inReserve = false;
-
+            this.size; //used for pinning purposes, size of unit at start of turn
 
 
             UnitArray[id] = this;
@@ -853,6 +856,8 @@ log(this.assaultWpn)
             this.ccIDs = []; //ids of team in defensive fire range
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
+            this.bailedTokenID = "";
+
 
             //this.maxPass = maxPass;
 
@@ -861,10 +866,61 @@ log(this.assaultWpn)
 
         }
 
+        BailOut() {
+            let result = {
+                result: "",
+                tip: "",
+            }
+            if (this.bailed() === true) {
+                let roll = randomInteger(6);
+                let reroll = CommandReroll(this);
+                result.tip = "<br>Remount Roll: " + roll + " vs. " + this.remount + "+";
+                if (roll < this.remount && reroll !== -1) {
+                    result.tip += "<br>Reroll from Formation Commander: " + reroll;
+                }
+                roll = Math.max(roll,reroll);  
+                if (roll >= this.remount) {
+                    result.result = "bailedAgain"
+                } else {
+                    result.result = "flees"
+                }
+            } else {
+                result.result = "bailed";
+                this.bail();
+            }
+            return result;
+        }
+
+        bail() {
+            let bailtokenImg = getCleanImgSrc(Nations(this.nation).pinned);
+            let newToken = createObj("graphic", {   
+                left: this.location.x,
+                top: this.location.y,
+                width: 70, 
+                height: 60,
+                rotation: 180,
+                name: "Bailed Out",
+                showname: false,
+                isdrawing: true,
+                pageid: team.token.get("pageid"),
+                imgsrc: bailtokenImg,
+                layer: "objects",
+                gmnotes: this.id,
+            });
+            toFront(newToken);
+            this.bailedTokenID = newToken.id;
+        }
+
+        remount() {
+            let bailToken = findObjs({_type:"graphic", id: this.bailedTokenID})[0];
+            this.bailedTokenID = "";
+            bailToken.remove();
+        }
+
         bailed() {
-            let bailed = false;
-            if (this.type === "Tank" && this.token.get("aura1_color") === Colours.yellow) {
-                bailed = true;
+            let bailed = true;
+            if (this.bailedTokenID === undefined) {
+                bailed = false;
             }
             return bailed;
         }
@@ -3253,6 +3309,7 @@ log(hit)
             unit.order = ""; 
             unit.specialorder = "";
             unit.limited = 0;
+            unit.size = unit.teamIDs.length;
             let unitLeader = TeamArray[unit.teamIDs[0]];
             if (unitLeader) {
                 unitLeader.token.set("bar3_value",0);
@@ -3429,11 +3486,7 @@ log(hit)
                 }
                 if (roll >= needed || reroll >= needed) {
                     outputCard.body.push("Success!");
-                    let colour = "transparent";
-                    if (id === unit.teamIDs[0]) {
-                        colour = Colours.green;
-                    }
-                    team.token.set("aura1_color",colour);
+                    team.remount();
                 } else {
                     outputCard.body.push("Failure! Team remains Bailed Out");
                 }
@@ -4922,7 +4975,7 @@ log(unitIDs4Saves)
         for (let i=0;i<keys.length;i++) {
             let unit = UnitArray[keys[i]];
             let pinMargin = 5;
-            if (unit.teamIDs.length > 11) {pinMargin = 8};
+            if (unit.size > 11) {pinMargin = 8};
             let casualties = 0;
             let bailedOut = 0;
             SetupCard(unit.name,"Saves",unit.nation);
@@ -5357,9 +5410,23 @@ log("2nd Row to " + team3.name)
         if (tok.get('subtype') === "token") {
             RemoveLines();
             log(tok.get("name") + " moving");
+            if (tok.get("Bailed Out")) {
+                tok.set("height",prev.height);
+                tok.set("width",prev.width);
+                tok.set("left",prev.left);
+                tok.set("top",prev.top);
+                return;
+            }
             if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
                 let team = TeamArray[tok.id];
                 if (!team) {return};
+                if (team.bailedTokenID !== undefined) {
+                    tok.set("height",prev.height);
+                    tok.set("width",prev.width);
+                    tok.set("left",prev.left);
+                    tok.set("top",prev.top);
+                    return;
+                }
                 let oldHex = team.hex;
                 let oldHexLabel = team.hexLabel;
                 let newLocation = new Point(tok.get("left"),tok.get("top"));
