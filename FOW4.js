@@ -2689,6 +2689,7 @@ log(hit)
         }
 
         let mg = false;
+        let num = 1;
         for (let i=0;i<team.weaponArray.length;i++) {
             let weapon = team.weaponArray[i];
             if (weapon.type === "Artillery" || weapon.type === "Rockets") {
@@ -2725,12 +2726,15 @@ log(hit)
                     }
                 }
             }
-            abilityName = "Fire: " + abName;
+            abilityName = num + ": " + abName;
             action = "!Shooting;@{selected|token_id};@{target|token_id};" + wtype + ";" + shellType;
             AddAbility(abilityName,action,char.id);
+            num++;
         }
 
-
+        if (type === "Infantry" || type === "Tank") {
+            AddAbility("Close Combat","!CloseCombat;@{selected|token_id}",char.id);
+        }
 
     }
 
@@ -5102,6 +5106,15 @@ log(unitIDs4Saves)
         let id = msg.selected[0]._id
         if (!id) {return};
         let team = TeamArray[id];
+        SetupCard("Start Close Combat","",team.nation);
+        ButtonInfo("Click Button to Start","!CloseCombatTwo;" + id);
+        PrintCard();
+    }
+
+    const CloseCombatTwo = (msg) => {
+        let Tag = msg.content.split(";");
+        let id = Tag[1];
+        let team = TeamArray[id];
         let attackingNation = team.nation;
         let defendingNation;
         if (!team) {return};
@@ -5191,19 +5204,20 @@ log("2nd Row to " + team3.name)
         let limited = 0;
         for (let i=0;i<attackingTeamIDs.length;i++) {
             let attTeam = TeamArray[attackingTeamIDs[i]];
-            let line;
-            let weapon;
+            let line,end;
+            let bracket1 = "";
+            let bracket2 = "";
+            let weapon = DeepCopy(attTeam.weaponArray[0]);
             if (attTeam.assaultTargetIDs.length === 0) {
                 line = attTeam.name + " has no Targets";
+                end = "";
             } else {
                 let needed = attTeam.assault;
                 let roll = randomInteger(6);
-                let end;
                 if (roll < needed) {
                     end = " Misses";
                 } else {
                     let targNum = 0;
-                    weapon = attTeam.weaponArray[0];
                     let facing = "Side/Rear";
                     let tIDs = attTeam.assaultTargetIDs;
                     if (tIDs.length > 1) {    
@@ -5253,7 +5267,9 @@ log("2nd Row to " + team3.name)
                             }
                             facing = "Top";
                         }
-                    } 
+                    } else if (targetTeam.type !== "Tank" && attTeam.type === "Tank") {
+                        weapon.name = "MGs and Tank Treads"
+                    }
                     hit = {
                         weapon: weapon,
                         bp: false,
@@ -5266,24 +5282,26 @@ log("2nd Row to " + team3.name)
                         special: "nil",
                     }
                     targetTeam.hitArray.push(hit);
+                    end += ' w/ ' + weapon.name;
+                    bracket1 = "[#ff0000]";
+                    bracket2 = "[/#]";
                 }            
-                line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + attTeam.name + end + ' w/ ' + weapon.name;
+
+                line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + bracket1 + attTeam.name + end + bracket2;
             }
             outputCard.body.push(line)
         }
         PrintCard(); //outputs the hits
         //Process Saves for defenders and output these
-        
-        let divider = false;
+        //print card for saves here if needed, have pinning in saves also
+
+        //See if remaining defenders
         let finalDUnitIDs = [];
         for (let i=0;i<defendingUnitIDs.length;i++) {
             let unit = UnitArray[defendingUnitIDs[i]];
             if (!unit) {continue};
             finalDUnitIDs.push(unit.id);
         }
-        //print card for saves here, have pinning in saves also
-
-        //See if remaining defenders
         let combatOver = true;
         if (finalDUnitIDs.length > 0) {
             for (let i=0;i<attackingTeamIDs.length;i++) {
@@ -5316,7 +5334,6 @@ log("2nd Row to " + team3.name)
             } else {
                 outputCard.body.push("The Unit may choose to Counterattack or Break Off");
             }
-            outputCard.body.push(noun + "Unit tests against its Counterattack below and if successful may Charge into Contact if needed");
             for (let i=0;i<finalDUnitIDs.length;i++) {
                 let unit = UnitArray[finalDUnitIDs[i]];
                 let unitLeader = TeamArray[unit.teamIDs[0]];
@@ -5496,6 +5513,9 @@ log("2nd Row to " + team3.name)
                 break;
             case '!CloseCombat':
                 CloseCombat(msg);
+                break;
+            case '!CloseCombatTwo':
+                CloseCombatTwo(msg);
                 break;
         }
     };
