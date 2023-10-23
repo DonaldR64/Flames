@@ -5102,9 +5102,11 @@ log(unitIDs4Saves)
         let id = msg.selected[0]._id
         if (!id) {return};
         let team = TeamArray[id];
+        let attackingNation = team.nation;
+        let defendingNation;
         if (!team) {return};
         let attackingPlayer = team.player;
-        SetupCard("Assault","",team.nation);
+        SetupCard("Assault","",attackingNation);
         let errorMsg;
         let array1 = [];
         for (let i=0;i<CCTeamIDs.length;i++) {
@@ -5114,7 +5116,7 @@ log(unitIDs4Saves)
                 if (token) {array1.push(team.id)};
             }
         }
-        let array2 = [],attackingTeamIDs = [],defendingTeamIDs = [];
+        let array2 = [],attackingTeamIDs = [],defendingTeamIDs = [],defendingUnitIDs = [];
         let teamKeys = Object.keys(TeamArray);
         for (let i=0;i<teamKeys.length;i++) {
             let team = TeamArray[teamKeys[i]];
@@ -5134,6 +5136,14 @@ log(unitIDs4Saves)
         }
         if (defendingTeamIDs.length === 0) {
             errorMsg = "No Defenders left";
+        }
+
+        for (let i=0;i<defendingTeamIDs.length;i++) {
+            let dt = TeamArray[defendingTeamIDs[i]];
+            defendingNation = dt.nation;
+            if (defendingUnitIDs.includes(dt.unitID) === false) {
+                defendingUnitIDs.push(dt.unitID);
+            }
         }
 
         if (errorMsg !== undefined) {
@@ -5194,7 +5204,6 @@ log("2nd Row to " + team3.name)
                 } else {
                     let targNum = 0;
                     weapon = attTeam.weaponArray[0];
-log(weapon)
                     let facing = "Side/Rear";
                     let tIDs = attTeam.assaultTargetIDs;
                     if (tIDs.length > 1) {    
@@ -5215,7 +5224,6 @@ log(weapon)
                         let wpnNum = parseInt(attTeam.assaultWpn);
                         if (wpnNum < 5) {
                             weapon = attTeam.weaponArray[attTeam.assaultWpn];
-log(weapon)
                             if (weapon.notes.includes("Limited")) {
                                 let num = 0;
                                 let wn = weapon.notes.split(",");
@@ -5243,7 +5251,6 @@ log(weapon)
                                 notes: " ",
                                 type: "Handheld AT",
                             }
-log(weapon)
                             facing = "Top";
                         }
                     } 
@@ -5264,10 +5271,62 @@ log(weapon)
             }
             outputCard.body.push(line)
         }
+        PrintCard(); //outputs the hits
+        //Process Saves for defenders and output these
+        
+        let divider = false;
+        for (let i=0;i<defendingUnitIDs.length;i++) {
+            let unit = UnitArray[defendingUnitIDs[i]];
+            if (unit.type !== Tank) {
+                if (divider === false) {
+                    outputCard.body.push("[hr]");
+                    divider = true;
+                }
+                unit.pin();
+                outputCard.body.push(unit.name + " is Pinned");
+            }
+
+
+
+        }
+        //print card for saves here
+
+        //See if remaining defenders
+        let combatOver = true;
+        for (let i=0;i<attackingTeamIDs.length;i++) {
+            let team1 = TeamArray[attackingTeamIDs[i]];
+            for (let j=0;j<defendingTeamIDs.length;j++) {
+                let team2 = TeamArray[defendingTeamIDs[j]];
+                if (!team2) {continue};
+                if (team2.type === "Unarmoured Tank") {continue}; //cant counterattack
+                let dist = team1.hex.distance(team2.hex);
+                if (dist <= (4*gameScale) && team2.bailed() === false) {
+                    combatOver = false;
+                    break;
+                }
+            }
+        }
+
+        if (combatOver === true) {
+            SetupCard("Assault Over","",attackingNation);
+            outputCard.body.push("The Assault is Over");
+            //pin down units
+            outputCard.body.push("Any surviving Defending Units must move at Tactical speed the shorted distance to be further than " + 6*gameScale + '" away from all Assaulting Teams');
+            outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
+            outputCard.body.push("The Assaulting Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.')            
+            PrintCard();
+        } else {
+            SetupCard("Assault ","",defendingNation);
+            
+
+
+
+
+        }
+
 
 
         
-        PrintCard();
 
 
 
