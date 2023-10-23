@@ -488,6 +488,9 @@ const FOW4 = (() => {
             this.number = 0;
             this.linkedUnitID = ""; //used in Mistaken for HQ units
             this.limited = 0; //used to track limited use weapons
+            this.inReserve = false;
+
+
 
             UnitArray[id] = this;
         }
@@ -1739,6 +1742,7 @@ log(hit)
         TA();
         //check what is in command
         inCommand("All");
+        BuildReserve();//places flag on units in reserve when rebuilding a map
     }
 
     const BuildTerrainArray = () => {
@@ -1933,13 +1937,13 @@ log(hit)
     }
 
     const UnitCreation = (msg) => {
+        if (!msg.selected) {return};
         let Tag = msg.content.split(";");
         let unitName = Tag[1];
         let teamIDs = [];
         for (let i=0;i<msg.selected.length;i++) {
             teamIDs.push(msg.selected[i]._id);
         }
-        if (teamIDs.length === 0) {return};
         let refToken = findObjs({_type:"graphic", id: teamIDs[0]})[0];
         let refChar = getObj("character", refToken.get("represents")); 
         if (!refChar) {
@@ -5353,9 +5357,35 @@ log("2nd Row to " + team3.name)
         PrintCard();
     }
 
+    const PlaceInReserve = (msg) => {
+        if (!msg.selected) {return};
+        SetupCard("Place in Reserve","","Neutral");
+        for (let i=0;i<msg.selected.length;i++) {
+            let id = msg.selected[i]._id;
+            let team = TeamArray[id];
+            if (!team) {continue};
+            let unit = UnitArray[team.unitID];
+            if (unit.inReserve === true) {continue};
+            unit.inReserve = true;
+            let unitLeader = TeamArray[unit.teamIDs[0]];
+            unitLeader.token.set("aura1_color",Colours.black);
+            outputCard.body.push(unit.name + " is Placed in Reserve");
+        }
+        PrintCard();
+    }
 
-
-
+    const BuildReserve = () => {
+        let keys = Object.keys(UnitArray);
+        for (let i=0;i<keys.length;i++) {
+            let unit = UnitArray[keys[i]];
+            if (unit.type === "System Unit") {continue}
+            let unitLeader = TeamArray[unit.teamIDs[0]];
+            let offboard = hexMap[unitLeader.hexLabel].terrain.includes("Offboard");
+            if (unitLeader.token.get("aura1_color") === Colours.black && offboard === true) {
+                unit.inReserve = true;
+            }
+        }
+    }
 
 
 
@@ -5401,6 +5431,13 @@ log("2nd Row to " + team3.name)
                         RemoveRangedInMarker(team.unitID);
                     }
                 }
+                if (hexMap[oldHexLabel].terrain.includes("Offboard") && hexMap[newHexLabel].terrain.includes("Offboard") === false) {
+                    let unit = UnitArray[team.unitID];
+                    let unitLeader = TeamArray[unit.teamIDs[0]];
+                    unit.inReserve = false;
+                    unitLeader.token.set("aura1_color",Colours.green);
+                }
+
             };
 /*
             if ((tok.get("height") !== prev.height || tok.get("width") !== prev.width) && state.CoC.labmode === false) {
@@ -5516,6 +5553,9 @@ log("2nd Row to " + team3.name)
                 break;
             case '!CloseCombatTwo':
                 CloseCombatTwo(msg);
+                break;
+            case '!PlaceInReserve':
+                PlaceInReserve(msg);
                 break;
         }
     };
