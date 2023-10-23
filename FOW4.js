@@ -2223,7 +2223,7 @@ log(hit)
     
         if (team1.type === "Aircraft" || team2.type === "Aircraft") {
             if (team1.type === "Aircraft") {
-                let st = Math.max(interHexes.length - (4*gameScale + 1),0); //4 hexes before target plus target hex
+                let st = Math.max(interHexes.length - (2 + 1),0); //2 hexes before target plus target hex
                 for (let i=st;i<interHexes.length;i++) {
                     let qrs = interHexes[i];
                     let interHex = hexMap[qrs.label()];
@@ -2233,7 +2233,7 @@ log(hit)
                     if (interHex.smoke === true || interHex.smokescreen) {smoke = true};
                 }
             } else {
-                let en = Math.min(interHexes.length,(4*gameScale + 1)); //4 hexes from shooter plus shooters hex
+                let en = Math.min(interHexes.length,(2 + 1)); //2 hexes from shooter plus shooters hex
                 for (let i=0;i<en;i++) {
                     let qrs = interHexes[i];
                     let interHex = hexMap[qrs.label()];
@@ -2258,7 +2258,7 @@ log(hit)
     //log(interHex.terrain)
     //log("Type: " + interHex.type)
                     if (interHex.smoke === true || interHex.smokescreen === true) {smoke = true};
-                    if (interHex.smokescreen === true && distanceT1T2 > (6*gameScale)) {
+                    if (interHex.smokescreen === true && distanceT1T2 > 3) { ///6mm change
                         los = false;
                         break;
                     }
@@ -2312,13 +2312,14 @@ log(hit)
                             break;
                         }
         //log("Terrain higher than B")
-                        if (i>(2*gameScale)) {
+                        //distances set to 1 for 6mm scale
+                        if (i>1) {
                             if (interHex.type === 3) {
                                 hexesWithBuild++;
                             }
-                            if (hexesWithBuild > 2*gameScale) {
+                            if (hexesWithBuild > 1) {
                                 los = false;
-                                losReason = ">" + 2*gameScale + " hexes into Building at " + qrsLabel;
+                                losReason = "> 1 hexes into Building at " + qrsLabel;
                                 break;
                             }
                             if (hexesWithBuild > 1 && interHex.type < 3) {
@@ -2331,9 +2332,9 @@ log(hit)
                             if (interHex.type === 2) {
                                 hexesWithTall++;
                             }
-                            if (hexesWithTall > (2*gameScale) && distanceT1T2 > 6) {
+                            if (hexesWithTall > 1 && distanceT1T2 > 6) {
                                 los = false;
-                                losReason = ">" + (2*gameScale) + " hexes through Tall terrain at " + qrsLabel; 
+                                losReason = "> 1 hexes through Tall terrain at " + qrsLabel; 
                                 break;
                             }
                             if (interHex.type > 1) {
@@ -2941,7 +2942,7 @@ log(hit)
                 PrintCard();
                 break;
             case "Clear Minefield":
-                outputCard.body.push('The Team is ordered to clear a Minefield within " + 2*gameScale + " Hexes');
+                outputCard.body.push('The Team is ordered to clear a Minefield within ' + 2*gameScale + ' Hexes');
                 outputCard.body.push("That Team counts as having Moved, and cannot Shoot or Assault");
                 outputCard.body.push("The Minefield can be removed immediately");
                 outputCard.body.push("Other Teams may be given the same order");
@@ -3503,46 +3504,6 @@ log(hit)
                 } 
                 ButtonInfo(part1,"!MoraleChecks");
                 PrintCard();
-            } else if (type === "CounterAttack") {
-                let unitID = Tag[2];
-                let needed = parseInt(Tag[3]);
-                let unit = UnitArray[unitID];
-                let roll = randomInteger(6);
-                let unitLeader = TeamArray[unit.teamIDs[0]];
-                if (!unitLeader) {
-                    log("ERROR with Unit Leader of unit: " + unit.name)
-                    return;
-                }
-                SetupCard(unit.name,"Needing: " + needed + "+",unit.nation);
-                outputCard.body.push("Unit Leader: " + DisplayDice(roll,unit.nation,24));
-                let reroll = CommandReroll(unitLeader);
-                if (roll < needed && reroll > -1) {
-                    outputCard.body.push("Commander Reroll: " + DisplayDice(reroll,unit.nation,24));
-                }
-                if (roll >= needed || reroll >= needed) {
-                    outputCard.body.push("Success!");
-                    outputCard.body.push("Unit can Counter Attack!");
-                    outputCard.body.push("Alternately the Unit can Break Off");
-                    outputCard.body.push('Units that Break Off must move to at least ' + 6*gameScale + '" away and are pinned');
-                    ButtonInfo("Counter Attack!","!CounterAttack2;" + unitID + ";CA");
-                    ButtonInfo("Break Off!","!CounterAttack2;" + unitID + ";BO");
-                    PrintCard();
-                } else {
-                    outputCard.body.push("Failure! Unit must Break Off");
-                    outputCard.body.push("Any remaining Teams in the Unit(s) must now Break Off at Tactical Speed");
-                    outputCard.body.push('Any Teams not able to get ' + 6*gameScale + '" away from an Attacking Team surrender and are Destroyed');
-                    if (unitLeader.type === "Infantry") {
-                        outputCard.body.push("Unit is also Pinned");
-                        unit.pin();
-                    }
-                    unit.order = "Break Off";
-                    let part1 = "Done";
-                    if (CheckArray.length > 0) {
-                        part1 = "Next Unit";
-                    } 
-                    ButtonInfo(part1,"!CounterAttack");
-                    PrintCard();  
-                }           
             }
         }
     }
@@ -4361,7 +4322,7 @@ log(artUnits)
             PrintCard();
             return;
         } 
-        //check "Danger Close" - template within 4"  or 6" of edge if Salvo Template
+        //check "Danger Close" - template within 2"  or 3" of edge if Salvo Template (6mm)
         let keys = Object.keys(TeamArray);
         let tooClose = [false,false];
 
@@ -4371,13 +4332,13 @@ log(artUnits)
             if (team2.player !== observerTeam.player) {continue};
             let distance2 = team2.hex.distance(barrageTeam.hex);
             if (air === true) {
-                //8" from edge of template
-                if (distance2 < (3+(8*gameScale))) {tooClose[0] = true};
-                if (distance2 < (5+(8*gameScale))) {tooClose[1] = true};
+                //4" from edge of template 6mm
+                if (distance2 < (3+4)) {tooClose[0] = true};
+                if (distance2 < (5+4)) {tooClose[1] = true};
             } else {
-                //4" from edge of template or 6" for Salvo
-                if (distance2 < (3+(4*gameScale))) {tooClose[0] = true};
-                if (distance2 < (5+(6*gameScale))) {tooClose[1] = true};
+                //2" from edge of template or 3" for Salvo 6mm
+                if (distance2 < (3+2)) {tooClose[0] = true};
+                if (distance2 < (5+3)) {tooClose[1] = true};
             }
         }
         outputCard.body.push("[U]Units[/U]");
@@ -5332,27 +5293,23 @@ log("2nd Row to " + team3.name)
         } else {
             let noun = "The ";
             SetupCard("Counterattack","",defendingNation);
-            if (finalDUnitIDs.length > 1) {
-                outputCard.body.push("The following Units may choose to Counterattack or Break Off");
-                noun = "Each ";
-            } else {
-                outputCard.body.push("The Unit may choose to Counterattack or Break Off");
-            }
+            outputCard.body.push("The Defenders may now choose to Counterattack");
+            outputCard.body.push("One roll is made and compared to each Units Counterattack");
+            outputCard.body.push("Any failing must Break Off")
+            outputCard.body.push("Breaking Off Teams must move at Tactical speed the shortest distance to be further than " + 6*gameScale + '" away from all Assaulting Teams');
+            outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
+            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.') 
+            outputCard.body.push("[hr]");
             for (let i=0;i<finalDUnitIDs.length;i++) {
                 let unit = UnitArray[finalDUnitIDs[i]];
                 let unitLeader = TeamArray[unit.teamIDs[0]];
                 let reroll = CommandReroll(unitLeader);
                 let rerollText = "";
                 if (reroll > 0) {
-                    rerollText = " (Reroll)"
+                    rerollText = " (Reroll allowed)"
                 }
                 outputCard.body.push(unit.name + ": " + unitLeader.counterattack + "+" + rerollText);
             }
-            outputCard.body.push("[hr]");
-            outputCard.body.push("Alternatively (or if the Counterattack roll is failed), " + noun + " Unit may Break Off");
-            outputCard.body.push("Breaking Off Teams must move at Tactical speed the shortest distance to be further than " + 6*gameScale + '" away from all Assaulting Teams');
-            outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
-            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.') 
         }
         PrintCard();
     }
