@@ -174,6 +174,7 @@ const FOW4 = (() => {
             "fontColour": "#000000",
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
+            "atWeapon": "Molotov Cocktails",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
             "barrageChar": "-NUlUj2snn9vRtAo2k2l", 
@@ -187,6 +188,7 @@ const FOW4 = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#000000",
             "borderStyle": "5px double",
+            "atWeapon": "Stielhandgranates",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
             "barrageChar": "-NUD72rOu6QMJVJHOU-q",  
@@ -200,6 +202,7 @@ const FOW4 = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#BC2D2F",
             "borderStyle": "5px groove",
+            "atWeapon": "Sticky Bombs",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328837544/KrWC027rT0Lw_ghCuu_5DQ/thumb.png?1676838067",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891446/xsAVVJ0Ft-xZW92JUtZBdw/thumb.png?1676321000",
             "barrageChar": "-NUlUkuOz7tjIrafOcNo",
@@ -213,6 +216,7 @@ const FOW4 = (() => {
             "fontColour": "#006400",
             "borderColour": "#006400",
             "borderStyle": "5px double",
+            "atWeapon": "Hand Grenades",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835139/zd6jnMDVIEEvRg_cNkHxeQ/thumb.png?1676837399",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
             "barrageChar": "-NUlUl6uxp5omEWaZfze",  
@@ -226,6 +230,7 @@ const FOW4 = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#FF0000",
             "borderStyle": "5px ridge",
+            "atWeapon": "Stielhandgranates",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
             "barrageChar": "-NUD72rOu6QMJVJHOU-q",  
@@ -2712,7 +2717,6 @@ log(hit)
             }
             if (weapon.notes.includes("Limited")) {
                 let wn = weapon.notes.split(",");
-log(wn)
                 for (let i=0;i<wn.length;i++) {
                     if (wn[i].includes("Limited")) {
                         num = wn[i].replace(/[^0-9]+/g, "");
@@ -3602,9 +3606,15 @@ log(wn)
         if (shooterID === shooterUnit.teamIDs[0]) {
             unitFire = true
             sname = shooterUnit.name;
-        };
+        } 
 
         SetupCard(sname,"Shooting",shooter.nation);
+
+        if (shooter.order === "Dash") {
+            outputCard.body.push('Team Dashed and cannot Fire');
+            PrintCard();
+            return;
+        }
 
         let defensive = false;
         let phase = "Shooting";
@@ -3618,7 +3628,7 @@ log(wn)
                 return;
             }
         }
-
+        
         if (unitFiredThisTurn === false && defensive === false) {
             //check what is in command as now Movement phase is done
             inCommand(shooter.player);
@@ -3769,6 +3779,10 @@ log(weapons)
 
         for (let i=0;i<shooterTeamArray.length;i++) {
             let sTeam = shooterTeamArray[i];
+            let moved = false;
+            if (sTeam.token.get(SM.tactical) === true || sTeam.token.get(SM.assault) === true || sTeam.token.get(SM.sneak) === true) {
+                moved = true;
+            }
             let eta = sTeam.eta;
             for (let j=0;j<weapons.length;j++) {
                 let weapon = weapons[j];
@@ -3803,11 +3817,11 @@ log(weapons)
                     toHit++;
                     toHitTips += "<br>No HE +1";
                 }
-                if (sTeam.special.includes("Overworked") && (sTeam.token.get(SM.tactical) === true || sTeam.token.get(SM.dash) === true)) {
+                if (sTeam.special.includes("Overworked") && moved === true) {
                     toHit++;
                     toHitTips += "<br>Overworked & Moved +1";
                 }
-                if (weapon.notes.includes("Slow Firing") && (sTeam.token.get(SM.tactical) === true || sTeam.token.get(SM.dash) === true)) {
+                if (weapon.notes.includes("Slow Firing") && moved === true) {
                     toHit++;
                     toHitTips += "<br>Slow Firing & Moved +1";
                 }
@@ -5084,6 +5098,7 @@ log(unitIDs4Saves)
     }
 
     const CloseCombat = (msg) => {
+        if (!msg.selected) {return};
         let id = msg.selected[0]._id
         if (!id) {return};
         let team = TeamArray[id];
@@ -5163,9 +5178,11 @@ log("2nd Row to " + team3.name)
             }
         }
         //for each attacker, roll to hit etc
+        let limited = 0;
         for (let i=0;i<attackingTeamIDs.length;i++) {
             let attTeam = TeamArray[attackingTeamIDs[i]];
             let line;
+            let weapon;
             if (attTeam.assaultTargetIDs.length === 0) {
                 line = attTeam.name + " has no Targets";
             } else {
@@ -5173,10 +5190,11 @@ log("2nd Row to " + team3.name)
                 let roll = randomInteger(6);
                 let end;
                 if (roll < needed) {
-                    end = " Misses"
+                    end = " Misses";
                 } else {
                     let targNum = 0;
-                    let weapon = attTeam.weaponArray[0];
+                    weapon = attTeam.weaponArray[0];
+log(weapon)
                     let facing = "Side/Rear";
                     let tIDs = attTeam.assaultTargetIDs;
                     if (tIDs.length > 1) {    
@@ -5194,11 +5212,28 @@ log("2nd Row to " + team3.name)
                     let targetTeam = TeamArray[tIDs[targNum]];
                     end = " Hits " + targetTeam.name;
                     if (targetTeam.type === "Tank") {
-                        if (attTeam.assaultWpn < 5) {
+                        let wpnNum = parseInt(attTeam.assaultWpn);
+                        if (wpnNum < 5) {
                             weapon = attTeam.weaponArray[attTeam.assaultWpn];
-                        } else {
+log(weapon)
+                            if (weapon.notes.includes("Limited")) {
+                                let num = 0;
+                                let wn = weapon.notes.split(",");
+                                for (let i=0;i<wn.length;i++) {
+                                    if (wn[i].includes("Limited")) {
+                                        num = wn[i].replace(/[^0-9]+/g, "");
+                                    }
+                                }
+                                if (limited >= num) {
+                                    wpnNum = 5; //used the limited # already
+                                } else {
+                                    limited++;
+                                }
+                            }
+                        }
+                        if (wpnNum === 5) {
                             weapon = {
-                                name: "Hand Grenades",
+                                name: Nations[attTeam.nation].atWeapon,
                                 minRange: 1,
                                 maxRange: 1,
                                 halted: 1,
@@ -5208,6 +5243,7 @@ log("2nd Row to " + team3.name)
                                 notes: " ",
                                 type: "Handheld AT",
                             }
+log(weapon)
                             facing = "Top";
                         }
                     } 
@@ -5224,7 +5260,7 @@ log("2nd Row to " + team3.name)
                     }
                     targetTeam.hitArray.push(hit);
                 }            
-                line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + attTeam.name + end;
+                line = '[🎲](#" class="showtip" title="Roll: ' + roll + " vs " + needed + '+ )' + attTeam.name + end + ' w/ ' + weapon.name;
             }
             outputCard.body.push(line)
         }
