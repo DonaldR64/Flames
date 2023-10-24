@@ -493,7 +493,7 @@ const FOW4 = (() => {
             this.limited = 0; //used to track limited use weapons
             this.inReserve = false;
             this.size; //used for pinning purposes, size of unit at start of turn
-            this.pinTokenID = "";
+            this.pinned = false;
 
             UnitArray[id] = this;
         }
@@ -535,21 +535,22 @@ const FOW4 = (() => {
             }
         }
 
-        pinned() {
-            let pinned = false;
-            let leaderTeam = TeamArray[this.teamIDs[0]];
-            if ((leaderTeam.type === "Infantry" || leaderTeam.type === "Gun") && (leaderTeam.token.get("aura1_color") === Colours.yellow)) {
-                pinned = true;
-            }
-            return pinned;
-        }
 
         unpin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
-            leaderTeam.token.set("aura1_color",Colours.green);
-            let pinToken = findObjs({_type:"graphic", id: this.pinTokenID})[0];
-            this.pinTokenID = "";
-            pinToken.remove();
+            let id;
+            this.pinned = false;
+            for (let i=0;i<leaderTeam.buddyTokenIDs.length;i++) {
+                id = leaderTeam.buddyTokenIDs[i];
+                let bailToken = findObjs({_type:"graphic", id: id})[0];
+                if (bailToken) {
+                    if (bailToken.get("name") === "Pinned") {
+                        bailToken.remove();
+                        leaderTeam.buddyTokenIDs.splice(i,1);
+                        break;
+                    }
+                }
+            }
         }
 
         pin() {
@@ -567,11 +568,12 @@ const FOW4 = (() => {
                 isdrawing: true,
                 pageid: leaderTeam.token.get("pageid"),
                 imgsrc: pinTokenImg,
-                layer: "objects",
+                layer: "gmlayer",
                 gmnotes: this.id,
             });
             toFront(newToken);
-            this.pinTokenID = newToken.id;
+            leaderTeam.buddyTokenIDs.push(newToken.id);
+            this.pinned = true;
         }
 
         updateTeamIDs() {
@@ -881,8 +883,8 @@ log(this.assaultWpn)
             this.ccIDs = []; //ids of team in defensive fire range
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
-            this.bailedTokenID = "";
-            this.pinnedTokenID = "";
+            this.bailed = false;
+            this.buddyTokenIDs = [];
 
             //this.maxPass = maxPass;
 
@@ -896,7 +898,7 @@ log(this.assaultWpn)
                 result: "",
                 tip: "",
             }
-            if (this.bailed() === true) {
+            if (this.bailed === true) {
                 let roll = randomInteger(6);
                 let reroll = CommandReroll(this);
                 result.tip = "<br>Remount Roll: " + roll + " vs. " + this.remount + "+";
@@ -929,25 +931,28 @@ log(this.assaultWpn)
                 isdrawing: true,
                 pageid: this.token.get("pageid"),
                 imgsrc: bailtokenImg,
-                layer: "objects",
+                layer: "gmlayer",
                 gmnotes: this.id,
             });
             toFront(newToken);
-            this.bailedTokenID = newToken.id;
+            this.buddyTokenIDs.push(newToken.id);
+            this.bailed = true;
         }
 
         remount() {
-            let bailToken = findObjs({_type:"graphic", id: this.bailedTokenID})[0];
-            this.bailedTokenID = "";
-            bailToken.remove();
-        }
-
-        bailed() {
-            let bailed = true;
-            if (this.bailedTokenID === "") {
-                bailed = false;
+            let id;
+            this.bailed = false;
+            for (let i=0;i<this.buddyTokenIDs.length;i++) {
+                id = this.buddyTokenIDs[i];
+                let bailToken = findObjs({_type:"graphic", id: id})[0];
+                if (bailToken) {
+                    if (bailToken.get("name") === "Bailed Out") {
+                        bailToken.remove();
+                        this.buddyTokenIDs.splice(i,1);
+                        break;
+                    }
+                }
             }
-            return bailed;
         }
 
         IC(ic) {
@@ -1657,6 +1662,8 @@ log(hit)
         pageInfo.scale = pageInfo.page.get("snapping_increment");
         pageInfo.width = pageInfo.page.get("width") * 70;
         pageInfo.height = pageInfo.page.get("height") * 70;
+
+        pageInfo.page.set("fog_opacity",.80);
 
         HexInfo.directions = {
             "Northeast": new Hex(1, -1, 0),
@@ -2611,7 +2618,7 @@ log(hit)
         }
 
         if (order.includes("Assault")) {
-            if (unit.pinned() === true) {
+            if (unit.pinned === true) {
                 outputCard.body.push("Team is Pinned, cannot Assault");
                 outputCard.body.push("Team defaults to a Tactical Order");
                 order = "Tactical";
@@ -3194,7 +3201,7 @@ log(hit)
                 let ids = unit.teamIDs;
                 for (let j=0;j<ids.length;j++) {
                     let team = TeamArray[ids[j]];
-                    if (team.bailed() === true) {
+                    if (team.bailed === true) {
                         CheckArray.push(team);
                     }
                 }
@@ -3221,7 +3228,7 @@ log(hit)
                 }
                 unit.size = unit.teamIDs.length;
                 unitLeader.token.set("bar1_value",0);
-                if (unit.pinned() === true) {
+                if (unit.pinned === true) {
                     CheckArray.push(unit);
                 };
             };
@@ -3250,7 +3257,7 @@ log(hit)
                 for (let j=0;j<ids.length;j++) {
                     let team = TeamArray[ids[j]];
                     if (team.type === "Tank") {
-                        if (team.bailed() === true) {
+                        if (team.bailed === true) {
                             continue;
                         }
                     }
@@ -3339,7 +3346,7 @@ log(hit)
             let unitLeader = TeamArray[unit.teamIDs[0]];
             if (unitLeader) {
                 unitLeader.token.set("bar3_value",0);
-                if (unitLeader.bailed() === true) {
+                if (unitLeader.bailed === true) {
                     SwapLeader(unit);
                 }
             }
@@ -3710,7 +3717,7 @@ log("Mistaken: " + mistaken)
             if (st.token.get(SM.dash) === true && defensive === false) {continue}; //dashed or clear minefield
             if (st.token.get(SM.radio) === true && defensive === false) {continue}; //called artillery
             if (st.type === "Tank") {
-                if (st.bailed() === true) {continue}; //bailed out
+                if (st.bailed === true) {continue}; //bailed out
             }
 
             for (let j=0;j<st.weaponArray.length;j++) {
@@ -3878,7 +3885,7 @@ log(weapons)
                 if (sTeam.token.get(SM.tactical) === true) {
                     rof = weapon.moving;
                 }
-                if (shooterUnit.pinned() === true) {
+                if (shooterUnit.pinned === true) {
                     if (weapon.notes.includes("Pinned ROF")) {
                         let substring = weapon.notes.split(",");
                         substring = substring.filter((string) => string.includes("Pinned ROF"));
@@ -4141,7 +4148,7 @@ log("In Mistaken")
             if (i===0) {team.priority = 1};
             if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
             if (team.unique === true) {team.priority = 2};
-            if (team.bailed() === true && team.type === "Tank") {team.priority = -2};
+            if (team.bailed === true && team.type === "Tank") {team.priority = -2};
             array.push(team);
         }
         if (unit.hqUnit === true && unit.linkedUnitID !== "") {
@@ -4153,7 +4160,7 @@ log("In Mistaken")
                 if (i===0) {team.priority = 1};
                 if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
                 if (team.unique === true) {team.priority = 2};
-                if (team.bailed() === true && team.type === "Tank") {team.priority = -2};
+                if (team.bailed === true && team.type === "Tank") {team.priority = -2};
                 array.push(team);
             }
         }
@@ -4298,12 +4305,12 @@ log(ai)
             for (let i=0;i<keys.length;i++) {
                 let unit = UnitArray[keys[i]];
                 if (unit.artillery === false || unit.player !== spotter.player) {continue};
-                if (unit.pinned() === true || unit.specialorder === "Failed Blitz" || unit.specialorder.includes("Dig In")) {continue};
+                if (unit.pinned === true || unit.specialorder === "Failed Blitz" || unit.specialorder.includes("Dig In")) {continue};
                 artUnits.push(unit);
             }
         } else {
             let unit = UnitArray[spotter.unitID];
-            if (unit.pinned() === false) {
+            if (unit.pinned === false) {
                 artUnits.push(unit);
             };
         }
@@ -4313,7 +4320,7 @@ log(artUnits)
             let unit = artUnits[i];
             for (let j=0;j<unit.teamIDs.length;j++) {
                 let team = TeamArray[unit.teamIDs[j]];
-                if (team.special.includes("Artillery") === false || team.token.get(SM.fired) === true || team.bailed() === true) {continue};
+                if (team.special.includes("Artillery") === false || team.token.get(SM.fired) === true || team.bailed === true) {continue};
                 if (team.type !== "Aircraft") {
                     if (hexMap[team.hexLabel].terrain.includes("Building") ||(team.token.get(SM.tactical) === true || team.token.get(SM.dash) === true)) {
                         continue; //moved or in building
@@ -5034,7 +5041,7 @@ log(unitIDs4Saves)
                 if (unit.type === "Infantry" || unit.type === "Gun") {
                     unitLeader = TeamArray[unit.teamIDs[0]]; //in case original killed
                     unitLeader.token.set("bar3_value",unitHits);
-                    if (unitHits >= pinMargin && unit.pinned() === false) {
+                    if (unitHits >= pinMargin && unit.pinned === false) {
                         outputCard.body.push("The Unit is Pinned");
                         unit.pin();
                         if (phase === "Defensive") {
@@ -5046,7 +5053,7 @@ log(unitIDs4Saves)
                     if ((bailedOut + casualties) >= 2) {
                         outputCard.body.push("The Unit must Fall Back");
                     }
-                    if (unit.teamIDs.length === 1 && unitLeader.bailed() === true) {
+                    if (unit.teamIDs.length === 1 && unitLeader.bailed === true) {
                         outputCard.body.push("The Unit must Fall Back");
                     }
                 }
@@ -5355,7 +5362,7 @@ log("2nd Row to " + team3.name)
                     if (!team2) {continue};
                     if (team2.type === "Unarmoured Tank") {continue}; //cant counterattack
                     let dist = team1.hex.distance(team2.hex);
-                    if (dist <= (4*gameScale) && team2.bailed() === false) {
+                    if (dist <= (4*gameScale) && team2.bailed === false) {
                         combatOver = false;
                         break;
                     }
@@ -5428,15 +5435,20 @@ log("2nd Row to " + team3.name)
             _pageid: Campaign().get("playerpageid"),
             _type: "graphic",
             _subtype: "token",
-            layer: "objects",
+            layer: "gmlayer",
         });
         tokens.forEach((token) => {
             if (token.get("name") === "Bailed Out") {
                 let id = decodeURIComponent(token.get("gmnotes")).toString();
-                TeamArray[id].bailedTokenID = token.id;
+                let team = TeamArray[id];
+                team.bailed = true;
+                team.buddyTokenIDs.push(token.id);
             } else if (token.get("name") === "Pinned") {
                 let info = decodeURIComponent(token.get("gmnotes")).toString();
-                UnitArray[info].pinTokenID = token.id;
+                let team = TeamArray[id];
+                let unit = UnitArray[team.unitID];
+                unit.pinned = true;
+                team.buddyTokenIDs.push(token.id);
             }
         });
     }
@@ -5453,29 +5465,15 @@ log("2nd Row to " + team3.name)
         if (tok.get('subtype') === "token") {
             RemoveLines();
             log(tok.get("name") + " moving");
-            if (tok.get("name") === "Bailed Out") {
-                tok.set("height",prev.height);
-                tok.set("width",prev.width);
-                tok.set("left",prev.left);
-                tok.set("top",prev.top);
-                return;
-            }
             if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
-                let id = tok.id;
-                let buddyFlag = false;
-                if (tok.get("name") === "Pinned") {
-                    let unitID = decodeURIComponent(tok.get("gmnotes"));
-                    id = UnitArray[unitID].teamIDs[0];
-                    buddyFlag = true;
-                }
-
-                let team = TeamArray[id];
+                let team = TeamArray[tok.id];
                 if (!team) {return};
-                if (team.bailedTokenID !== "") {
+                if (team.bailed === true) {
                     tok.set("height",prev.height);
                     tok.set("width",prev.width);
                     tok.set("left",prev.left);
                     tok.set("top",prev.top);
+                    tok.set("rotation",prev.rotation);
                     return;
                 }
                 let oldHex = team.hex;
@@ -5490,21 +5488,22 @@ log("2nd Row to " + team3.name)
                     top: newLocation.y,
                     //rotation: newRotation,
                 });
-                if (buddyFlag === true) {
-                    team.token.set({
+                for (let i=0;i<team.buddyTokenIDs.length;i++) {
+                    let id = team.buddyTokenIDs[i];
+                    let buddyToken = findObjs({_type:"graphic", id: id})[0];
+                    buddyToken.set({
                         left: newLocation.x,
                         top: newLocation.y,
-                        //rotation: newRotation,
                     })
                 }
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
                 team.location = newLocation;
-                let index = hexMap[oldHexLabel].tokenIDs.indexOf(id);
+                let index = hexMap[oldHexLabel].tokenIDs.indexOf(tok.id);
                 if (index > -1) {
                     hexMap[oldHexLabel].tokenIDs.splice(index,1);
                 }
-                hexMap[newHexLabel].tokenIDs.push(id);
+                hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
                 InCC(team);
                 if (team.hex !== oldHex) {
