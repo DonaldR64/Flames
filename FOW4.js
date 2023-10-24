@@ -493,7 +493,7 @@ const FOW4 = (() => {
             this.limited = 0; //used to track limited use weapons
             this.inReserve = false;
             this.size; //used for pinning purposes, size of unit at start of turn
-
+            this.pinTokenID = "";
 
             UnitArray[id] = this;
         }
@@ -547,11 +547,31 @@ const FOW4 = (() => {
         unpin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
             leaderTeam.token.set("aura1_color",Colours.green);
+            let pinToken = findObjs({_type:"graphic", id: this.pinTokenID})[0];
+            this.pinTokenID = "";
+            pinToken.remove();
         }
 
         pin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
             leaderTeam.token.set("aura1_color",Colours.yellow);
+            let pinTokenImg = getCleanImgSrc(Nations(this.nation).pinned);
+            let newToken = createObj("graphic", {   
+                left: this.location.x,
+                top: this.location.y,
+                width: 70, 
+                height: 60,
+                rotation: 0,
+                name: "Pinned",
+                showname: false,
+                isdrawing: true,
+                pageid: team.token.get("pageid"),
+                imgsrc: pinTokenImg,
+                layer: "objects",
+                gmnotes: this.id,
+            });
+            toFront(newToken);
+            this.pinTokenID = newToken.id;
         }
 
         updateTeamIDs() {
@@ -857,7 +877,7 @@ log(this.assaultWpn)
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
             this.bailedTokenID = "";
-
+            this.pinnedTokenID = "";
 
             //this.maxPass = maxPass;
 
@@ -1799,6 +1819,7 @@ log(hit)
         //check what is in command
         inCommand("All");
         BuildReserve();//places flag on units in reserve when rebuilding a map
+        BuildPinBail();//fixes links between bail and pin tokens
     }
 
     const BuildTerrainArray = () => {
@@ -1925,7 +1946,7 @@ log(hit)
         let c = tokens.length;
         let s = (1===c?'':'s');     
         tokens.forEach((token) => {
-            let character = getObj("character", token.get("represents"));           
+            let character = getObj("character", token.get("represents"));     
             if (character === null || character === undefined) {
                 return;
             };
@@ -5397,6 +5418,23 @@ log("2nd Row to " + team3.name)
         }
     }
 
+    const BuildPinBail = () => {
+        let tokens = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+            _subtype: "token",
+            layer: "objects",
+        });
+        tokens.forEach((token) => {
+            if (token.get("name") === "Bailed Out") {
+                let id = decodeURIComponent(token.get("gmnotes")).toString();
+                TeamArray[id].bailedTokenID = token.id;
+            } else if (token.get("name") === "Pinned") {
+                let info = decodeURIComponent(token.get("gmnotes")).toString();
+                UnitArray[info].pinTokenID = token.id;
+            }
+        });
+    }
 
 
 
@@ -5410,7 +5448,7 @@ log("2nd Row to " + team3.name)
         if (tok.get('subtype') === "token") {
             RemoveLines();
             log(tok.get("name") + " moving");
-            if (tok.get("Bailed Out")) {
+            if (tok.get("name") === "Bailed Out") {
                 tok.set("height",prev.height);
                 tok.set("width",prev.width);
                 tok.set("left",prev.left);
@@ -5418,7 +5456,15 @@ log("2nd Row to " + team3.name)
                 return;
             }
             if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
-                let team = TeamArray[tok.id];
+                let id = tok.id;
+                let buddyFlag = false;
+                if (tok.get("name") === "Pinned") {
+                    let unitID = decodeURIComponent(tok.get("gmnotes"));
+                    id = UnitArray[unitID].teamIDs[0];
+                    buddyFlag = true;
+                }
+
+                let team = TeamArray[id];
                 if (!team) {return};
                 if (team.bailedTokenID !== undefined) {
                     tok.set("height",prev.height);
@@ -5439,14 +5485,21 @@ log("2nd Row to " + team3.name)
                     top: newLocation.y,
                     //rotation: newRotation,
                 });
+                if (buddyFlag === true) {
+                    team.token.set({
+                        left: newLocation.x,
+                        top: newLocation.y,
+                        //rotation: newRotation,
+                    })
+                }
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
                 team.location = newLocation;
-                let index = hexMap[oldHexLabel].tokenIDs.indexOf(tok.id);
+                let index = hexMap[oldHexLabel].tokenIDs.indexOf(id);
                 if (index > -1) {
                     hexMap[oldHexLabel].tokenIDs.splice(index,1);
                 }
-                hexMap[newHexLabel].tokenIDs.push(tok.id);
+                hexMap[newHexLabel].tokenIDs.push(id);
                 inCommand(team);
                 InCC(team);
                 if (team.hex !== oldHex) {
