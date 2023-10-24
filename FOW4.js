@@ -555,17 +555,17 @@ const FOW4 = (() => {
         pin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
             leaderTeam.token.set("aura1_color",Colours.yellow);
-            let pinTokenImg = getCleanImgSrc(Nations(this.nation).pinned);
+            let pinTokenImg = getCleanImgSrc(Nations[this.nation].pinned);
             let newToken = createObj("graphic", {   
-                left: this.location.x,
-                top: this.location.y,
+                left: leaderTeam.location.x,
+                top: leaderTeam.location.y,
                 width: 70, 
                 height: 60,
                 rotation: 0,
                 name: "Pinned",
                 showname: false,
                 isdrawing: true,
-                pageid: team.token.get("pageid"),
+                pageid: leaderTeam.token.get("pageid"),
                 imgsrc: pinTokenImg,
                 layer: "objects",
                 gmnotes: this.id,
@@ -613,6 +613,7 @@ const FOW4 = (() => {
             let char = getObj("character", token.get("represents")); 
             if (!char) {sendChat("","No Character?"); return}
             let charName = char.get("name");
+
             let attributeArray = AttributeArray(char.id);
             let nation = attributeArray.nation;
             let player = (Allies.includes(nation)) ? 0:1;
@@ -837,6 +838,10 @@ const FOW4 = (() => {
             AttributeSet(char.id,"countrydisplay",this.countrydash);
             AttributeSet(char.id,"roaddisplay",this.roaddash);
 
+
+
+
+
             this.armourF = front;
             this.armourSR = side;
             this.armourT = top;
@@ -912,7 +917,7 @@ log(this.assaultWpn)
         }
 
         bail() {
-            let bailtokenImg = getCleanImgSrc(Nations(this.nation).pinned);
+            let bailtokenImg = getCleanImgSrc(Nations[this.nation].pinned);
             let newToken = createObj("graphic", {   
                 left: this.location.x,
                 top: this.location.y,
@@ -922,7 +927,7 @@ log(this.assaultWpn)
                 name: "Bailed Out",
                 showname: false,
                 isdrawing: true,
-                pageid: team.token.get("pageid"),
+                pageid: this.token.get("pageid"),
                 imgsrc: bailtokenImg,
                 layer: "objects",
                 gmnotes: this.id,
@@ -939,7 +944,7 @@ log(this.assaultWpn)
 
         bailed() {
             let bailed = true;
-            if (this.bailedTokenID === undefined) {
+            if (this.bailedTokenID === "") {
                 bailed = false;
             }
             return bailed;
@@ -5466,7 +5471,7 @@ log("2nd Row to " + team3.name)
 
                 let team = TeamArray[id];
                 if (!team) {return};
-                if (team.bailedTokenID !== undefined) {
+                if (team.bailedTokenID !== "") {
                     tok.set("height",prev.height);
                     tok.set("width",prev.width);
                     tok.set("left",prev.left);
@@ -5634,6 +5639,7 @@ log("2nd Row to " + team3.name)
             case '!PlaceInReserve':
                 PlaceInReserve(msg);
                 break;
+
         }
     };
 
