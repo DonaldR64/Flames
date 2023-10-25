@@ -809,6 +809,7 @@ const FOW4 = (() => {
             this.type = type;    
             this.location = location;
             this.prevHexLabel = hexLabel;
+            this.prevHex = hex;
 
             this.order = "";
             this.specialorder = "";
@@ -1492,21 +1493,20 @@ log(hit)
             _subtype: "token",
         });
 
-        tokens = tokens.filter((o) => {
-            if (o.get("layer") === "objects" || o.get("layer")  === "gmlayer") {
-                return o;
-            }
-        });
-
-        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke"];
-        let bkeys = Object.keys("Buddies");
-        removals = removals.concat(bkeys)
+        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke","Bailed Out","Pinned"];
         tokens.forEach((token) => {
             if (token.get("status_dead") === true) {
                 token.remove();
             }
             for (let i=0;i<removals.length;i++) {
                 if (removals[i] === token.get("name") && info === "All") {
+                    token.remove();
+                }
+            }
+            let bkeys = Object.keys(Buddies);
+            log(bkeys)
+            for (let i=0;i<bkeys.length;i++) {
+                if (bkeys[i] === token.get("name") && info === "All") {
                     token.remove();
                 }
             }
@@ -3338,6 +3338,7 @@ log(hit)
                 if (unit.player === state.FOW4.currentPlayer) {
                     team.spotAttempts = 0;
                     team.prevHexLabel = team.hexLabel;
+                    team.prevHex = team.hex;
                     team.order = "";
                     team.specialorder = "";
                 }
@@ -5092,7 +5093,7 @@ log(unitIDs4Saves)
     }
 
     const InCC = (team1) => {
-        if (team1.buddy["Assault"] === undefined) {return};
+        if (team1.order !== "Assault") {return};
         //determine if this team is now in B2B or if infantry in 2nd row
         let teamKeys = Object.keys(TeamArray);
         let inCC = false;
@@ -5125,9 +5126,12 @@ log(unitIDs4Saves)
             }
             if (team1.special.includes("Heavy Weapon")) {
                 sendChat("","This Team is a Heavy Weapons Team and cannot Charge into Contact");
+            
+
             }
             if (team1.buddies["AAFire"] !== undefined) {
                 sendChat("","This Team fired AA Fire and cannot Charge");
+            
             }
         }
     }
@@ -5139,7 +5143,8 @@ log(unitIDs4Saves)
             let team2 = TeamArray[teamKeys[i]];
             if (team2.id === team1.id || team2.player === team1.player) {continue};
             let dist = team1.hex.distance(team2.hex);
-            let chargeDist = team1.hex.distance(team1.prevHexLabel.toCube());
+            let chargeDist = team1.hex.distance(team1.prevHex);
+log("Charge Dist: " + chargeDist)
             if (action === "Add" && dist <= (8*gameScale) && team2.token.get(SM.surprised) === false) {
                 if (dist === 1 && team1.fired === false && hexMap[team1.prevHexLabel].type > 0 && chargeDist <= (4*gameScale)) {
                     team2.token.set(SM.defensive,false);
@@ -5537,7 +5542,7 @@ log("2nd Row to " + team3.name)
                     top: newLocation.y,
                     //rotation: newRotation,
                 });
-                let bkeys = Object.keys(team.buddies);
+                let bkeys = Object.keys(Buddies);
                 for (let i=0;i<bkeys.length;i++) {
                     let id = team.buddies[bkeys[i]];
                     if (id !== undefined) {
