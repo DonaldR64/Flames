@@ -2,7 +2,7 @@ const FOW4 = (() => {
     const version = '4.10.23';
     if (!state.FOW4) {state.FOW4 = {}};
 
-    const gameScale = .5; //1 = Normal Movement, 0.5 = Half Movement
+    const gameScale = 1; //1 = Normal Movement, 0.5 = Half Movement
 
     //Constants and Persistent Variables
 
@@ -2721,7 +2721,11 @@ log(hit)
         if (type === "Infantry") {
             action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
         } else if (type === "Gun") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold";
+            if (team.tactical === 0) {
+                action = "!Activate;?{Order|Dash|Hold";
+            } else {
+                action = "!Activate;?{Order|Tactical|Dash|Hold";
+            }
         } else if (type === "Tank") {
             action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
         } else if (type === "Unarmoured Tank") {
@@ -3861,6 +3865,10 @@ log(weapons)
                 if (state.FOW4.darkness === true) {
                     toHitTips += "<br>Darkness +1";
                     toHit++;
+                }
+                if (sTeam.specialorder === "Failed Blitz") {
+                    toHit++;
+                    toHitTips += "<br>Failed Blitz";
                 }
                 if (weapon.notes.includes("No HE") && (target.type === "Infantry" || target.type === "Gun")) {
                     toHit++;
