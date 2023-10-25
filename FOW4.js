@@ -5443,24 +5443,38 @@ log("2nd Row to " + team3.name)
             layer: "gmlayer",
         });
         if (!tokens) {return};
+        let conditions = ["Bailed Out","Pinned","Dash","Tactical","Hold","Assault","AAFire","Fired","GTG","Radio"]
         tokens.forEach((token) => {
-            if (token.get("name") === "Bailed Out") {
-                let id = decodeURIComponent(token.get("gmnotes")).toString();
-                let team = TeamArray[id];
-                if (team) {
-                    team.bailed = true;
-                    team.buddyTokenIDs.push(token.id);
-                }
-            } else if (token.get("name") === "Pinned") {
-                let id = decodeURIComponent(token.get("gmnotes")).toString();
-                let team = TeamArray[id];
-                if (!team) {return};
-                let unit = UnitArray[team.id];
-                if (unit) {
-                    unit.pinned = true;
-                    team.buddyTokenIDs.push(token.id);
-                }
+            let teamID = decodeURIComponent(token.get("gmnotes")).toString();
+            if (teamID === undefined) {return};
+            let team = TeamArray[teamID];
+            if (!team) {return};
+            let unit = UnitArray[team.unitID];
+            if (!unit) {return};
+            let name = token.get("name");
+            if (!name) {return};
+            if (conditions.includes(name) === false) {return}
+            team.buddies[name] = token.id;
+            if (name === "Bailed Out") {
+                team.bailed = true;
             }
+            if (name === "Pinned") {
+                unit.pinned = true;
+            }
+            if (name === "Fired") {
+                team.fired = true;
+            }
+            if (name === "AAFire") {
+                team.aaFired = true;
+            }
+            if (name === "Tactical" || name === "Dash" || name === "Assault") {
+                team.moved = true;
+            }
+log(name)
+log(team.name)
+log(team.buddies)
+
+
         });
     }
 
@@ -5521,20 +5535,20 @@ log("2nd Row to " + team3.name)
                     tok.set("rotation",prev.rotation);
                     return;
                 }
-                let oldHex = team.hex;
                 let oldHexLabel = team.hexLabel;
                 let newLocation = new Point(tok.get("left"),tok.get("top"));
                 let newHex = pointToHex(newLocation);
                 let newHexLabel = newHex.label();
                 newLocation = hexToPoint(newHex); //centres it in hex
-                //let newRotation = oldHex.angle(newHex);
                 tok.set({
                     left: newLocation.x,
                     top: newLocation.y,
-                    //rotation: newRotation,
                 });
-                let bkeys = Object.keys(Buddies);
+
+                let bkeys = Object.keys(team.buddies);
                 for (let i=0;i<bkeys.length;i++) {
+                    let condition = bkeys[i];
+                    log(condition)
                     let id = team.buddies[bkeys[i]];
                     if (id !== undefined) {
                         let buddyToken = findObjs({_type:"graphic", id: id})[0];
