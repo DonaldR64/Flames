@@ -40,18 +40,17 @@ const FOW4 = (() => {
     }
 
     const SM = {
-        "gtg": "status_brown",
-        "dash": "status_Fast::5868456",
-        "fired": "status_Shell::5553215",
-        "tactical": "status_Advantage-or-Up::2006462",
-        "hold": "status_Shield::2006495",
-        "assault": "status_grenade",
+        //"gtg": "status_brown",
+        //"dash": "status_Fast::5868456",
+        //"fired": "status_Shell::5553215",
+        //"tactical": "status_Advantage-or-Up::2006462",
+        //"hold": "status_Shield::2006495",
+        //"assault": "status_grenade",
         "mounted": "status_Mounted-Transparent::2006522",
         "flare": "status_Flare::5867553",
-        "radio": "status_Radio::5864350",
-        "aafire": "status_sentry-gun",
+        //"radio": "status_Radio::5864350",
+        //"aafire": "status_sentry-gun",
         "defensive": "status_green",
-        "sneak": "status_Darkness::2006483",
         "surprised": "status_yellow",
     }
 
@@ -3311,11 +3310,11 @@ log(hit)
         for (let j=0;j<keys.length;j++) {
             let unit = UnitArray[keys[j]];
             if (unit.player === state.FOW4.currentPlayer) {
-                let bkeys = Object.keys(Buddies);
-                for (let b=0;b<bkeys.length;b++) {
+                let conditions = ["Dash","Tactical","Hold","Assault","Fired","AAFire","Radio"];
+                for (let b=0;b<conditions.length;b++) {
                     for (let t=0;t<unit.teamIDs.length;t++) {
                         let team = TeamArray[unit.teamIDs[t]];
-                        team.buddy(bkeys[b],false);
+                        team.buddy(conditions[b],false);
                     }
                 }
                 if (state.FOW4.turn === 1) {
@@ -3370,8 +3369,10 @@ log(hit)
         let teamIDs = unit.teamIDs;
         for (let i=0;i<teamIDs.length;i++) {
             let team = TeamArray[teamIDs[i]];
+log(team.name)
             if (team.type === "System Unit" || team.type === "Aircraft") {continue};
             let gtg = (team.moved === true || team.fired === true) ? false:true;
+log(gtg)
             team.buddy("GTG",gtg)
         }
     }
