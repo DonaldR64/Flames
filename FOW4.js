@@ -2569,7 +2569,6 @@ log(hit)
         let unitLeader = TeamArray[unit.teamIDs[0]];
         let targetTeam,targetName;
         let targetArray = [];
-       // let sms = [SM.tactical,SM.dash,SM.hold,SM.assault,SM.sneak];
 
         if (team.inCommand === true && order !== "Spot") {
             targetTeam = unitLeader;
@@ -2590,15 +2589,7 @@ log(hit)
             specialorder = "";
             SetupCard(targetName,order,unit.nation);
         };
-/*
-        if (targetTeam.type !== "Aircraft") {
-            for (let i=0;i<targetArray.length;i++) {
-                for (let j=0;j<sms.length;j++) {
-                    targetArray[i].token.set(sms[j],false);
-                }
-            }
-        }
-*/
+
         let noun = "Teams ";
         let verb = " are ";
         let noun2 = " their ";
@@ -2623,8 +2614,8 @@ log(hit)
 
         if (order.includes("Assault")) {
             if (unit.pinned === true) {
-                outputCard.body.push("Team is Pinned, cannot Assault");
-                outputCard.body.push("Team defaults to a Tactical Order");
+                outputCard.body.push("Unit is Pinned, cannot Assault");
+                outputCard.body.push("Unit defaults to a Tactical Order");
                 order = "Tactical";
             }
         }
