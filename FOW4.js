@@ -52,7 +52,7 @@ const FOW4 = (() => {
         //"aafire": "status_sentry-gun",
         "defensive": "status_green",
         "surprised": "status_yellow",
-    }
+    };
 
     const Buddies = {
         "Dash": "https://s3.amazonaws.com/files.d20.io/images/364738371/8Ov_DJPGHECoVdVUaEQG8w/thumb.png?1698192635",
@@ -63,9 +63,7 @@ const FOW4 = (() => {
         "Fired": "https://s3.amazonaws.com/files.d20.io/images/364738390/jRn7kK1dz3EnFwy8lFzyJw/thumb.png?1698192640",
         "GTG": "https://s3.amazonaws.com/files.d20.io/images/364740777/TkNdbvE_My02jE0bkz1KzA/thumb.png?1698193655",
         "Radio": "https://s3.amazonaws.com/files.d20.io/images/364839305/-UanVemZgRrwTu3fVijGwA/thumb.png?1698268901",
-    }
-
-
+    };
 
     let specialInfo = {
         "Artillery": "Team has a weapon capable of an Artillery Barrage",
@@ -101,7 +99,7 @@ const FOW4 = (() => {
         "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if Assaulted",
         "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.'
 
-    }
+    };
 
     const SaveResults = {
         "deflect": "Hit deflected by Armour",
@@ -5528,7 +5526,7 @@ log(team.buddies)
                 let team = TeamArray[tok.id];
                 if (!team) {return};
                 if (team.bailed === true) {
-//PlaySound Blap
+                    PlaySound("No");
                     tok.set("height",prev.height);
                     tok.set("width",prev.width);
                     tok.set("left",prev.left);
