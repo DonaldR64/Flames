@@ -63,6 +63,7 @@ const FOW4 = (() => {
         "AAFire": "https://s3.amazonaws.com/files.d20.io/images/364738389/jQaMAvsc3yfx7tsgMpkZ-Q/thumb.png?1698192640",
         "Fired": "https://s3.amazonaws.com/files.d20.io/images/364738390/jRn7kK1dz3EnFwy8lFzyJw/thumb.png?1698192640",
         "GTG": "https://s3.amazonaws.com/files.d20.io/images/364740777/TkNdbvE_My02jE0bkz1KzA/thumb.png?1698193655",
+        "Radio": "",
     }
 
 
@@ -872,6 +873,7 @@ log(this.assaultWpn)
             this.buddies = {};
 
             this.fired = false;
+            this.aaFired = false;
             this.moved = false;
             
 
@@ -2443,11 +2445,10 @@ log(hit)
                     }
                 }
             }
-            if (team2.type === "Infantry" && team2.token.get(SM.tactical) === false && team2.token.get(SM.dash) === false && team2.token.get(SM.assault) === false && team2.token.get(SM.sneak) === false) {
+            if (team2.type === "Infantry" && team2.moved === false) {
                 concealed = true //infantry teams that didnt move are concealed to all but Aircraft
         //log("Infantry didnt move = Concealed")
             }
-
         }
     
         if (special.includes("Defensive")) {
@@ -2566,7 +2567,7 @@ log(hit)
         let unitLeader = TeamArray[unit.teamIDs[0]];
         let targetTeam,targetName;
         let targetArray = [];
-        let sms = [SM.tactical,SM.dash,SM.hold,SM.assault,SM.sneak];
+       // let sms = [SM.tactical,SM.dash,SM.hold,SM.assault,SM.sneak];
 
         if (team.inCommand === true && order !== "Spot") {
             targetTeam = unitLeader;
@@ -2587,7 +2588,7 @@ log(hit)
             specialorder = "";
             SetupCard(targetName,order,unit.nation);
         };
-
+/*
         if (targetTeam.type !== "Aircraft") {
             for (let i=0;i<targetArray.length;i++) {
                 for (let j=0;j<sms.length;j++) {
@@ -2595,7 +2596,7 @@ log(hit)
                 }
             }
         }
-
+*/
         let noun = "Teams ";
         let verb = " are ";
         let noun2 = " their ";
@@ -2607,7 +2608,7 @@ log(hit)
             noun2 = " its ";
             outputCard.body.push("Out of Command Team");
             outputCard.body.push("[hr]");
-            if (order === "Assault" || order === "Sneak") {
+            if (order === "Assault") {
                 outputCard.body.push("Team defaults to a Tactical Order");
                 order = "Tactical";
             };
@@ -2624,8 +2625,6 @@ log(hit)
                 outputCard.body.push("Team defaults to a Tactical Order");
                 order = "Tactical";
             }
-            //shot at aircraft prev turn here
-
         }
 
         let marker;
@@ -2643,41 +2642,43 @@ log(hit)
                 }
             } else {
                 if (specialorder.includes("Dig In") === false) {
-                    outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
-                    outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
+                    if (unit.pinned === false) {
+                        outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
+                        outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
+                    } else {
+                        outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
+                        outputCard.body.push(noun + "cannot move closer to enemy teams");
+                    }
                 }
+
             }
-            marker = SM.tactical;
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
             outputCard.body.push(noun + ' cannot move within ' + 8*gameScale + ' hexes of visible enemies');
             if (state.FOW4.darkness === true) {
                 outputCard.body.push("Darkness limits speed to Terrain Dash");
             }
-            marker = SM.dash;
         } else if (order.includes("Hold")) {
-            outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
+            if (unit.pinned === false) {
+                outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
+            } else {
+                outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Moving ROF");
+            }
             outputCard.body.push(noun + verb + "Gone to Ground if not Firing");
-            marker = SM.hold;
         } else if (order === "Assault") {
             outputCard.body.push('Teams can move at Tactical Speed to a Max of ' + 10*gameScale + ' hexes, and may fire at their Moving ROF');
             outputCard.body.push('Teams must target an enemy within ' + 8*gameScale + ' hexes of the Team it will charge into');
             outputCard.body.push("Eligible Teams can complete the charge");
-            marker = SM.assault;
-        } else if (order === "Sneak Assault") {
-            outputCard.body.push('Teams hold in the Movement and Shooting steps, and can charge after those');
-            outputCard.body.push('Any starting in Short or Tall Terrain or Buildings can Sneak up on Tanks they Contact');
-            marker = SM.sneak;
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
         }
 
         outputCard.body.push(extraLine);
         for (let i=0;i<targetArray.length;i++) {
-            if (marker !== undefined) {
-                targetArray[i].token.set(marker,true);
-            }
             targetArray[i].order = order;
+            if (order === "Hold") {
+                targetArray[i].buddy("Hold",true);
+            }
             if (targetArray[i].specialorder === "") {
                 targetArray[i].specialorder = specialorder;
             } else if (targetArray[i].special.includes("Stormtroopers")) {
@@ -2728,7 +2729,7 @@ log(hit)
         }
 
         if (type === "Infantry") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault|Sneak Assault";
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
         } else if (type === "Gun") {
             action = "!Activate;?{Order|Tactical|Dash|Hold";
         } else if (type === "Tank") {
@@ -3318,28 +3319,34 @@ log(hit)
         for (let j=0;j<keys.length;j++) {
             let unit = UnitArray[keys[j]];
             if (unit.player === state.FOW4.currentPlayer) {
-                SetStatus(unit.teamIDs,SM.fired,false);
-                SetStatus(unit.teamIDs,SM.tactical,false);
-                SetStatus(unit.teamIDs,SM.dash,false);
-                SetStatus(unit.teamIDs,SM.flare,false);
-                SetStatus(unit.teamIDs,SM.radio,false);
+                let bkeys = Object.keys(Buddies);
+                for (let b=0;b<bkeys.length;b++) {
+                    for (let t=0;t<unit.teamIDs.length;t++) {
+                        let team = TeamArray[unit.teamIDs[t]];
+                        team.buddy(bkeys[b],false);
+                    }
+                }
                 if (state.FOW4.turn === 1) {
                     GTG(unit);
                 }
             } else {
                 GTG(unit);
-                SetStatus(unit.teamIDs,SM.fired,false); //allows defensive fire
             }
             for (let i=0;i<unit.teamIDs.length;i++) {
                 let team = TeamArray[unit.teamIDs[i]];
-                team.spotAttempts = 0;
-                team.prevHexLabel = team.hexLabel;
+                if (unit.player === state.FOW4.currentPlayer) {
+                    team.spotAttempts = 0;
+                    team.prevHexLabel = team.hexLabel;
+                    team.order = "";
+                    team.specialorder = "";
+                }
                 team.hitArray = [];
                 team.eta = [];
                 team.nightvisibility = 0;
-                team.order = "";
-                team.specialorder = "";
             }
+
+
+
             unit.order = ""; 
             unit.specialorder = "";
             unit.limited = 0;
@@ -3371,12 +3378,10 @@ log(hit)
         for (let i=0;i<teamIDs.length;i++) {
             let team = TeamArray[teamIDs[i]];
             if (team.type === "System Unit" || team.type === "Aircraft") {continue};
-            let gtg = true;
-            let moved = false;
-            if (team.token.get(SM.tactical) === true && team.specialorder.includes("Dig In") === false) {moved = true};
-            if (team.token.get(SM.dash) === true) {moved = true};
-            if (moved === true && team.special.includes("Scout") === false) {gtg = false};
-            if (team.token.get(SM.fired) === true || team.token.get(SM.aafire) === true || team.order === "Assault" || team.order === "Sneak") {gtg = false};
+            let gtg = true;            
+            if (team.moved === true || team.fired === true) {
+                gtg = false;
+            }
             if (gtg === true) {
                 team.token.set(SM.gtg,true);
             } else {
@@ -3714,9 +3719,9 @@ log("Mistaken: " + mistaken)
             }
             if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
             if (st.inCommand === false && unitFire === true) {continue};
-            if ((st.token.get(SM.fired) === true || st.token.get(SM.aafire) === true) && defensive === false) {continue}; //fired already
-            if (st.token.get(SM.dash) === true && defensive === false) {continue}; //dashed or clear minefield
-            if (st.token.get(SM.radio) === true && defensive === false) {continue}; //called artillery
+            if ((st.fired === true || st.aaFired === true) && defensive === false) {continue}; //fired already
+            if ((st.order === "Dash" || st.specialorder === "Clear Minefield")  && defensive === false) {continue}; //dashed or clear minefield
+            if (st.spotAttempts > 0 && defensive === false) {continue}; //called artillery
             if (st.type === "Tank") {
                 if (st.bailed === true) {continue}; //bailed out
             }
@@ -5122,6 +5127,9 @@ log(unitIDs4Saves)
             if (team1.special.includes("Heavy Weapon")) {
                 sendChat("","This Team is a Heavy Weapons Team and cannot Charge into Contact");
             }
+            if (team1.buddies["AAFire"] !== undefined) {
+                sendChat("","This Team fired AA Fire and cannot Charge");
+            }
         }
     }
 
@@ -5132,8 +5140,9 @@ log(unitIDs4Saves)
             let team2 = TeamArray[teamKeys[i]];
             if (team2.id === team1.id || team2.player === team1.player) {continue};
             let dist = team1.hex.distance(team2.hex);
+            let chargeDist = team1.hex.distance(team1.prevHexLabel.toCube());
             if (action === "Add" && dist <= (8*gameScale) && team2.token.get(SM.surprised) === false) {
-                if (dist === 1 && team1.order === "Sneak Assault" && hexMap[team1.prevHexLabel].type > 0) {
+                if (dist === 1 && team1.fired === false && hexMap[team1.prevHexLabel].type > 0 && chargeDist <= (4*gameScale)) {
                     team2.token.set(SM.defensive,false);
                     team2.token.set(SM.surprised,true);
                     continue;
@@ -5557,7 +5566,7 @@ log("2nd Row to " + team3.name)
                     }
                 } else if (team.hexLabel === team.prevHexLabel) {
                     if (team.moved === true) {
-/////needs more
+/////needs more ?
                         team.moved = false;
                         if (team.order === "Hold" && team.fired === false) {
                             team.buddy("GTG",true)
