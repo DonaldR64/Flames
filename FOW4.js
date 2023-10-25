@@ -55,6 +55,18 @@ const FOW4 = (() => {
         "surprised": "status_yellow",
     }
 
+    const Buddies = {
+        "Dash": "https://s3.amazonaws.com/files.d20.io/images/364738371/8Ov_DJPGHECoVdVUaEQG8w/thumb.png?1698192635",
+        "Tactical": "https://s3.amazonaws.com/files.d20.io/images/364738370/zNsS7qwUbv3hWKhHmdhQFw/thumb.png?1698192635",
+        "Hold": "https://s3.amazonaws.com/files.d20.io/images/364740800/zgiEA5heOJag10qcrKWlhA/thumb.png?1698193671",
+        "Assault": "https://s3.amazonaws.com/files.d20.io/images/364740790/-PpYtjvGninT5CBZ9cgvcw/thumb.png?1698193663",
+        "AAFire": "https://s3.amazonaws.com/files.d20.io/images/364738389/jQaMAvsc3yfx7tsgMpkZ-Q/thumb.png?1698192640",
+        "Fired": "https://s3.amazonaws.com/files.d20.io/images/364738390/jRn7kK1dz3EnFwy8lFzyJw/thumb.png?1698192640",
+        "GTG": "https://s3.amazonaws.com/files.d20.io/images/364740777/TkNdbvE_My02jE0bkz1KzA/thumb.png?1698193655",
+    }
+
+
+
     let specialInfo = {
         "Artillery": "Team has a weapon capable of an Artillery Barrage",
         "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
@@ -885,6 +897,10 @@ log(this.assaultWpn)
             this.frontLine = false;
             this.bailed = false;
             this.buddyTokenIDs = [];
+            this.fired = false;
+            this.moved = false;
+            
+
 
             //this.maxPass = maxPass;
 
@@ -1493,9 +1509,15 @@ log(hit)
             _pageid: Campaign().get("playerpageid"),
             _type: "graphic",
             _subtype: "token",
-            layer: "map",
         });
-        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke"];
+
+        tokens = tokens.filter((o) => {
+            if (o.get("layer") === "objects" || o.get("layer")  === "gmlayer") {
+                return o;
+            }
+        });
+
+        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke","Bailed Out","Pinned"];
         tokens.forEach((token) => {
             if (token.get("status_dead") === true) {
                 token.remove();
@@ -1663,7 +1685,7 @@ log(hit)
         pageInfo.width = pageInfo.page.get("width") * 70;
         pageInfo.height = pageInfo.page.get("height") * 70;
 
-        pageInfo.page.set("fog_opacity",.80);
+        pageInfo.page.set("gm_opacity",1);
 
         HexInfo.directions = {
             "Northeast": new Hex(1, -1, 0),
@@ -5437,23 +5459,27 @@ log("2nd Row to " + team3.name)
             _subtype: "token",
             layer: "gmlayer",
         });
+        if (!tokens) {return};
         tokens.forEach((token) => {
             if (token.get("name") === "Bailed Out") {
                 let id = decodeURIComponent(token.get("gmnotes")).toString();
                 let team = TeamArray[id];
-                team.bailed = true;
-                team.buddyTokenIDs.push(token.id);
+                if (team) {
+                    team.bailed = true;
+                    team.buddyTokenIDs.push(token.id);
+                }
             } else if (token.get("name") === "Pinned") {
-                let info = decodeURIComponent(token.get("gmnotes")).toString();
+                let id = decodeURIComponent(token.get("gmnotes")).toString();
                 let team = TeamArray[id];
-                let unit = UnitArray[team.unitID];
-                unit.pinned = true;
-                team.buddyTokenIDs.push(token.id);
+                if (!team) {return};
+                let unit = UnitArray[team.id];
+                if (unit) {
+                    unit.pinned = true;
+                    team.buddyTokenIDs.push(token.id);
+                }
             }
         });
     }
-
-
 
 
 
