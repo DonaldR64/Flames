@@ -1498,7 +1498,9 @@ log(hit)
             }
         });
 
-        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke","Bailed Out","Pinned"];
+        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke"];
+        let bkeys = Object.keys("Buddies");
+        removals = removals.concat(bkeys)
         tokens.forEach((token) => {
             if (token.get("status_dead") === true) {
                 token.remove();
@@ -5531,14 +5533,18 @@ log("2nd Row to " + team3.name)
                     top: newLocation.y,
                     //rotation: newRotation,
                 });
-                for (let i=0;i<team.buddyTokenIDs.length;i++) {
-                    let id = team.buddyTokenIDs[i];
-                    let buddyToken = findObjs({_type:"graphic", id: id})[0];
-                    buddyToken.set({
-                        left: newLocation.x,
-                        top: newLocation.y,
-                    })
-                }
+                let bkeys = Object.keys(team.buddies);
+                for (let i=0;i<bkeys.length;i++) {
+                    let id = team.buddies[bkeys[i]];
+                    if (id !== undefined) {
+                        let buddyToken = findObjs({_type:"graphic", id: id})[0];
+                        buddyToken.set({
+                            left: newLocation.x,
+                            top: newLocation.y,
+                        });
+                    };
+                };
+
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
                 team.location = newLocation;
@@ -5549,38 +5555,36 @@ log("2nd Row to " + team3.name)
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
                 InCC(team);
-                if (team.hexLabel !== team.prevHexLabel) {
-//moving in from reserves/offboard
-                    if (team.moved === false) {
-                        team.moved = true;
-                        if (team.order === "Tactical") {
-                            team.buddy("Tactical",true)
-                        } else if (team.order === "Dash") {
-                            team.buddy("Dash",true)
-                        } else if (team.order === "Assault") {
-                            team.buddy("Assault",true)
+                if (hexMap[team.prevHexLabel].terrain.includes("Offboard") === false) {
+                    if (team.hexLabel !== team.prevHexLabel) {
+                        if (team.moved === false) {
+                            team.moved = true;
+                            if (team.order === "Tactical") {
+                                team.buddy("Tactical",true)
+                            } else if (team.order === "Dash") {
+                                team.buddy("Dash",true)
+                            } else if (team.order === "Assault") {
+                                team.buddy("Assault",true)
+                            }
+                        }
+                    } else if (team.hexLabel === team.prevHexLabel) {
+                        if (team.moved === true) {
+                            team.moved = false;
+                            if (team.order === "Hold" && team.fired === false) {
+                                team.buddy("GTG",true)
+                            }
                         }
                     }
-                } else if (team.hexLabel === team.prevHexLabel) {
+     
                     if (team.moved === true) {
-/////needs more ?
-                        team.moved = false;
-                        if (team.order === "Hold" && team.fired === false) {
-                            team.buddy("GTG",true)
+                        team.buddy("GTG",false)
+                        if (team.artillery !== undefined) {
+                            RemoveRangedInMarker(team.unitID);
                         }
                     }
                 }
-
-
-
-
-                if (team.moved === true) {
-                    team.buddy("GTG",false)
-                    if (team.artillery !== undefined) {
-                        RemoveRangedInMarker(team.unitID);
-                    }
-                }
-                if (hexMap[oldHexLabel].terrain.includes("Offboard") && hexMap[newHexLabel].terrain.includes("Offboard") === false) {
+            
+                if (hexMap[team.prevHexLabel].terrain.includes("Offboard") && hexMap[newHexLabel].terrain.includes("Offboard") === false) {
                     let unit = UnitArray[team.unitID];
                     let unitLeader = TeamArray[unit.teamIDs[0]];
                     unit.inReserve = false;
