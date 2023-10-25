@@ -550,41 +550,14 @@ const FOW4 = (() => {
 
         unpin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
-            let id;
             this.pinned = false;
-            for (let i=0;i<leaderTeam.buddyTokenIDs.length;i++) {
-                id = leaderTeam.buddyTokenIDs[i];
-                let bailToken = findObjs({_type:"graphic", id: id})[0];
-                if (bailToken) {
-                    if (bailToken.get("name") === "Pinned") {
-                        bailToken.remove();
-                        leaderTeam.buddyTokenIDs.splice(i,1);
-                        break;
-                    }
-                }
-            }
+            leaderTeam.buddy("Pinned",false);
         }
 
         pin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
             leaderTeam.token.set("aura1_color",Colours.yellow);
-            let pinTokenImg = getCleanImgSrc(Nations[this.nation].pinned);
-            let newToken = createObj("graphic", {   
-                left: leaderTeam.location.x,
-                top: leaderTeam.location.y,
-                width: 70, 
-                height: 60,
-                rotation: 0,
-                name: "Pinned",
-                showname: false,
-                isdrawing: true,
-                pageid: leaderTeam.token.get("pageid"),
-                imgsrc: pinTokenImg,
-                layer: "gmlayer",
-                gmnotes: this.id,
-            });
-            toFront(newToken);
-            leaderTeam.buddyTokenIDs.push(newToken.id);
+            leaderTeam.buddy("Pinned",true);
             this.pinned = true;
         }
 
@@ -896,7 +869,8 @@ log(this.assaultWpn)
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
             this.bailed = false;
-            this.buddyTokenIDs = [];
+            this.buddies = {};
+
             this.fired = false;
             this.moved = false;
             
@@ -907,6 +881,38 @@ log(this.assaultWpn)
             TeamArray[tokenID] = this;
             hexMap[hexLabel].tokenIDs.push(tokenID);
 
+        }
+
+        buddy(condition,add) {
+            let leftBuddies = ["Tactical","Dash","Hold","Assault"];
+            let rightBuddies = ["Fired","AAFire","GTG"];
+            if (add === true) {
+                //clear other buddies
+                let array;
+                if (leftBuddies.includes(condition)) {
+                    array = leftBuddies;
+                } else if (rightBuddies.includes(condition)) {
+                    array = rightBuddies;
+                }
+                for (let i=0;i<array.length;i++) {
+                    let cond = array[i];
+                    let id = this.buddies[cond];
+                    if (id) {
+                        let tok = findObjs({_type:"graphic", id: id})[0];
+                        tok.remove();
+                        this.buddies[cond] = undefined;
+                    }
+                }
+                //add this buddy
+                BuddyToken(condition);
+            } else if (add === false) {
+                let id = this.buddies[condition];
+                if (id) {
+                    let tok = findObjs({_type:"graphic", id: id})[0];
+                    tok.remove();
+                }
+                this.buddies[condition] = undefined;
+            }
         }
 
         BailOut() {
@@ -935,40 +941,13 @@ log(this.assaultWpn)
         }
 
         bail() {
-            let bailtokenImg = getCleanImgSrc(Nations[this.nation].pinned);
-            let newToken = createObj("graphic", {   
-                left: this.location.x,
-                top: this.location.y,
-                width: 70, 
-                height: 60,
-                rotation: 180,
-                name: "Bailed Out",
-                showname: false,
-                isdrawing: true,
-                pageid: this.token.get("pageid"),
-                imgsrc: bailtokenImg,
-                layer: "gmlayer",
-                gmnotes: this.id,
-            });
-            toFront(newToken);
-            this.buddyTokenIDs.push(newToken.id);
+            BuddyToken(this,"Bailed Out");
             this.bailed = true;
         }
 
         remount() {
-            let id;
             this.bailed = false;
-            for (let i=0;i<this.buddyTokenIDs.length;i++) {
-                id = this.buddyTokenIDs[i];
-                let bailToken = findObjs({_type:"graphic", id: id})[0];
-                if (bailToken) {
-                    if (bailToken.get("name") === "Bailed Out") {
-                        bailToken.remove();
-                        this.buddyTokenIDs.splice(i,1);
-                        break;
-                    }
-                }
-            }
+            this.buddy("Bailed Out",false);            
         }
 
         IC(ic) {
@@ -5481,6 +5460,37 @@ log("2nd Row to " + team3.name)
         });
     }
 
+    const BuddyToken = (team,condition) => {
+        let rotation = 0;
+        if (condition === "Bailed Out" || condition === "Pinned") {
+            img = getCleanImgSrc(Nations[this.nation].pinned);
+            if (condition === "Bailed") {
+                rotation = 180;
+            }
+        } else {
+            img = getCleanImgSrc(Buddies[condition]);
+        }
+        if (!img) {return};
+        let newToken = createObj("graphic", {   
+            left: team.location.x,
+            top: team.location.y,
+            width: 70, 
+            height: 70,
+            rotation: rotation,
+            name: condition,
+            showname: false,
+            isdrawing: true,
+            pageid: team.token.get("pageid"),
+            imgsrc: imge,
+            layer: "gmlayer",
+            gmnotes: team.id,
+        });
+        toFront(newToken);
+        team.buddies[condition] = newToken.id;
+    }
+
+
+
 
 
 
@@ -5495,6 +5505,7 @@ log("2nd Row to " + team3.name)
                 let team = TeamArray[tok.id];
                 if (!team) {return};
                 if (team.bailed === true) {
+//PlaySound Blap
                     tok.set("height",prev.height);
                     tok.set("width",prev.width);
                     tok.set("left",prev.left);
@@ -5532,8 +5543,33 @@ log("2nd Row to " + team3.name)
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
                 InCC(team);
-                if (team.hex !== oldHex) {
-                    team.token.set(SM.gtg,false);
+                if (team.hexLabel !== team.prevHexLabel) {
+//moving in from reserves/offboard
+                    if (team.moved === false) {
+                        team.moved = true;
+                        if (team.order === "Tactical") {
+                            team.buddy("Tactical",true)
+                        } else if (team.order === "Dash") {
+                            team.buddy("Dash",true)
+                        } else if (team.order === "Assault") {
+                            team.buddy("Assault",true)
+                        }
+                    }
+                } else if (team.hexLabel === team.prevHexLabel) {
+                    if (team.moved === true) {
+/////needs more
+                        team.moved = false;
+                        if (team.order === "Hold" && team.fired === false) {
+                            team.buddy("GTG",true)
+                        }
+                    }
+                }
+
+
+
+
+                if (team.moved === true) {
+                    team.buddy("GTG",false)
                     if (team.artillery !== undefined) {
                         RemoveRangedInMarker(team.unitID);
                     }
