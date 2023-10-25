@@ -906,7 +906,7 @@ log(this.assaultWpn)
                     }
                 }
                 //add this buddy
-                BuddyToken(condition);
+                BuddyToken(this,condition);
             } else if (add === false) {
                 let id = this.buddies[condition];
                 if (id) {
@@ -3856,7 +3856,7 @@ log(weapons)
                     toHitTips += "<br>Concealed +1";
                     if (target.buddies["GTG"] !== undefined) {
                         toHit++;
-                        toHitTips += " and Gone to Ground +1";
+                        toHitTips += "<br>Gone to Ground +1";
                     } 
                 }
                 if (los.smoke === true) {
@@ -5470,15 +5470,19 @@ log("2nd Row to " + team3.name)
 
     const BuddyToken = (team,condition) => {
         let rotation = 0;
+        let img;
         if (condition === "Bailed Out" || condition === "Pinned") {
             img = getCleanImgSrc(Nations[this.nation].pinned);
             if (condition === "Bailed") {
                 rotation = 180;
             }
         } else {
-            img = getCleanImgSrc(Buddies[condition]);
+            img = Buddies[condition];
+            if (img) {
+                img = getCleanImgSrc(Buddies[condition]);
+            }
         }
-        if (!img) {return};
+        if (img === undefined) {return};
         let newToken = createObj("graphic", {   
             left: team.location.x,
             top: team.location.y,
@@ -5489,7 +5493,7 @@ log("2nd Row to " + team3.name)
             showname: false,
             isdrawing: true,
             pageid: team.token.get("pageid"),
-            imgsrc: imge,
+            imgsrc: img,
             layer: "gmlayer",
             gmnotes: team.id,
         });
@@ -5555,7 +5559,7 @@ log("2nd Row to " + team3.name)
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
                 InCC(team);
-                if (hexMap[team.prevHexLabel].terrain.includes("Offboard") === false) {
+                if (hexMap[team.prevHexLabel].terrain.includes("Offboard") === false && state.FOW4.turn > 0) {
                     if (team.hexLabel !== team.prevHexLabel) {
                         if (team.moved === false) {
                             team.moved = true;
