@@ -3130,6 +3130,7 @@ log(hit)
         state.FOW4.turn = turn;
         state.FOW4.currentPlayer = currentPlayer;
         unitFiredThisTurn = false;
+        assaultingUnitID = "";
         CCTeamIDs = [];
 
         SetupCard("Turn " + turn,"",state.FOW4.nations[currentPlayer][0]);
@@ -3986,6 +3987,9 @@ log(weapons)
                         }
                     }
     log("Assigned to " + TeamArray[eta[targNum].targetID].name);
+                    if (shellType === "Smoke") {
+                        weapon.name = "Smoke";
+                    }
                     let hit = {
                         weapon: weapon,
                         bp: eta[targNum].los.bulletproof,
@@ -4960,9 +4964,8 @@ log(marker);
         SmokeArray = newSmoke;
     }
 
-    const DirectSmoke = (id) => {
+    const DirectSmoke = (team) => {
         //place smoke on team
-        let team = TeamArray[id];
         let location = team.location;
         let rotation = randomInteger(12) * 30;
         let img = getCleanImgSrc("https://s3.amazonaws.com/files.d20.io/images/196609276/u8gp3vcjYAunqphuw6tgWw/thumb.png?1611938031");
@@ -5037,6 +5040,11 @@ log(unitIDs4Saves)
             for (let j=0;j<unit.teamIDs.length;j++) {
                 let team = TeamArray[unit.teamIDs[j]];
                 if (team.hitArray.length === 0) {continue};
+            
+
+            //seperate out smoke from regular hits, weapon.name will be "Smoke"
+            //use DirectSmoke(team)
+
                 outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
                 unitHits += team.hitArray.length;
 
@@ -5102,20 +5110,30 @@ log(unitIDs4Saves)
         }
     }
 
-    const InCC = (team1,prev) => {
+    const InCC = (team1,location) => {
         if (team1.order !== "Assault") {return};
         //determine if this team is now in B2B or if infantry in 2nd row
         let teamKeys = Object.keys(TeamArray);
-        if (assaultingUnitID !== team1.unitID) {
-            //new unit charging in, reset markers and IDs
-            CCTeamIDs = [];
-            assaultingUnitID = team1.unitID;
-            for (let i=0;i<teamKeys.length;i++) {
-                let checkTeam = TeamArray[teamKeys[i]];
-                checkTeam.token.set(SM.defensive,false);
-                checkTeam.token.set(SM.surprised,false);
+        if (assaultingUnitID !== "") {
+            let currentUnit = UnitArray[team1.unitID];
+            let prevUnit = UnitArray[assaultingUnitID];
+            if (currentUnit.id !== assaultingUnitID) {
+                //check if is mix of HQ and own unit
+                if ((currentUnit.hqUnit === false && prevUnit.hqUnit === false) || prevUnit.formationID !== currentUnit.formationID) {
+                    //new unit charging in, reset markers and IDs
+                    CCTeamIDs = [];
+                    assaultingUnitID = team1.unitID;
+                    for (let i=0;i<teamKeys.length;i++) {
+                        let checkTeam = TeamArray[teamKeys[i]];
+                        checkTeam.token.set(SM.defensive,false);
+                        checkTeam.token.set(SM.surprised,false);
+                    }
+                }
             }
+        } else {
+            assaultingUnitID !== team1.unitID;
         }
+
         let inCC = false;
         for (let i=0;i<teamKeys.length;i++) {
             let team2 = TeamArray[teamKeys[i]];
@@ -5148,9 +5166,9 @@ log(unitIDs4Saves)
                 errorMsg = "This Team fired AA Fire and cannot Charge";
             }
             if (errorMsg !== undefined) {
-                team1.tok.set({
-                    left: prev.left,
-                    top: prev.top,
+                team1.token.set({
+                    left: location.x,
+                    top: location.y,
                 });
                 sendChat("",errorMsg);
             } else if (CCTeamIDs.includes(team1.id) === false) {
@@ -5420,6 +5438,7 @@ log("2nd Row to " + team3.name)
                 team.set(SM.defensive,false);
                 team.set(SM.surprised,false);
                 CCTeamIDs = [];
+                assaultingUnitID = "";
             }
         } else {
             let noun = "The ";
@@ -5576,6 +5595,7 @@ log(team.buddies)
                     return;
                 }
                 let oldHexLabel = team.hexLabel;
+                let oldLocation = team.location;
                 let newLocation = new Point(tok.get("left"),tok.get("top"));
                 let newHex = pointToHex(newLocation);
                 let newHexLabel = newHex.label();
@@ -5608,7 +5628,7 @@ log(team.buddies)
                 }
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
-                InCC(team,prev);
+                InCC(team,oldLocation);
                 if (hexMap[team.prevHexLabel].terrain.includes("Offboard") === false && state.FOW4.turn > 0) {
                     if (team.hexLabel !== team.prevHexLabel) {
                         if (team.moved === false) {
