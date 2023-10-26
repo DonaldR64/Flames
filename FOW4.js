@@ -551,6 +551,7 @@ const FOW4 = (() => {
             let leaderTeam = TeamArray[this.teamIDs[0]];
             this.pinned = false;
             leaderTeam.buddy("Pinned",false);
+            leaderTeam.token.set("aura1_color",Colours.green);
         }
 
         pin() {
@@ -3720,16 +3721,25 @@ log(hit)
         let shooterUnit = UnitArray[shooter.unitID];
         let unitFire = false;
         let sname = shooter.name;
+
+
+        if (state.FOW4.step === "Movement" || state.FOW4.step === "Start") {
+            sendChat("","Advance Step before Shooting");
+            return;
+        }
+
         if (shooterID === shooterUnit.teamIDs[0]) {
             unitFire = true
             sname = shooterUnit.name;
             if (shooterUnit.order === "") {
                 sendChat("","Unit Order defaulted to Hold");
-                shooterUnit.order = "Hold";
+                shooterUnit.order = "Hold"; //as if moved, would have been defaulted by changeGraphic already to Tactical
                 for (let i=0;i<shooterUnit.teamIDs.length;i++) {
                     let sTeam = TeamArray[shooterUnit.teamIDs[i]];
+                    if (i===0) {sTeam.token.set("aura1_color",Colours.black)};
                     if (sTeam.inCommand === true) {
                         sTeam.order = "Hold";
+                        sTeam.buddy("Hold",true);
                     }
                 }
             }
@@ -3759,13 +3769,6 @@ log(hit)
             PrintCard();
             return;
         }
-
-        if (state.FOW4.step === "Movement") {
-            sendChat("","Step Advanced to Shooting Step");
-            state.FOW4.step = "Shooting";
-        }
-
-
 
         let weapons = [];
         let shooterTeamArray = [];
@@ -5776,11 +5779,13 @@ log("2nd Row to " + team3.name)
                                     if (t===0) {uTeam.token.set("aura1_color",Colours.black)}
                                     if (uTeam.inCommand === true) {
                                         uTeam.order = defaultOrder;
+                                        uTeam.buddy(defaultOrder,true);
                                     }
                                 }
                             } else if (team.inCommand === false) {
                                 noun = "Team "
                                 team.order = defaultOrder;
+                                team.buddy(defaultOrder,true);
                             }
                             sendChat("",noun + "Order defaulted to " + defaultOrder);
                         }
