@@ -2573,6 +2573,11 @@ log(hit)
         if (!specialorder) {
             specialorder = "";
             SetupCard(targetName,order,unit.nation);
+            if (state.FOW4.step === "Shooting" && order === "Hold" && targetTeam.moved === true) {
+                outputCard.body.push("Team/Unit has already moved and so cannot be issued a Hold Order");
+                PrintCard();
+                return;
+            };
         };
 
         let noun = "Teams ";
@@ -3722,21 +3727,30 @@ log(gtg)
         if (shooterID === shooterUnit.teamIDs[0]) {
             unitFire = true
             sname = shooterUnit.name;
-        } 
+            if (shooterUnit.order === "") {
+                sendChat("","Unit Order defaulted to Hold");
+                shooterUnit.order = "Hold";
+                for (let i=0;i<shooterUnit.teamIDs.length;i++) {
+                    let sTeam = TeamArray[shooterUnit.teamIDs[i]];
+                    if (sTeam.inCommand === true) {
+                        sTeam.order = "Hold";
+                    }
+                }
+            }
+        } else {
+            if (shooter.order === "") {
+                sendChat("","Team Order defaulted to Hold");
+                shooter.order = "Hold";
+            }
+        }
 
         SetupCard(sname,"Shooting",shooter.nation);
-
-        if (shooter.order === "Dash") {
-            outputCard.body.push('Team Dashed and cannot Fire');
-            PrintCard();
-            return;
-        }
 
         let defensive = false;
         if (shooter.player !== state.FOW4.currentPlayer) {
             defensive = true;
             outputCard.subtitle = "Defensive Fire";
-            if (shooter.ccIDs.includes(targetID) === false) {
+            if (shooter.ccIDs.includes(targetID) === false || state.FOW.step !== "Assault") {
                 outputCard.body.push('This Team cannot conduct Defensive Fire');
                 PrintCard();
                 return;
@@ -3749,6 +3763,13 @@ log(gtg)
             PrintCard();
             return;
         }
+
+        if (state.FOW4.step === "Movement") {
+            sendChat("","Step Advanced to Shooting Step");
+            state.FOW4.step = "Shooting";
+        }
+
+
 
         let weapons = [];
         let shooterTeamArray = [];
@@ -5688,6 +5709,9 @@ log(team.buddies)
                     tok.set("rotation",prev.rotation);
                     return;
                 }
+                let unit = UnitArray[team.unitID];
+                let unitLeader = TeamArray[unit.teamIDs[0]];
+
                 let oldHexLabel = team.hexLabel;
                 let oldLocation = team.location;
                 let newLocation = new Point(tok.get("left"),tok.get("top"));
@@ -5749,15 +5773,42 @@ log(team.buddies)
                         if (team.artillery !== undefined) {
                             RemoveRangedInMarker(team.unitID);
                         }
+                        if (team.order === "") {
+                            let defaultOrder;
+                            if (state.FOW4.step === "Assault") {
+                                defaultOrder = "Assault";
+                            } else {
+                                defaultOrder = "Tactical";
+                            }
+                            let noun = "Unit ";
+                            if (unit.order === "") {
+
+                                unit.order = defaultOrder;
+                                for (let t=0;t<unit.teamIDs.length;t++) {
+                                    let uTeam = TeamArray[unit.teamIDs[t]];
+                                    if (uTeam.inCommand === true) {
+                                        uTeam.order = defaultOrder;
+                                    }
+                                }
+                            } else {
+                                noun = "Team "
+                                team.order = defaultOrder;
+                            }
+                            sendChat("",noun + "Order defaulted to " + defaultOrder);
+                        }
+                        if (turn > 0) && state.FOW4.step === "Start") {
+                            state.FOW.step = "Movement";
+                            sendChat("","Advanced to Movement Step");
+                        }
                     }
                 }
             
                 if (hexMap[team.prevHexLabel].terrain.includes("Offboard") && hexMap[newHexLabel].terrain.includes("Offboard") === false) {
-                    let unit = UnitArray[team.unitID];
-                    let unitLeader = TeamArray[unit.teamIDs[0]];
                     unit.inReserve = false;
-                    unitLeader.token.set("aura1_color",Colours.green);
-                }
+                    if (unit.order === "") {
+                        unitLeader.token.set("aura1_color",Colours.green);
+                    }
+                } 
 
             };
 /*
