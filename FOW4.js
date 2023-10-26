@@ -3783,7 +3783,9 @@ log(hit)
 log("Mistaken: " + mistaken)
 
         let limited = parseInt(shooterUnit.limited);
+        let exclusions = [];
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
+            let excluded;
             let st = TeamArray[shooterUnit.teamIDs[i]];
             if (CCTeamIDs.includes(st.id)) {
                 outputCard.body.push("Teams that have Charged In cannot fire");
@@ -3793,16 +3795,38 @@ log("Mistaken: " + mistaken)
             }
             if (unitFire === false && shooterID !== st.id) {continue}; //single team firing
             if (st.inCommand === false && unitFire === true) {continue};
-            if ((st.fired === true || st.aaFired === true) && defensive === false) {continue}; //fired already
-            if ((st.order === "Dash" || st.specialorder === "Clear Minefield")  && defensive === false) {continue}; //dashed or clear minefield
-            if (st.spotAttempts > 0 && defensive === false) {continue}; //called artillery
-            if (st.aaweapon.type === weaponType && defensive === true) {continue}//fired weapon in aa, cant use in defensive
-
-
-            if (st.type === "Tank") {
-                if (st.bailed === true) {continue}; //bailed out
+            if (defensive === false) {
+                if (st.fired === true) {
+                    excluded = " Fired Already";
+                }
+                if (st.aaFired === true) {
+                    excluded = " Fired AA";
+                }
+                if (st.order === "Dash") {
+                    excluded = " Dashed";
+                }
+                if (st.specialorder === "Clear Minefield") {
+                    excluded = " is clearing Mines";
+                }
+                if (st.spotAttempts > 0) {
+                    excluded = " Spotted for Artillery";
+                }
             }
 
+            if (st.aaweapon.type === weaponType && defensive === true) {
+                excluded = " fired AA, can't use same weapon in Defensive Fire";
+            }
+            if (st.type === "Tank" && st.bailed === true) {
+                excluded = " is Bailed Out";
+            }
+
+            if (excluded !== undefined) {
+                exclusions.push(st.name + excluded);
+                continue;
+            }
+
+            let weaponExcl;
+            let flag = false;
             for (let j=0;j<st.weaponArray.length;j++) {
                 let weapon = st.weaponArray[j];
                 let overhead = "";
@@ -3827,33 +3851,61 @@ log("Mistaken: " + mistaken)
 
                 if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
                 if (target.type === "Aircraft" && (weapon.notes.includes("AA") === false || weapon.type.includes("AA") === false)) {
+                    weaponExcl = " has No AA Weapon";
                     continue;
                 } 
-                let initialLOS = LOS(st.id,targetID,overhead);
 
-                if (initialLOS.los === false) {continue};
-                if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {continue};
-                if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {continue};
+                let initialLOS,tID;
+                for (let t=0;t<targetTeamArray.length;t++) {
+                    tID = targetTeam[t].id;
+                    initialLOS = LOS(st.id,tID,overhead);
+                    if (initialLOS.los === true) {
+                        break;
+                    }
+                }
+
+                if (initialLOS.los === false) {
+                    weaponExcl = " has no LOS to Target(s)";
+                    continue;
+                }
+
+                if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {
+                    weaponExcl = " is Not In Range";
+                    continue;
+                };
+                if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {
+                    weaponExcl = " is Out of Arc";
+                    continue
+                };
                 weapons.push(weapon);
                 let eta = {
-                    targetName: target.name,
-                    targetID: targetID,
+                    targetName: TeamArray[tID].name,
+                    targetID: tID,
                     los: initialLOS,
                     rangeFromInitial: 0,
                 }
                 st.eta = [eta];
                 shooterTeamArray.push(st);
+                flag = true;
                 if (weapon.type !== "AA MG") {
                     let phi = Angle(st.hex.angle(target.hex));
                     st.token.set("rotation",phi);
                 }
             }
+            if (weaponExcl !== undefined && flag === false) {
+                exclusions.push(st.name + weaponExcl);
+            }
         }
 
         shooterTeamArray = [...new Set(shooterTeamArray)];
 
+        if (exclusions > 0) {
+            for (let i=0;i<exclusions.length;i++) {
+                outputCard.body.push(exclusions[i]);
+            }
+        }
+
         if (shooterTeamArray.length === 0) {
-            outputCard.body.push("Target not in Range or LOS");
             PrintCard();
             return;
         }
@@ -3877,7 +3929,7 @@ log("Mistaken: " + mistaken)
                 if (defensive === true && st.ccIDs.includes(tt.id) === false) {
                     continue;
                 }
-                if (tt.id === targetID) {continue} //already in ETA
+                if (tt.id === st.eta[0].targetID) {continue} //already in ETA and checked
                 let weaponFlag = false;
                 let ttLOS;
                 for (let k=0;k<weapons.length;k++) {
