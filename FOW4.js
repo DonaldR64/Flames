@@ -1834,7 +1834,7 @@ log(hit)
         //check what is in command
         inCommand("All");
         BuildReserve();//places flag on units in reserve when rebuilding a map
-        BuildPinBail();//fixes links between bail and pin tokens
+        BuildConditions();//fixes links between bail and pin tokens
     }
 
     const BuildTerrainArray = () => {
@@ -5102,10 +5102,20 @@ log(unitIDs4Saves)
         }
     }
 
-    const InCC = (team1) => {
+    const InCC = (team1,prev) => {
         if (team1.order !== "Assault") {return};
         //determine if this team is now in B2B or if infantry in 2nd row
         let teamKeys = Object.keys(TeamArray);
+        if (assaultingUnitID !== team1.unitID) {
+            //new unit charging in, reset markers and IDs
+            CCTeamIDs = [];
+            assaultingUnitID = team1.unitID;
+            for (let i=0;i<teamKeys.length;i++) {
+                let checkTeam = TeamArray[teamKeys[i]];
+                checkTeam.token.set(SM.defensive,false);
+                checkTeam.token.set(SM.surprised,false);
+            }
+        }
         let inCC = false;
         for (let i=0;i<teamKeys.length;i++) {
             let team2 = TeamArray[teamKeys[i]];
@@ -5130,31 +5140,22 @@ log(unitIDs4Saves)
                 Defensive(team1,"Remove");
             }
         } else {
-
-
-            if (CCTeamIDs.includes(team1.id) === false) {
-                if (team1.special.includes("Heavy Weapon")) {
-                    sendChat("","This Team is a Heavy Weapons Team and cannot Charge into Contact");
-                    //move back
-    
-                }
-                if (team1.buddies["AAFire"] !== undefined) {
-                    sendChat("","This Team fired AA Fire and cannot Charge");
-                
-                }
-
-
-                CCTeamIDs.push(team1.id);
-                Defensive(team1,"Add");
-            }
+            let errorMsg;
             if (team1.special.includes("Heavy Weapon")) {
-                sendChat("","This Team is a Heavy Weapons Team and cannot Charge into Contact");
-            
-
+                errorMsg = "This Team is a Heavy Weapons Team and cannot Charge into Contact";
             }
             if (team1.buddies["AAFire"] !== undefined) {
-                sendChat("","This Team fired AA Fire and cannot Charge");
-            
+                errorMsg = "This Team fired AA Fire and cannot Charge";
+            }
+            if (errorMsg !== undefined) {
+                team1.tok.set({
+                    left: prev.left,
+                    top: prev.top,
+                });
+                sendChat("",errorMsg);
+            } else if (CCTeamIDs.includes(team1.id) === false) {
+                CCTeamIDs.push(team1.id);
+                Defensive(team1,"Add");
             }
         }
     }
@@ -5474,7 +5475,7 @@ log("2nd Row to " + team3.name)
         }
     }
 
-    const BuildPinBail = () => {
+    const BuildConditions = () => {
         let tokens = findObjs({
             _pageid: Campaign().get("playerpageid"),
             _type: "graphic",
@@ -5607,7 +5608,7 @@ log(team.buddies)
                 }
                 hexMap[newHexLabel].tokenIDs.push(tok.id);
                 inCommand(team);
-                InCC(team);
+                InCC(team,prev);
                 if (hexMap[team.prevHexLabel].terrain.includes("Offboard") === false && state.FOW4.turn > 0) {
                     if (team.hexLabel !== team.prevHexLabel) {
                         if (team.moved === false) {
