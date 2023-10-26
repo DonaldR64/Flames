@@ -5163,7 +5163,7 @@ log(unitIDs4Saves)
                 errorMsg = "This Team is a Heavy Weapons Team and cannot Charge into Contact";
             }
             if (team1.buddies["AAFire"] !== undefined) {
-                errorMsg = "This Team fired AA Fire and cannot Charge";
+                errorMsg = "This Team fired AA Fire and cannot Charge into Contact";
             }
             if (errorMsg !== undefined) {
                 team1.token.set({
