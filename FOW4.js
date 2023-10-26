@@ -779,23 +779,22 @@ const FOW4 = (() => {
             let top = attributeArray.armourT;
             if (top) {top = parseInt(top)} else {top = 0};
 
-/*
+
             //passengers
             let maxPass = 0;
             if (type === "Tank") {
                 maxPass = 3;
             }
-            if (special.includes("Transport")) {
-                if (!state.FOW4.transports[tokenID]) {
-                    state.FOW4.transports[tokenID] = [];
+            if (special.includes("Transport") || special.includes("Passengers")) {
+                let s = special.split(",");
+                for (let a=0;a<s.length;a++) {
+                    let sub = s[a];
+                    if (sub.includes("Passengers")) {
+                        maxPass = sub.replace(/[^\d]/g,"");
+                        break;
+                    }
                 }
-                let px = Number(special.indexOf("Passengers")) + 11;
-                maxPass = parseInt(special.substring(px,(px+1)));
             }
-*/
-
-
-
 
             this.id = tokenID;
             this.token = token;
@@ -857,8 +856,7 @@ const FOW4 = (() => {
             this.rotation = token.get("rotation");
             this.special = special;
             this.unique = unique;
-            //this.transport = ""; //id of transport if a passenger
-            //this.passengers = []; //id of any passengers
+
             this.weaponArray = weaponArray;
             this.assaultWpn = bestATWpnNum;
             this.hitArray = [];
@@ -875,10 +873,12 @@ const FOW4 = (() => {
             this.aaFired = false;
             this.moved = false;
             this.aaweapon = ''; //used to track weapons fired in AA
+          
+            this.maxPass = maxPass;
 
 
-            //this.maxPass = maxPass;
 
+            
             TeamArray[tokenID] = this;
             hexMap[hexLabel].tokenIDs.push(tokenID);
 
