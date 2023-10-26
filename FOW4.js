@@ -142,38 +142,39 @@ const FOW4 = (() => {
     };
 
     //Types: Flat = 0, Short = 1, Tall = 2, Building = 3
+    //Dash: Road = 0,Country = 1,Terrain = 2, Building/Tank Obstacle = 3, Impassable = 4
 
     const TerrainInfo = {
-        "#00ff00": {name: "Woods",height: 2,bp: false,type: 2,group: "Woods"},
-        "#20124d": {name: "Ruins",height: 1,bp: true,type: 1,group: "Rough"},
-        "#000000": {name: "Hill 1",height:1,bp: false,type: 0,group: "Hill"},
-        "#434343": {name: "Hill 2",height:2,bp: false,type: 0,group: "Hill"},
-        "#666666": {name: "Hill 3",height:3,bp: false,type: 0,group: "Hill"},
-        "#c0c0c0": {name: "Hill 4",height:4,bp: false,type: 0,group: "Hill"},
-        "#00ffff": {name: "Marsh",height: 0,bp: false,type: 0,group: "Water"},
-        "#b6d7a8": {name: "Scrub",height: 0,bp: false,type: 1,group: "Crops"},
-        "#980000": {name: "Embankment",height: 0.25,bp: false,type: 0,group: "Hill"},
-        "#ffffff": {name: "Ridgeline",height: .25,bp: true,type: 1,group: "Hill"},
+        "#00ff00": {name: "Woods",height: 2,bp: false,type: 2,group: "Woods",dash: 2},
+        "#20124d": {name: "Ruins",height: 1,bp: true,type: 1,group: "Rough",dash: 2},
+        "#000000": {name: "Hill 1",height:1,bp: false,type: 0,group: "Hill",dash: 1},
+        "#434343": {name: "Hill 2",height:2,bp: false,type: 0,group: "Hill",dash: 1},
+        "#666666": {name: "Hill 3",height:3,bp: false,type: 0,group: "Hill",dash: 1},
+        "#c0c0c0": {name: "Hill 4",height:4,bp: false,type: 0,group: "Hill",dash: 1},
+        "#00ffff": {name: "Stream",height: 0,bp: false,type: 0,group: "Water",dash: 2},
+        "#b6d7a8": {name: "Scrub",height: 0,bp: false,type: 1,group: "Crops",dash: 2},
+        "#980000": {name: "Low Embankment",height: 0.25,bp: false,type: 0,group: "Hill",dash: 2},
+        "#ffffff": {name: "Ridgeline",height: .25,bp: true,type: 1,group: "Hill",dash: 1},
     }
 
     const MapTokenInfo = {
-        "wreck": {name: "Wreck",height: 0,bp: true,type: 1,group: "Obstacle"},
-        "building 1": {name: "Building 1",height: 1,bp: true,type: 3,group: "Building"},
-        "building 2": {name: "Building 2",height: 2,bp: true,type: 3,group: "Building"},
-        "building 3": {name: "Building 3",height: 3,bp: true,type: 3,group: "Building"},
-        "rubble": {name: "Rubble",height: 0,bp: true,type: 1,group: "Rough"},
-        "anti-tank ditch": {name: "Anti-Tank Ditch",height: 0,bp: true,type: 0,group: "Trench"},
-        "wall": {name: "Wall",height: 0,bp: true,type: 1,group: "Obstacle"},
-        "hedge": {name: "Hedge",height: 0,bp: false,type: 1,group: "Obstacle"},
-        "bocage": {name: "Bocage",height: 0,bp: true,type: 1,group: "Obstacle"},
-        "dragon's teeth": {name: "Dragon's Teeth",height: 0,bp: true,type: 1,group: "Obstacle"},
-        "road block": {name: "Road Block",height: 0,bp: true,type: 1,group: "Obstacle"},
-        "crater": {name: "Craters",height: 0,bp: true,type: 0,group: "Rough"},        
-        "crops": {name: "Crops",height: 0,bp: false,type: 1,group: "Crops"},
-        "foxholes": {name: "Foxholes",height: 0,bp: false,type: 0,group: "Foxholes"}, //bp tracked in LOS, and in hexMap
-        "smoke": {name: "Smoke",height: 0,bp: false,type: 0,group: "Smoke"},
-        "smokescreen": {name: "SmokeScreen",height: 10,bp:false,type: 0,group: "Smoke"},
-        "rangedin": {name: "rangedin",height: 0,bp:false,type: 0,group: "Marker"},
+        "wreck": {name: "Wreck",height: 0,bp: true,type: 1,group: "Obstacle",dash: 2},
+        "building 1": {name: "Building 1",height: 1,bp: true,type: 3,group: "Building",dash: 3},
+        "building 2": {name: "Building 2",height: 2,bp: true,type: 3,group: "Building",dash: 3},
+        "building 3": {name: "Building 3",height: 3,bp: true,type: 3,group: "Building",dash: 3},
+        "rubble": {name: "Rubble",height: 0,bp: true,type: 1,group: "Rough",dash: 2},
+        "anti-tank ditch": {name: "Anti-Tank Ditch",height: 0,bp: true,type: 0,group: "Trench",dash: 3},
+        "wall": {name: "Wall",height: 0,bp: true,type: 1,group: "Obstacle",dash: 2},
+        "hedge": {name: "Hedge",height: 0,bp: false,type: 1,group: "Obstacle",dash: 2},
+        "bocage": {name: "Bocage",height: 0,bp: true,type: 2,group: "Obstacle",dash: 2},
+        "dragon's teeth": {name: "Dragon's Teeth",height: 0,bp: true,type: 1,group: "Obstacle",dash: 4},
+        "road block": {name: "Road Block",height: 0,bp: true,type: 1,group: "Obstacle",dash: 4},
+        "crater": {name: "Craters",height: 0,bp: true,type: 0,group: "Rough",dash: 3},        
+        "crops": {name: "Crops",height: 0,bp: false,type: 1,group: "Crops",dash: 1},
+        "foxholes": {name: "Foxholes",height: 0,bp: false,type: 0,group: "Foxholes",dash: 2}, //bp tracked in LOS, and in hexMap
+        "smoke": {name: "Smoke",height: 0,bp: false,type: 0,group: "Smoke",dash: 1},
+        "smokescreen": {name: "SmokeScreen",height: 10,bp:false,type: 0,group: "Smoke",dash: 1},
+        "rangedin": {name: "rangedin",height: 0,bp:false,type: 0,group: "Marker",dash: 1},
     }
 
     const Nations = {
@@ -1713,6 +1714,7 @@ log(hit)
                     foxholes: false,
                     type: 0,
                     bp: false,
+                    dash: "Country",
                 };
                 hexMap[label] = hexInfo;
                 columnLabel += 2;
@@ -1793,6 +1795,8 @@ log(hit)
 
                             if (polygon.bp === true) {temp.bp = true};
 
+                            temp.dash = Math.max(temp.dash,polygon.dash);
+
                             if (polygon.name.includes("Hill")) {
                                 temp.elevation = Math.max(temp.elevation,polygon.height);
                                 temp.height = Math.max(temp.elevation,polygon.height)
@@ -1863,6 +1867,7 @@ log(hit)
                 group: t.group,
                 obstacle: t.obstacle,
                 linear: linear,
+                dash: t.dash,
             };
             TerrainArray[id] = info;
         });
@@ -1895,6 +1900,7 @@ log(hit)
                 group: t.group,
                 obstacle: t.obstacle,
                 linear: false,
+                dash: t.dash,
             };
             TerrainArray[id] = info;
         });
@@ -2113,7 +2119,7 @@ log(hit)
                 name: team.name,
                 tint_color: "transparent",
                 aura1_color: aura,
-                aura1_radius: 0.25,
+                aura1_radius: 0.1,
                 showname: true,
                 gmnotes: gmn,
                 statusmarkers: unitMarker,
@@ -5561,6 +5567,7 @@ log("2nd Row to " + team3.name)
                     if (!team2) {continue};
                     if (team2.type === "Unarmoured Tank") {continue}; //cant counterattack
                     let dist = team1.hex.distance(team2.hex);
+                    if (team2.type === "Tank" && team1.hex.dash > 2) {continue}; //cant counterattack into that terrain
                     if (dist <= (4*gameScale) && team2.bailed === false) {
                         combatOver = false;
                         break;
@@ -5759,15 +5766,7 @@ log("2nd Row to " + team3.name)
             if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
                 let team = TeamArray[tok.id];
                 if (!team) {return};
-                if (team.bailed === true) {
-                    PlaySound("No");
-                    tok.set("height",prev.height);
-                    tok.set("width",prev.width);
-                    tok.set("left",prev.left);
-                    tok.set("top",prev.top);
-                    tok.set("rotation",prev.rotation);
-                    return;
-                }
+
                 let unit = UnitArray[team.unitID];
                 let unitLeader = TeamArray[unit.teamIDs[0]];
 
@@ -5776,6 +5775,25 @@ log("2nd Row to " + team3.name)
                 let newLocation = new Point(tok.get("left"),tok.get("top"));
                 let newHex = pointToHex(newLocation);
                 let newHexLabel = newHex.label();
+
+                let moveBack = team.bailed;
+                if ((team.type === "Tank" || team.type === "Unarmoured Tank") && hexMap[newHexLabel].dash === 3) {
+                    moveBack = true;
+                }
+                if (hexMap[newHexLabel].dash === 4) {
+                    moveBack = true;
+                }
+
+                if (moveBack === true) {
+                    PlaySound("No");
+                    tok.set("height",prev.height);
+                    tok.set("width",prev.width);
+                    tok.set("left",prev.left);
+                    tok.set("top",prev.top);
+                    tok.set("rotation",prev.rotation);
+                    return;
+                }
+
                 newLocation = hexToPoint(newHex); //centres it in hex
                 tok.set({
                     left: newLocation.x,
