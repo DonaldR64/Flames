@@ -873,7 +873,7 @@ log(this.assaultWpn)
             this.fired = false;
             this.aaFired = false;
             this.moved = false;
-            
+            this.aaweapon = ''; //used to track weapons fired in AA
 
 
             //this.maxPass = maxPass;
@@ -3333,6 +3333,7 @@ log(hit)
                     team.prevHex = team.hex;
                     team.order = "";
                     team.specialorder = "";
+                    team.aaweapon = "";
                 }
                 team.hitArray = [];
                 team.eta = [];
@@ -3694,12 +3695,6 @@ log(gtg)
         let shooterTeamArray = [];
         let target = TeamArray[targetID];
         let targetTeamArray = BuildTargetTeamArray(target,shooter);
-//safety distance for aircraft to be added in for target and mates
-
-
-
-
-
 
         let mistaken = true;
         if (shooter.hex.distance(target.hex) < 8 && target.type === "Tank" && shooter.hex.distance(target.hex) < 4) {
@@ -3722,6 +3717,9 @@ log("Mistaken: " + mistaken)
             if ((st.fired === true || st.aaFired === true) && defensive === false) {continue}; //fired already
             if ((st.order === "Dash" || st.specialorder === "Clear Minefield")  && defensive === false) {continue}; //dashed or clear minefield
             if (st.spotAttempts > 0 && defensive === false) {continue}; //called artillery
+            if (st.aaweapon.type === weaponType && defensive === true) {continue}//fired weapon in aa, cant use in defensive
+
+
             if (st.type === "Tank") {
                 if (st.bailed === true) {continue}; //bailed out
             }
@@ -3908,6 +3906,7 @@ log(weapons)
                     } else if (weapon.notes.includes("Dedicated AA")) {
                         rof = weapon.halted;
                     }
+                    sTeam.aaweapon = weapon;
                 }
 
                 let rolls = [];
