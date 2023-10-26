@@ -2862,7 +2862,9 @@ log(hit)
         let unitLeader = TeamArray[unit.teamIDs[0]];
         SetupCard(unit.name,specialorder,team.nation);
         let errorMsg = [];
-        
+        let step = state.FOW4.step;
+
+
         let roll = randomInteger(6);
         let stat = 1;
 
@@ -2884,21 +2886,20 @@ log(hit)
             }
         }
         
-        if (specialorder === "Blitz") {
-            if (targetTeam.moved === true) {
-                errorMsg.push("Blitz Order must be given before movement");
+        if (specialorder === "Blitz" || specialorder === "Dig In") {
+            if (targetTeam.moved === true || (step === "Shooting" || step === "Assault")) {
+                errorMsg.push(specialorder + " Order must be given before movement");
             }
         }
         if (specialorder === "Shoot and Scoot") {
             if (targetTeam.moved === true) {
                 errorMsg.push("Unit has Moved and so cannot be given a Shoot and Scoot Order");
             }
+            if (step !== "Assault") {
+                errorMsg.push("Issue this order in the Assault Step");
+            }
         }
-        if (specialorder === "Dig In") {
-            if (targetTeam.moved === true) {
-                errorMsg.push("Unit has Moved and so cannot be given a Dig In Order");
-            }        
-        }
+
         if (targetTeam.fired === true && specialorder !== "Shoot and Scoot") {
             errorMsg.push("Unit has Fired this turn, cannot be given that Order");
         }
@@ -5796,7 +5797,7 @@ log(team.buddies)
                             }
                             sendChat("",noun + "Order defaulted to " + defaultOrder);
                         }
-                        if (turn > 0) && state.FOW4.step === "Start") {
+                        if (turn > 0 && state.FOW4.step === "Start") {
                             state.FOW.step = "Movement";
                             sendChat("","Advanced to Movement Step");
                         }
