@@ -3696,6 +3696,11 @@ log(gtg)
         let targetTeamArray = BuildTargetTeamArray(target,shooter);
 //safety distance for aircraft to be added in for target and mates
 
+
+
+
+
+
         let mistaken = true;
         if (shooter.hex.distance(target.hex) < 8 && target.type === "Tank" && shooter.hex.distance(target.hex) < 4) {
             mistaken = false;
@@ -4109,7 +4114,17 @@ log(weapons)
             let team = TeamArray[ids[i]];
             let refDistance = targetTeam.hex.distance(team.hex);//distance from targeted team to this team
             if (refDistance > 6 || team.type !== targetTeam.type) {continue}; //too far or not same type
-            
+            if (shooterTeam.type === "Aircraft") {
+                let keys = Object.keys(TeamArray);
+                for (let k=0;k<keys.length;k++) {
+                    let team3 = TeamArray[keys[k]];
+                    if (team3.player === shooterTeam.player) {
+                        if (team.hex.distance(team3.hex) < (8*gameScale)) {
+                            continue; //Safety Distance
+                        }
+                    }
+                }
+            }
 
             for (let j=0;j<shooterUnit.teamIDs.length;j++) {
                 let ttLOS = LOS(team.id,shooterUnit.teamIDs[j],"Overhead");
@@ -4117,9 +4132,6 @@ log(weapons)
                     team.shooterIDs.push(shooterUnit.teamIDs[j]);
                 }
             }
-
-
-
 
             let info = {
                 name: team.name,
