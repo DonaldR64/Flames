@@ -1,5 +1,5 @@
 const FOW4 = (() => { 
-    const version = '4.10.23';
+    const version = '4.10.26';
     if (!state.FOW4) {state.FOW4 = {}};
 
     const gameScale = 1; //1 = Normal Movement, 0.5 = Half Movement
@@ -3784,8 +3784,10 @@ log("Mistaken: " + mistaken)
 
         let limited = parseInt(shooterUnit.limited);
         let exclusions = [];
+
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let excluded;
+
             let st = TeamArray[shooterUnit.teamIDs[i]];
             if (CCTeamIDs.includes(st.id)) {
                 outputCard.body.push("Teams that have Charged In cannot fire");
@@ -3820,86 +3822,90 @@ log("Mistaken: " + mistaken)
                 excluded = " is Bailed Out";
             }
 
-            if (excluded !== undefined) {
-                exclusions.push(st.name + excluded);
-                continue;
-            }
+            if (excluded === undefined) {
+                let weaponExclusion;
+                let flag = false;
 
-            let weaponExcl;
-            let flag = false;
-            for (let j=0;j<st.weaponArray.length;j++) {
-                let weapon = st.weaponArray[j];
-                let overhead = "";
-                if (weaponType === "MG" && weapon.type.includes("MG") === false) {
-                    continue;
-                } else if (weaponType !== "MG" && weapon.type !== weaponType) {
-                    continue;
-                };
-                if (weapon.notes.includes("Limited")) {
-                    let num;
-                    let wn = weapon.notes.split(";");
-                    for (let i=0;i<wn.length;i++) {
-                        if (wn[i].includes("Limited")) {
-                            num = wn[i].replace(/[^0-9]+/g, "");
+                for (let j=0;j<st.weaponArray.length;j++) {
+                    let weapon = st.weaponArray[j];
+                    let overhead = "";
+                    if (weaponType === "MG" && weapon.type.includes("MG") === false) {
+                        continue;
+                    } else if (weaponType !== "MG" && weapon.type !== weaponType) {
+                        continue;
+                    };
+                    if (weapon.notes.includes("Limited")) {
+                        let num;
+                        let wn = weapon.notes.split(";");
+                        for (let i=0;i<wn.length;i++) {
+                            if (wn[i].includes("Limited")) {
+                                num = wn[i].replace(/[^0-9]+/g, "");
+                                break;
+                            }
+                        }
+                        if (limited >= num) {
+                            continue;
+                        } else (limited++);
+                    }
+
+                    if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
+                    if (target.type === "Aircraft" && (weapon.notes.includes("AA") === false || weapon.type.includes("AA") === false)) {
+                        weaponExclusion = " has No AA Weapon";
+                    } 
+
+                    let initialLOS,tID;
+                    for (let t=0;t<targetTeamArray.length;t++) {
+                        tID = targetTeamArray[t].id;
+                        initialLOS = LOS(st.id,tID,overhead);
+                        if (initialLOS.los === true) {
                             break;
                         }
                     }
-                    if (limited >= num) {
-                        continue;
-                    } else (limited++);
-                }
 
-                if (weapon.notes.includes("Overhead")) {overhead = "Overhead"}
-                if (target.type === "Aircraft" && (weapon.notes.includes("AA") === false || weapon.type.includes("AA") === false)) {
-                    weaponExcl = " has No AA Weapon";
-                    continue;
-                } 
-
-                let initialLOS,tID;
-                for (let t=0;t<targetTeamArray.length;t++) {
-                    tID = targetTeamArray[t].id;
-                    initialLOS = LOS(st.id,tID,overhead);
-                    if (initialLOS.los === true) {
-                        break;
+                    if (initialLOS.los === false) {
+                        weaponExclusion = " has no LOS to Target(s)";
                     }
-                }
 
-                if (initialLOS.los === false) {
-                    weaponExcl = " has no LOS to Target(s)";
-                    continue;
-                }
+                    if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {
+                        weaponExclusion = " is Not In Range";
+                    };
+                    if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {
+                        weaponExclusion = " is Out of Arc";
+                    };
 
-                if (weapon.minRange > initialLOS.distance || weapon.maxRange < initialLOS.distance) {
-                    weaponExcl = " is Not In Range";
-                    continue;
-                };
-                if (weapon.notes.includes("Forward Firing") && initialLOS.shooterface !== "Front") {
-                    weaponExcl = " is Out of Arc";
-                    continue
-                };
-                weapons.push(weapon);
-                let eta = {
-                    targetName: TeamArray[tID].name,
-                    targetID: tID,
-                    los: initialLOS,
-                    rangeFromInitial: 0,
+                    if (weaponExclusion === undefined) {
+                        weapons.push(weapon);
+                        let eta = {
+                            targetName: TeamArray[tID].name,
+                            targetID: tID,
+                            los: initialLOS,
+                            rangeFromInitial: 0,
+                        }
+                        st.eta = [eta];
+                        shooterTeamArray.push(st);
+                        flag = true;
+                        if (weapon.type !== "AA MG") {
+                            let phi = Angle(st.hex.angle(TeamArray[tID].hex));
+                            st.token.set("rotation",phi);
+                        }
+                    } 
                 }
-                st.eta = [eta];
-                shooterTeamArray.push(st);
-                flag = true;
-                if (weapon.type !== "AA MG") {
-                    let phi = Angle(st.hex.angle(TeamArray[tID].hex));
-                    st.token.set("rotation",phi);
+log(weaponExclusion)
+log(flag)
+
+                if (weaponExclusion !== undefined && flag === false) {
+                    excluded = weaponExclusion;
                 }
             }
-            if (weaponExcl !== undefined && flag === false) {
-                exclusions.push(st.name + weaponExcl);
+log(excluded)
+            if (excluded !== undefined) {
+                exclusions.push(st.name + excluded);
             }
         }
 
         shooterTeamArray = [...new Set(shooterTeamArray)];
 
-        if (exclusions > 0) {
+        if (exclusions.length > 0) {
             for (let i=0;i<exclusions.length;i++) {
                 outputCard.body.push(exclusions[i]);
             }
@@ -4130,6 +4136,12 @@ log(weapons)
                         special: eta[targNum].los.special,
                     }
                     TeamArray[eta[targNum].targetID].hitArray.push(hit);
+                    if (weapon.type !== "AA MG") {
+                        let phi = Angle(sTeam.hex.angle(TeamArray[eta[targNum].targetID].hex));
+                        sTeam.token.set("rotation",phi);
+                    }
+
+
                 }
             }
             //place markers on shooter
@@ -5287,6 +5299,9 @@ log(unitIDs4Saves)
             }
         } else {
             let errorMsg;
+            if (state.FOW4.step !== "Assault") {
+                errorMsg = "Not Assault Step";
+            }
             if (team1.special.includes("Heavy Weapon")) {
                 errorMsg = "This Team is a Heavy Weapons Team and cannot Charge into Contact";
             }
