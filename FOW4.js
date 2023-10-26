@@ -22,6 +22,7 @@ const FOW4 = (() => {
     let unitIDs4Saves = {}; //used during shooting routines
     let unitFiredThisTurn = false; //marker for smoke bombardments, inCommand
     let CCTeamIDs = []; //array of teams (IDs) in a CC, updated when charge/move
+    let assaultingUnitID = "";
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -5129,7 +5130,20 @@ log(unitIDs4Saves)
                 Defensive(team1,"Remove");
             }
         } else {
+
+
             if (CCTeamIDs.includes(team1.id) === false) {
+                if (team1.special.includes("Heavy Weapon")) {
+                    sendChat("","This Team is a Heavy Weapons Team and cannot Charge into Contact");
+                    //move back
+    
+                }
+                if (team1.buddies["AAFire"] !== undefined) {
+                    sendChat("","This Team fired AA Fire and cannot Charge");
+                
+                }
+
+
                 CCTeamIDs.push(team1.id);
                 Defensive(team1,"Add");
             }
@@ -5398,7 +5412,14 @@ log("2nd Row to " + team3.name)
             outputCard.body.push("The Assault is Over");
             outputCard.body.push("Any surviving Losing Teams must move at Tactical speed the shortest distance to be further than " + 6*gameScale + '" away from all enemy Teams');
             outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
-            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.')            
+            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.')  
+            let teamKeys = Object.keys(TeamArray);
+            for (let i=0;i<teamKeys.length;i++) {
+                let team = TeamArray[teamKeys[i]];
+                team.set(SM.defensive,false);
+                team.set(SM.surprised,false);
+                CCTeamIDs = [];
+            }
         } else {
             let noun = "The ";
             SetupCard("Counterattack","",defendingNation);
@@ -5407,7 +5428,7 @@ log("2nd Row to " + team3.name)
             outputCard.body.push("Any failing must Break Off")
             outputCard.body.push("Breaking Off Teams must move at Tactical speed the shortest distance to be further than " + 6*gameScale + '" away from all Assaulting Teams');
             outputCard.body.push("Any Teams not able to do so surrender and are destroyed");
-            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.') 
+            outputCard.body.push("The Winning Teams may Consolidate " + 4*gameScale + '", this Move may not bring them within ' + 2*gameScale + '" of an enemy Team.');
             outputCard.body.push("[hr]");
             for (let i=0;i<finalDUnitIDs.length;i++) {
                 let unit = UnitArray[finalDUnitIDs[i]];
