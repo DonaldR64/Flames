@@ -3857,7 +3857,7 @@ log("Mistaken: " + mistaken)
 
                 let initialLOS,tID;
                 for (let t=0;t<targetTeamArray.length;t++) {
-                    tID = targetTeam[t].id;
+                    tID = targetTeamArray[t].id;
                     initialLOS = LOS(st.id,tID,overhead);
                     if (initialLOS.los === true) {
                         break;
@@ -3888,7 +3888,7 @@ log("Mistaken: " + mistaken)
                 shooterTeamArray.push(st);
                 flag = true;
                 if (weapon.type !== "AA MG") {
-                    let phi = Angle(st.hex.angle(target.hex));
+                    let phi = Angle(st.hex.angle(TeamArray[tID].hex));
                     st.token.set("rotation",phi);
                 }
             }
