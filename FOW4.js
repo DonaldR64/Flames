@@ -859,8 +859,6 @@ const FOW4 = (() => {
             //this.passengers = []; //id of any passengers
             this.weaponArray = weaponArray;
             this.assaultWpn = bestATWpnNum;
-log(this.name)
-log(this.assaultWpn)
             this.hitArray = [];
             this.eta = [];
             this.shooterIDs = [];
@@ -1489,7 +1487,6 @@ log(hit)
                 }
             }
             let bkeys = Object.keys(Buddies);
-            log(bkeys)
             for (let i=0;i<bkeys.length;i++) {
                 if (bkeys[i] === token.get("name") && info === "All") {
                     token.remove();
@@ -3443,10 +3440,8 @@ log(hit)
         let teamIDs = unit.teamIDs;
         for (let i=0;i<teamIDs.length;i++) {
             let team = TeamArray[teamIDs[i]];
-log(team.name)
             if (team.type === "System Unit" || team.type === "Aircraft") {continue};
             let gtg = (team.moved === true || team.fired === true) ? false:true;
-log(gtg)
             team.buddy("GTG",gtg)
         }
     }
@@ -3910,8 +3905,6 @@ log("Mistaken: " + mistaken)
             st.eta = st.eta.sort(function(a,b) {
                 return a.rangeFromInitial - b.rangeFromInitial;
             });
-            log(st.name)
-            log(st.eta)
         }
 log("# Shooters: " + shooterTeamArray.length)
 
@@ -5609,11 +5602,6 @@ log("2nd Row to " + team3.name)
             if (name === "Tactical" || name === "Dash" || name === "Assault") {
                 team.moved = true;
             }
-log(name)
-log(team.name)
-log(team.buddies)
-
-
         });
     }
 
@@ -5727,7 +5715,6 @@ log(team.buddies)
                 let bkeys = Object.keys(team.buddies);
                 for (let i=0;i<bkeys.length;i++) {
                     let condition = bkeys[i];
-                    log(condition)
                     let id = team.buddies[bkeys[i]];
                     if (id !== undefined) {
                         let buddyToken = findObjs({_type:"graphic", id: id})[0];
@@ -5783,21 +5770,21 @@ log(team.buddies)
                             }
                             let noun = "Unit ";
                             if (unit.order === "") {
-
                                 unit.order = defaultOrder;
                                 for (let t=0;t<unit.teamIDs.length;t++) {
                                     let uTeam = TeamArray[unit.teamIDs[t]];
+                                    if (t===0) {uTeam.token.set("aura1_color",Colours.black)}
                                     if (uTeam.inCommand === true) {
                                         uTeam.order = defaultOrder;
                                     }
                                 }
-                            } else {
+                            } else if (team.inCommand === false) {
                                 noun = "Team "
                                 team.order = defaultOrder;
                             }
                             sendChat("",noun + "Order defaulted to " + defaultOrder);
                         }
-                        if (turn > 0 && state.FOW4.step === "Start") {
+                        if (state.FOW4.turn > 0 && state.FOW4.step === "Start") {
                             state.FOW.step = "Movement";
                             sendChat("","Advanced to Movement Step");
                         }
