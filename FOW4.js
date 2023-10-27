@@ -2130,12 +2130,13 @@ log(hit)
             team.name = info.name;
             team.rank = info.rank;
             gmn = basegmn + team.rank.toString();
-
+            let r = 0.1;
+            if (team.type === "Infantry") {r = 0.25}
             team.token.set({
                 name: team.name,
                 tint_color: "transparent",
                 aura1_color: aura,
-                aura1_radius: 0.1,
+                aura1_radius: r,
                 showname: true,
                 gmnotes: gmn,
                 statusmarkers: unitMarker,
@@ -2226,6 +2227,18 @@ log(hit)
         if (team.specialorder !== "") {
             outputCard.body.push("Special Order: " + team.specialorder);
         }
+        if (team.carrying === true) {
+            outputCard.body.push("[hr]");
+            outputCard.body.push("[/U]Passengers[/u]");
+            for (let i=1;i<4;i++) {
+                let condName = "Passenger " + i;
+                if (team.buddies[condName] !== undefined) {
+                    let passTeam = TeamArray[team.buddies[condName]];
+                    outputCard.body.push(passTeam.name);
+                }
+            }
+        }
+
         outputCard.body.push("[hr]");
         outputCard.body.push("Unit: " + unit.name);
         for (let i=0;i<unit.teamIDs.length;i++) {
@@ -5706,19 +5719,11 @@ log("2nd Row to " + team3.name)
 
     const BuddyToken = (team,condition,passengerTeam) => {
         if (condition.includes("Passenger")) {
-            let X = team.location.x;
-            let Y = team.location.y;
-            if (condition.includes("2")) {
-                X+=15;
-            }
-            if (condition.includes("3")) {
-                X-=15;
-            }
             passengerTeam.token.set({
                 width: 40,
                 height: 40,
-                left: X,
-                top: Y,
+                left: team.location.x,
+                top: team.location.y,
                 layer: "gmlayer",
             })
             toFront(passengerTeam.token);
@@ -5793,8 +5798,10 @@ log("2nd Row to " + team3.name)
             let unit = UnitArray[unitKeys[i]];
             if (unit.player !== player || unit.type === "System Unit") {continue};
             let unitLeader = TeamArray[unit.teamIDs[0]];
-            let colour = (unit.pinned === false) ? Colours.green:Colours.yellow;
-            unitLeader.token.set("aura1_color",colour);
+            if (unitLeader) {
+                let colour = (unit.pinned === false) ? Colours.green:Colours.yellow;
+                unitLeader.token.set("aura1_color",colour);
+            }
         }
     }
 
@@ -5805,6 +5812,25 @@ log("2nd Row to " + team3.name)
         let passengerTeam = TeamArray[passengerID];
         let transportTeam = TeamArray[transportID];
         SetupCard(passengerTeam.name,"Mount",passengerTeam.nation);
+        let errorMsg;
+        let distance = passengerTeam.hex.distance(transportTeam);
+
+        if (state.FOW4.step !== "Movement") {
+            errorMsg = "Teams can only Mount in the Movement Phase";
+        }
+        if (transportTeam.maxPass === 0) {
+            errorMsg = "Not a Transport or Tank";
+        }
+        if (distance > 1) {
+            errorMsg = "Need to be Adjacent to Transport";
+        }
+
+        if (errorMsg !== undefined) {
+            outputCard.body.push(errorMsg);
+            PrintCard();
+            return;
+        }
+
         let loaded = false;
         let roomLeft = 0;
         if (transportTeam.maxPass > 0) {
@@ -5821,8 +5847,6 @@ log("2nd Row to " + team3.name)
         }
         if (loaded === false) {
             outputCard.body.push("No Room on this Transport");
-        } else if (transportTeam.maxPass === 0) {
-            outputCard.body.push("Not a Transport");
         } else {
             outputCard.body.push("Loaded");
             outputCard.body.push("Transport has " + roomLeft + " Room Left");
@@ -5830,6 +5854,28 @@ log("2nd Row to " + team3.name)
         PrintCard();
     }
 
+    const Dismount = (msg) => {
+        let id = msg.selected[0]._id;
+        let transportTeam = TeamArray[id];
+        SetupCard(transportTeam.name,"Dismount",transportTeam.nation);
+        if (state.FOW4.step !== "Movement") {
+            outputCard.body.push("Can only Dismount in the Movement Step");
+            PrintCard();
+            return;
+        }
+
+        for (let i=1;i<4;i++) {
+            let condName = "Passenger " + i;
+            if (transportTeam.buddies[condName] !== undefined) {
+                TeamArray[transportTeam.buddies[condName]].passenger = false;
+                transportTeam.buddy(condName,false);
+            }
+        }
+        transportTeam.carrying = false;
+        outputCard.body.push("Teams can be Activated");
+        outputCard.body.push("Orders must include Movement so that the Team moves away from the Transport");
+        PrintCard();
+    }
 
 
 
@@ -6090,7 +6136,7 @@ log("2nd Row to " + team3.name)
             case '!Mount':
                 Mount(msg);
                 break;
-            case '!Dismount':
+            case '!DismountPassengers':
                 Dismount(msg);
                 break;
         }
