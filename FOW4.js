@@ -124,9 +124,6 @@ const FOW4 = (() => {
         "cover": "All Hits Saved (Cover)",
     }
 
-    
-
-
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
 
     let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: []};
@@ -189,6 +186,7 @@ const FOW4 = (() => {
             "atWeapon": "Molotov Cocktails",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348",
+            "pinnedCharID": "-NhltPoS8_P4_rslcUsA",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
             "barrageChar": "-NUlUj2snn9vRtAo2k2l", 
             "platoonmarkers": ["letters_and_numbers0099::4815235","letters_and_numbers0100::4815236","letters_and_numbers0101::4815237","letters_and_numbers0102::4815238","letters_and_numbers0103::4815239","letters_and_numbers0104::4815240","letters_and_numbers0105::4815241","letters_and_numbers0106::4815242","letters_and_numbers0107::4815243","letters_and_numbers0108::4815244","letters_and_numbers0109::4815245","letters_and_numbers0110::4815246","letters_and_numbers0111::4815247","letters_and_numbers0112::4815248","letters_and_numbers0113::4815249","letters_and_numbers0114::4815250","letters_and_numbers0115::4815251","letters_and_numbers0116::4815252","letters_and_numbers0117::4815253","letters_and_numbers0118::4815254","letters_and_numbers0119::4815255","letters_and_numbers0120::4815256","letters_and_numbers0121::4815257","letters_and_numbers0122::4815258","letters_and_numbers0123::4815259","letters_and_numbers0124::4815260"],
@@ -547,19 +545,25 @@ const FOW4 = (() => {
             }
         }
 
-
         unpin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
-            this.pinned = false;
-            leaderTeam.buddy("Pinned",false);
             leaderTeam.token.set("aura1_color",Colours.green);
+            leaderTeam.removeCondition("Pinned");
         }
 
         pin() {
             let leaderTeam = TeamArray[this.teamIDs[0]];
             leaderTeam.token.set("aura1_color",Colours.yellow);
-            leaderTeam.buddy("Pinned",true);
-            this.pinned = true;
+            leaderTeam.addCondition("Pinned");
+        }
+
+        pinned() {
+            let result = false;
+            let leaderTeam = TeamArray[this.teamIDs[0]];
+            if (state.FOW4.conditions[leaderTeam.id]["Pinned"]) {
+                result = true;
+            }
+            return result;
         }
 
         updateTeamIDs() {
@@ -925,6 +929,110 @@ const FOW4 = (() => {
                 this.buddies[condition] = undefined;
             }
         }
+
+        addCondition(condition) {
+            let imgSrc,charID;
+            let rotation = 0;
+            switch (condition) {
+                case 'Bailed Out':
+                    imgSrc = Nations[this.nation].pinned;
+                    charID = Nations[this.nation].pinnedCharID;
+                    rotation = 180;
+                    break;
+                case 'Pinned':
+                    imgSrc = Nations[this.nation].pinned;
+                    charID = Nations[this.nation].pinnedCharID;
+                    break;
+                case 'Dash':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738371/8Ov_DJPGHECoVdVUaEQG8w/thumb.png?1698192635";
+                    charID = "";
+                    break;
+                case 'Tactical':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738370/zNsS7qwUbv3hWKhHmdhQFw/thumb.png?1698192635";
+                    charID = "";
+                    break;
+                case 'Hold':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364740800/zgiEA5heOJag10qcrKWlhA/thumb.png?1698193671";
+                    charID = "";
+                    break;
+                case 'Assault':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364740790/-PpYtjvGninT5CBZ9cgvcw/thumb.png?1698193663";
+                    charID = "";
+                    break;
+                case 'AAFire':
+                    imgSrc =  "https://s3.amazonaws.com/files.d20.io/images/364738389/jQaMAvsc3yfx7tsgMpkZ-Q/thumb.png?1698192640";
+                    charID = "";
+                    break;
+                case 'Fired':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738390/jRn7kK1dz3EnFwy8lFzyJw/thumb.png?1698192640";
+                    charID = "";
+                    break;
+                case 'GTG':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364740777/TkNdbvE_My02jE0bkz1KzA/thumb.png?1698193655";
+                    charID = "";
+                    break;
+                case 'Radio':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364839305/-UanVemZgRrwTu3fVijGwA/thumb.png?1698268901";
+                    charID = "";
+                    break;
+            }
+
+            let leftConditions = ["Tactical","Dash","Hold","Assault"];
+            let rightConditions = ["Fired","AAFire","GTG"];
+            let topConditions = [];
+            if (leftConditions.includes(condition)) {
+                array = leftConditions;
+            } else if (rightConditions.includes(condition)) {
+                array = rightConditions;
+            } else if (topConditions.includes(condition)) {
+                array = topConditions;
+            }
+            //clear other conditions in that array
+            let conditions = state.FOW4.conditions[this.id];
+            for (let i=0;i<array.length;i++) {
+                if (conditions[condition]) {
+                    let token = findObjs({_type:"graphic", id: conditions[condition]})[0];
+                    if (token) {
+                        token.remove();
+                    }
+                    delete state.FOW4.conditions[this.id][condition];
+                }
+            }
+            let conditionToken = createObj("graphic", {   
+                left: this.location.x,
+                top: this.location.y,
+                width: 70, 
+                height: 70,
+                rotation: rotation,
+                isdrawing: true,
+                pageid: this.token.get("pageid"),
+                imgsrc: imgSrc,
+                layer: "objects",
+                represents: charID,
+            });
+            toFront(conditionToken);
+            TokenCondition.AttachConditionToToken(conditionToken.id,this.id);
+            state.FOW4.conditions[this.id][condition] = conditionToken.id;
+        }
+
+        removeCondition(condition) {
+            if (state.FOW4.conditions[this.id]) {
+                let conditions = state.FOW4.conditions[this.id];
+                if (conditions[condition]) {
+                    let conditionID = conditions[condition];
+                    let token = findObjs({_type:"graphic", id: conditionID})[0];
+                    if (token) {
+                        token.remove();
+                    }
+                    delete state.FOW4.conditions[this.id][condition];
+                }
+            }
+        }
+
+
+
+
+
 
         BailOut() {
             let result = {
@@ -2189,6 +2297,12 @@ log(hit)
             return;
         };
         let id = msg.selected[0]._id;
+        let data = TokenCondition.LookUpMaster(id);
+log(data)
+        if (data) {
+            id = data.token;
+        }
+
         let team = TeamArray[id];
         if (!team) {
             sendChat("","Not in Team Array Yet");
@@ -2246,6 +2360,10 @@ log(hit)
         } else {
             outputCard.body.push("Unit Order: " + unit.order);
         }
+        if (unit.pinned() === true) {
+            outputCard.body.push("Unit is Pinned");
+        }
+
         PrintCard();
     }
 
@@ -5873,8 +5991,49 @@ log("2nd Row to " + team3.name)
         PrintCard();
     }
 
+    const Test = (msg) => {
+        if (!msg.selected) {return};
+        let Tag = msg.content.split(";");
+        let id = msg.selected[0]._id
+        log("ID: " + id)
+        let add = Tag[1];
+        let token = findObjs({_type:"graphic", id: id})[0];
+        log(token.get("name"))
+        if (add === "Add") {
+            let team = TeamArray[id];
+            let imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348";
+            let conditionCharID = "-NhltPoS8_P4_rslcUsA";
+            let conditionToken = createObj("graphic", {   
+                left: team.location.x,
+                top: team.location.y,
+                width: 70, 
+                height: 60,
+                isdrawing: true,
+                pageid: team.token.get("pageid"),
+                imgsrc: imgSrc,
+                layer: "objects",
+                represents: conditionCharID,
+            });
+            toFront(conditionToken);
+            TokenCondition.AttachConditionToToken(conditionToken.id,msg.selected[0]._id);
+        } else if (add === "Remove") {
+            let data = TokenCondition.LookUpMaster(id);
+            log(data)
+            //will be the data from lookup array in Token Condition
+            //organizd by [tokenid] then conditions as an array with ids
 
 
+
+/*
+            let token = findObjs({_type:"graphic", id: id})[0];
+            let pid = token.get('pageid');
+            let conditionTokenInfo = state.TokenCondition.registry[pid][token.id]
+            log(conditionTokenInfo)
+*/        
+
+        
+        }
+    }
 
 
 
@@ -5887,6 +6046,15 @@ log("2nd Row to " + team3.name)
             log(tok.get("name") + " moving");
             if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
                 let team = TeamArray[tok.id];
+                let newLocation = new Point(tok.get("left"),tok.get("top"));
+                let newHex = pointToHex(newLocation);
+                let newHexLabel = newHex.label();
+                newLocation = hexToPoint(newHex); //centres it in hex
+                tok.set({
+                    left: newLocation.x,
+                    top: newLocation.y,
+                });
+
                 if (!team) {return};
 
                 let unit = UnitArray[team.unitID];
@@ -5894,9 +6062,6 @@ log("2nd Row to " + team3.name)
 
                 let oldHexLabel = team.hexLabel;
                 let oldLocation = team.location;
-                let newLocation = new Point(tok.get("left"),tok.get("top"));
-                let newHex = pointToHex(newLocation);
-                let newHexLabel = newHex.label();
 
                 let moveBack = team.bailed;
                 if ((team.type === "Tank" || team.type === "Unarmoured Tank") && hexMap[newHexLabel].dash === 3) {
@@ -5915,12 +6080,6 @@ log("2nd Row to " + team3.name)
                     tok.set("rotation",prev.rotation);
                     return;
                 }
-
-                newLocation = hexToPoint(newHex); //centres it in hex
-                tok.set({
-                    left: newLocation.x,
-                    top: newLocation.y,
-                });
 
                 let bkeys = Object.keys(team.buddies);
                 for (let i=0;i<bkeys.length;i++) {
@@ -6134,6 +6293,9 @@ log("2nd Row to " + team3.name)
                 break;
             case '!DismountPassengers':
                 Dismount(msg);
+                break;
+            case '!Test':
+                Test(msg);
                 break;
         }
     };
