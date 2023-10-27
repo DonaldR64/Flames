@@ -875,16 +875,17 @@ const FOW4 = (() => {
             this.aaweapon = ''; //used to track weapons fired in AA
           
             this.maxPass = maxPass;
+            this.carrying = false;
+            this.passenger = false;
 
 
 
-            
             TeamArray[tokenID] = this;
             hexMap[hexLabel].tokenIDs.push(tokenID);
 
         }
 
-        buddy(condition,add) {
+        buddy(condition,add,passengerTeam) {
             let leftBuddies = ["Tactical","Dash","Hold","Assault"];
             let rightBuddies = ["Fired","AAFire","GTG"];
             if (add === true) {
@@ -905,12 +906,21 @@ const FOW4 = (() => {
                     }
                 }
                 //add this buddy
-                BuddyToken(this,condition);
+                BuddyToken(this,condition,passengerTeam);
             } else if (add === false) {
                 let id = this.buddies[condition];
-                if (id) {
+                if (id && condition.includes("Passenger") === false) {
                     let tok = findObjs({_type:"graphic", id: id})[0];
                     tok.remove();
+                } if (id && condition.includes("Passenger") === true) {
+                    let tok = findObjs({_type:"graphic", id: id})[0];
+                    tok.set({
+                        width: 70,
+                        height: 70,
+                        left: this.left,
+                        top: this.top,
+                        layer: "objects",
+                    });
                 }
                 this.buddies[condition] = undefined;
             }
@@ -1824,6 +1834,7 @@ log(hit)
         inCommand("All");
         BuildReserve();//places flag on units in reserve when rebuilding a map
         BuildConditions();//fixes links between bail and pin tokens
+        BuildPassengers();
     }
 
     const BuildTerrainArray = () => {
@@ -1947,6 +1958,12 @@ log(hit)
             _type: "graphic",
             _subtype: "token",
             layer: "objects",
+        });
+
+        tokens = tokens.filter((t) => {
+            if (t.get("layer") === "objects" || t.get("layer") === "gmlayer") {
+                return t;
+            }
         });
 
         let c = tokens.length;
@@ -2702,13 +2719,13 @@ log(hit)
         let type = team.type;
         let cross = team.cross;
         let special = team.special;
-/*
+
         if (special.includes("Passengers")) {
             abilityName = "Dismount Passengers";
             action = "!DismountPassengers";
             AddAbility(abilityName,action,char.id);        
         }
-*/
+
         if (char.get("name").includes("Mine") && type === "System Unit") {
             abilityName = "Minefield Check";
             action = "!MinefieldCheck;@{selected|token_id};@{target|token_id}";
@@ -2760,12 +2777,12 @@ log(hit)
             abilityName = "Special Orders";
             AddAbility(abilityName,specOrders,char.id);
         }
-/*
+
         if (type === "Infantry") {
-            abilityName = "Mount/Dismount";
-            AddAbility(abilityName,"!MountDismount;@{selected|token_id};@{target|Transport|token_id}",char.id);
+            abilityName = "Mount";
+            AddAbility(abilityName,"!Mount;@{selected|token_id};@{target|Transport|token_id}",char.id);
         }
-*/
+
         if (team.cross > 1) {
             abilityName = "Cross";
             AddAbility(abilityName,"!Cross",char.id);
@@ -5654,65 +5671,93 @@ log("2nd Row to " + team3.name)
         if (!tokens) {return};
         let conditions = ["Bailed Out","Pinned","Dash","Tactical","Hold","Assault","AAFire","Fired","GTG","Radio"]
         tokens.forEach((token) => {
-            let teamID = decodeURIComponent(token.get("gmnotes")).toString();
-            if (teamID === undefined) {return};
-            let team = TeamArray[teamID];
-            if (!team) {return};
-            let unit = UnitArray[team.unitID];
-            if (!unit) {return};
             let name = token.get("name");
             if (!name) {return};
-            if (conditions.includes(name) === false) {return}
-            team.buddies[name] = token.id;
-            if (name === "Bailed Out") {
-                team.bailed = true;
-            }
-            if (name === "Pinned") {
-                unit.pinned = true;
-            }
-            if (name === "Fired") {
-                team.fired = true;
-            }
-            if (name === "AAFire") {
-                team.aaFired = true;
-            }
-            if (name === "Tactical" || name === "Dash" || name === "Assault") {
-                team.moved = true;
+            if (conditions.includes(name) === false) {
+                //find token in same hex that is transport
+                //and add to bits
+
+
+            } else {
+                let teamID = decodeURIComponent(token.get("gmnotes")).toString();
+                if (teamID === undefined) {return};
+                let team = TeamArray[teamID];
+                if (!team) {return};
+                let unit = UnitArray[team.unitID];
+                if (!unit) {return};
+                team.buddies[name] = token.id;
+                if (name === "Bailed Out") {
+                    team.bailed = true;
+                }
+                if (name === "Pinned") {
+                    unit.pinned = true;
+                }
+                if (name === "Fired") {
+                    team.fired = true;
+                }
+                if (name === "AAFire") {
+                    team.aaFired = true;
+                }
+                if (name === "Tactical" || name === "Dash" || name === "Assault") {
+                    team.moved = true;
+                }
             }
         });
     }
 
-    const BuddyToken = (team,condition) => {
-        let rotation = 0;
-        let img;
-        if (condition === "Bailed Out" || condition === "Pinned") {
-            img = getCleanImgSrc(Nations[team.nation].pinned);
-            if (condition === "Bailed") {
-                rotation = 180;
+    const BuddyToken = (team,condition,passengerTeam) => {
+        if (condition.includes("Passenger")) {
+            let X = team.location.x;
+            let Y = team.location.y;
+            if (condition.includes("2")) {
+                X+=15;
             }
+            if (condition.includes("3")) {
+                X-=15;
+            }
+            passengerTeam.token.set({
+                width: 40,
+                height: 40,
+                left: X,
+                top: Y,
+                layer: "gmlayer",
+            })
+            toFront(passengerTeam.token);
+            passengerTeam.passenger = true;
+            team.carrying = true;
+            team.buddies[condition] = passengerTeam.id;
         } else {
-            img = Buddies[condition];
-            if (img) {
-                img = getCleanImgSrc(Buddies[condition]);
-            }
+            let rotation = 0;
+            let img;
+            if (condition === "Bailed Out" || condition === "Pinned") {
+                img = getCleanImgSrc(Nations[team.nation].pinned);
+                if (condition === "Bailed") {
+                    rotation = 180;
+                }
+            } else {
+                img = Buddies[condition];
+                if (img) {
+                    img = getCleanImgSrc(Buddies[condition]);
+                }
+            } 
+            if (img === undefined) {return};
+            let newToken = createObj("graphic", {   
+                left: team.location.x,
+                top: team.location.y,
+                width: 70, 
+                height: 70,
+                rotation: rotation,
+                name: condition,
+                showname: false,
+                isdrawing: true,
+                pageid: team.token.get("pageid"),
+                imgsrc: img,
+                layer: "gmlayer",
+                gmnotes: team.id,
+            });
+            toFront(newToken);
+            team.buddies[condition] = newToken.id;
         }
-        if (img === undefined) {return};
-        let newToken = createObj("graphic", {   
-            left: team.location.x,
-            top: team.location.y,
-            width: 70, 
-            height: 70,
-            rotation: rotation,
-            name: condition,
-            showname: false,
-            isdrawing: true,
-            pageid: team.token.get("pageid"),
-            imgsrc: img,
-            layer: "gmlayer",
-            gmnotes: team.id,
-        });
-        toFront(newToken);
-        team.buddies[condition] = newToken.id;
     }
 
     const SendToRear = () => {
@@ -5753,6 +5798,42 @@ log("2nd Row to " + team3.name)
             unitLeader.token.set("aura1_color",colour);
         }
     }
+
+    const Mount = (msg) => {
+        let Tag = msg.content.split(";");
+        let passengerID = Tag[1];
+        let transportID = Tag[2];
+        let passengerTeam = TeamArray[passengerID];
+        let transportTeam = TeamArray[transportID];
+        SetupCard(passengerTeam.name,"Mount",passengerTeam.nation);
+        let loaded = false;
+        let roomLeft = 0;
+        if (transportTeam.maxPass > 0) {
+            let total = transportTeam.maxPass
+            for (let i=0;i<total;i++) {
+                let condName = "Passenger " + (i+1);
+                if (transportTeam.buddies[condName] === undefined) {
+                    transportTeam.buddy(condName,true,passengerTeam);
+                    loaded = true;
+                    roomLeft = total - (i+1);
+                    break;
+                }
+            }
+        }
+        if (loaded === false) {
+            outputCard.body.push("No Room on this Transport");
+        } else if (transportTeam.maxPass === 0) {
+            outputCard.body.push("Not a Transport");
+        } else {
+            outputCard.body.push("Loaded");
+            outputCard.body.push("Transport has " + roomLeft + " Room Left");
+        }
+        PrintCard();
+    }
+
+
+
+
 
 
 
@@ -6007,7 +6088,12 @@ log("2nd Row to " + team3.name)
             case '!PlaceInReserve':
                 PlaceInReserve(msg);
                 break;
-
+            case '!Mount':
+                Mount(msg);
+                break;
+            case '!Dismount':
+                Dismount(msg);
+                break;
         }
     };
 
