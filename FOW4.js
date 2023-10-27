@@ -1956,7 +1956,6 @@ log(hit)
             _pageid: Campaign().get("playerpageid"),
             _type: "graphic",
             _subtype: "token",
-            layer: "objects",
         });
 
         tokens = tokens.filter((t) => {
@@ -2145,9 +2144,6 @@ log(hit)
         if (state.FOW4.nations[player].includes(nation) === false) {
             state.FOW4.nations[player].push(nation);
         }
-
-
-
         sendChat("",unitName + " Added to " + formation.name)
     }
 
@@ -2229,7 +2225,7 @@ log(hit)
         }
         if (team.carrying === true) {
             outputCard.body.push("[hr]");
-            outputCard.body.push("[/U]Passengers[/u]");
+            outputCard.body.push("[U]Passengers[/u]");
             for (let i=1;i<4;i++) {
                 let condName = "Passenger " + i;
                 if (team.buddies[condName] !== undefined) {
@@ -4622,7 +4618,7 @@ log(artUnits)
                 if (distance2 < (5+3)) {tooClose[1] = true};
             }
         }
-        outputCard.body.push("[U]Units[/U]");
+        outputCard.body.push("[U]Units[/u]");
 
         for (let i=0;i<artUnits.length;i++) {
             if (i>0) {outputCard.body.push("[hr]")};
@@ -5813,7 +5809,7 @@ log("2nd Row to " + team3.name)
         let transportTeam = TeamArray[transportID];
         SetupCard(passengerTeam.name,"Mount",passengerTeam.nation);
         let errorMsg;
-        let distance = passengerTeam.hex.distance(transportTeam);
+        let distance = passengerTeam.hex.distance(transportTeam.hex);
 
         if (state.FOW4.step !== "Movement") {
             errorMsg = "Teams can only Mount in the Movement Phase";
