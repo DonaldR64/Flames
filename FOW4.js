@@ -1833,8 +1833,7 @@ log(hit)
         //check what is in command
         inCommand("All");
         BuildReserve();//places flag on units in reserve when rebuilding a map
-        BuildConditions();//fixes links between bail and pin tokens
-        BuildPassengers();
+        BuildConditions();//fixes links between tokens on various layers
     }
 
     const BuildTerrainArray = () => {
