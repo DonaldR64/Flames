@@ -5961,15 +5961,13 @@ log("2nd Row to " + team3.name)
             PrintCard();
             return;
         }
-
-        for (let i=1;i<4;i++) {
-            let condName = "Passenger " + i;
-            if (transportTeam.buddies[condName] !== undefined) {
-                TeamArray[transportTeam.buddies[condName]].passenger = false;
-                transportTeam.buddy(condName,false);
-            }
+        let passengers = transportTeam.carrying;
+        for (let i=0;i<passengers.length;i++) {
+            let passengerTeam = TeamArray[passengers[i]];
+            passengerTeam.token.set("layer","objects");
         }
-        transportTeam.carrying = false;
+        transportTeam.removeCondition("Passengers");
+        transportTeam.carrying = [];
         outputCard.body.push("Teams can be Activated");
         outputCard.body.push("Orders must include Movement so that the Team moves away from the Transport");
         PrintCard();
