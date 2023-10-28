@@ -5,7 +5,7 @@
 /* global GroupInitiative TokenMod */
 const TokenCondition = (() => { // eslint-disable-line no-unused-vars
 
-    const version = '0.1.2';
+    const version = '0.1.2.1';
     const lastUpdate = 1585754161;
     const schemaVersion = 0.2;
 
