@@ -5943,6 +5943,8 @@ log("2nd Row to " + team3.name)
             transportTeam.addCondition("Passengers");
         }
         transportTeam.carrying = passengers;
+        //move passengerTeam token to lighting layer
+        passengerTeam.token.set("layer","walls");
 
         outputCard.body.push(passengerTeam.name + " Loaded");
         outputCard.body.push(transportTeam + " has " + room + " Transport Left");
