@@ -1014,7 +1014,7 @@ const FOW4 = (() => {
                 isdrawing: true,
                 pageid: this.token.get("pageid"),
                 imgsrc: imgSrc,
-                layer: "objects",
+                layer: "gmlayer",
                 represents: charID,
             });
             toFront(conditionToken);
@@ -2312,7 +2312,6 @@ log(hit)
         };
         let id = msg.selected[0]._id;
         let data = TokenCondition.LookUpMaster(id);
-log(data)
         if (data) {
             id = data.target;
         }
@@ -2707,10 +2706,11 @@ log(data)
             return;
         };
         let teamID = msg.selected[0]._id;
-        let data = TokenCondition.LookUpMaster(id);
+        let data = TokenCondition.LookUpMaster(teamID);
         if (data) {
             teamID = data.target;
         }
+        let Tag = msg.content.split(";");
         let order = Tag[1];
         ActivateUnitTwo(teamID,order);
     }
