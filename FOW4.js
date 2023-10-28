@@ -882,7 +882,6 @@ const FOW = (() => {
             this.aaweapon = ''; //used to track weapons fired in AA
           
             this.maxPass = maxPass;
-            this.carrying = [];
             this.passenger = false;
 
             if (!state.FOW.teams[this.id]) {
@@ -1610,6 +1609,7 @@ log(hit)
             teams: {}, //teamIDs -> unit and formation IDs
             formations: {}, //formationIDs -> name
             units: {},//unitIDs -> name
+            passengers: {},//keyed on IDs of transports, arrays of passengerIDs
         }
         BuildMap();
         sendChat("","Cleared State/Arrays");
@@ -5424,7 +5424,7 @@ log(unitIDs4Saves)
         }
     }
 
-    const InCC = (team1,location) => {
+    const InCC = (team1) => {
         if (team1.order !== "Assault") {return};
         //determine if this team is now in B2B or if infantry in 2nd row
         let teamKeys = Object.keys(TeamArray);
@@ -5464,6 +5464,7 @@ log(unitIDs4Saves)
                 }
             }
         }
+        let ccError = false;
         if (inCC === false) {
             let index = CCTeamIDs.indexOf(team1.id);
             log(index)
@@ -5482,17 +5483,16 @@ log(unitIDs4Saves)
             if (team1.buddies["AAFire"] !== undefined) {
                 errorMsg = "This Team fired AA Fire and cannot Charge into Contact";
             }
+
             if (errorMsg !== undefined) {
-                team1.token.set({
-                    left: location.x,
-                    top: location.y,
-                });
+                ccError = true;
                 sendChat("",errorMsg);
             } else if (CCTeamIDs.includes(team1.id) === false) {
                 CCTeamIDs.push(team1.id);
                 Defensive(team1,"Add");
             }
         }
+        return ccError;
     }
 
     const Defensive = (team1,action) => {
@@ -5914,7 +5914,6 @@ log("2nd Row to " + team3.name)
         SetupCard(passengerTeam.name,"Mount",passengerTeam.nation);
         let errorMsg;
         let distance = passengerTeam.hex.distance(transportTeam.hex);
-
         if (state.FOW.step !== "Movement") {
             errorMsg = "Teams can only Mount in the Movement Phase";
         }
@@ -5924,52 +5923,57 @@ log("2nd Row to " + team3.name)
         if (distance > 1) {
             errorMsg = "Need to be Adjacent to Transport";
         }
-        let passengers = transportTeam.carrying;
-        let room = parseInt(transportTeam.maxPass) - parseInt(passengers.length);
-
-        if (room < 1) {
-            errorMsg = "No Room on this Transport";
+        if (!state.FOW.passengers[transportID]) {
+            state.FOW.passengers[transportID] = [];
         }
-
+        let passengers = state.FOW.passengers[transportID];
+        let room = parseInt(transportTeam.maxPass) - parseInt(passengers.length);
+        if (room < 1) {
+            errorMsg = "No More Room";
+        }
         if (errorMsg !== undefined) {
             outputCard.body.push(errorMsg);
             PrintCard();
             return;
         }
-
         passengers.push(passengerID);
         if (passengers.length === 1) {
             //after first, dont need to add icon
             transportTeam.addCondition("Passengers");
         }
-        transportTeam.carrying = passengers;
+        state.FOW.passengers[transportID] = passengers;
         //move passengerTeam token to lighting layer
         passengerTeam.token.set("layer","walls");
 
         outputCard.body.push(passengerTeam.name + " Loaded");
-        outputCard.body.push(transportTeam + " has " + room + " Transport Left");
-
+        outputCard.body.push(transportTeam + " has " + (room-1) + " Transport Left");
         PrintCard();
     }
 
     const Dismount = (msg) => {
         let id = msg.selected[0]._id;
         let transportTeam = TeamArray[id];
+        let passengers;
         SetupCard(transportTeam.name,"Dismount",transportTeam.nation);
         if (state.FOW.step !== "Movement") {
             outputCard.body.push("Can only Dismount in the Movement Step");
             PrintCard();
             return;
         }
-        let passengers = transportTeam.carrying;
-        for (let i=0;i<passengers.length;i++) {
-            let passengerTeam = TeamArray[passengers[i]];
-            passengerTeam.token.set("layer","objects");
+        if (!state.FOW.passengers[id]) {
+            outputCard.body.push("No Passengers");
+        } else {
+            passengers = state.FOW.passengers[id];
+            for (let i=0;i<passengers.length;i++) {
+                let passengerTeam = TeamArray[passengers[i]];
+                passengerTeam.token.set("layer","objects");
+                toFront(passengerTeam);
+            }
+            transportTeam.removeCondition("Passengers");
+            state.FOW.passengers[id] = [];
+            outputCard.body.push("Teams can be Activated");
+            outputCard.body.push("Orders must include Movement so that the Team moves away from the Transport");
         }
-        transportTeam.removeCondition("Passengers");
-        transportTeam.carrying = [];
-        outputCard.body.push("Teams can be Activated");
-        outputCard.body.push("Orders must include Movement so that the Team moves away from the Transport");
         PrintCard();
     }
 
@@ -6052,8 +6056,8 @@ log("2nd Row to " + team3.name)
                 if (hexMap[newHexLabel].dash === 4) {
                     moveBack = true;
                 }
-
-                if (moveBack === true) {
+                let ccError = InCC(team);
+                if (moveBack === true || ccError === true) {
                     PlaySound("No");
                     tok.set("height",prev.height);
                     tok.set("width",prev.width);
@@ -6062,19 +6066,6 @@ log("2nd Row to " + team3.name)
                     tok.set("rotation",prev.rotation);
                     return;
                 }
-
-                let bkeys = Object.keys(team.buddies);
-                for (let i=0;i<bkeys.length;i++) {
-                    let condition = bkeys[i];
-                    let id = team.buddies[bkeys[i]];
-                    if (id !== undefined) {
-                        let buddyToken = findObjs({_type:"graphic", id: id})[0];
-                        buddyToken.set({
-                            left: newLocation.x,
-                            top: newLocation.y,
-                        });
-                    };
-                };
 
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
@@ -6085,7 +6076,26 @@ log("2nd Row to " + team3.name)
                 }
                 hexMap[newHexLabel].teamIDs.push(tok.id);
                 inCommand(team);
-                InCC(team,oldLocation);
+                if (state.FOW.passengers[tok.id]) {
+                    //carrying passengers
+                    let passengers = state.FOW.passengers[tok.id];
+                    for (let p=0;p<passengers.length;p++) {
+                        let passengerTeam = TeamArray[passengers[p]];
+                        passengerTeam.token.set({
+                            left: newLocation.x,
+                            top: newLocation.y,
+                        })
+                        passengerTeam.hex = newHex;
+                        passengerTeam.hexLabel = newHexLabel;
+                        passengerTeam.location = newLocation;
+                        let index = hexMap[oldHexLabel].teamIDs.indexOf(passengerTeam.id);
+                        if (index > -1) {
+                            hexMap[oldHexLabel].teamIDs.splice(index,1);
+                        }
+                        hexMap[newHexLabel].teamIDs.push(passengerTeam.id);
+                    }
+                }
+
                 if (state.FOW.turn > 0) {
                     if (team.hexLabel !== team.prevHexLabel) {
                         if (team.moved === false) {
