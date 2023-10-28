@@ -1,6 +1,6 @@
-const FOW4 = (() => { 
+const FOW = (() => { 
     const version = '4.10.26';
-    if (!state.FOW4) {state.FOW4 = {}};
+    if (!state.FOW) {state.FOW = {}};
 
     const gameScale = 1; //1 = Normal Movement, 0.5 = Half Movement
 
@@ -461,6 +461,9 @@ const FOW4 = (() => {
             this.nation = nation;
             this.unitIDs = [];
 
+            if (!state.FOW.formations[id]) {
+                state.FOW.formations[id] = name;
+            }
             FormationArray[id] = this;
         }
 
@@ -503,6 +506,10 @@ const FOW4 = (() => {
             this.limited = 0; //used to track limited use weapons
             this.inReserve = false;
             this.size; //used for pinning purposes, size of unit at start of turn
+
+            if (!state.FOW.units[id]) {
+                state.FOW.units[id] = name;
+            }
 
             UnitArray[id] = this;
         }
@@ -559,8 +566,8 @@ const FOW4 = (() => {
         pinned() {
             let result = false;
             let leaderTeam = TeamArray[this.teamIDs[0]];
-            if (state.FOW4.conditions[leaderTeam.id]) {
-                if (state.FOW4.conditions[leaderTeam.id]["Pinned"]) {
+            if (state.FOW.conditions[leaderTeam.id]) {
+                if (state.FOW.conditions[leaderTeam.id]["Pinned"]) {
                     result = true;
                 }
             }
@@ -600,7 +607,7 @@ const FOW4 = (() => {
     }
 
     class Team {
-        constructor(tokenID,formationID,unitID) {
+        constructor(tokenID,formationID,unitID,rank) {
             let token = findObjs({_type:"graphic", id: tokenID})[0];
             if (!token) {sendChat("","No Token?"); return}
             let char = getObj("character", token.get("represents")); 
@@ -832,9 +839,6 @@ const FOW4 = (() => {
             AttributeSet(char.id,"roaddisplay",this.roaddash);
 
 
-
-
-
             this.armourF = front;
             this.armourSR = side;
             this.armourT = top;
@@ -872,6 +876,7 @@ const FOW4 = (() => {
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
             this.buddies = {};
+            this.rank = rank;
 
             this.fired = false;
             this.aaFired = false;
@@ -882,7 +887,15 @@ const FOW4 = (() => {
             this.carrying = false;
             this.passenger = false;
 
-
+            if (!state.FOW.teams[this.id]) {
+                state.FOW.teams[this.id] = {
+                    unitID: unitID,
+                    formationID: formationID,
+                    rank: rank,
+                    name: this.name,
+                    player: player,
+                }
+            }
 
             TeamArray[tokenID] = this;
             hexMap[hexLabel].teamIDs.push(tokenID);
@@ -990,19 +1003,19 @@ const FOW4 = (() => {
             }
             //clear other conditions in that array
             let conditions = [];
-            if (state.FOW4.conditions[this.id]) {
-                conditions = state.FOW4.conditions[this.id];
+            if (state.FOW.conditions[this.id]) {
+                conditions = state.FOW.conditions[this.id];
                 for (let i=0;i<array.length;i++) {
                     if (conditions[condition]) {
                         let token = findObjs({_type:"graphic", id: conditions[condition]})[0];
                         if (token) {
                             token.remove();
                         }
-                        delete state.FOW4.conditions[this.id][condition];
+                        delete state.FOW.conditions[this.id][condition];
                     }
                 }
             } else {
-                state.FOW4.conditions[this.id] = {};
+                state.FOW.conditions[this.id] = {};
             }
 
             let conditionToken = createObj("graphic", {   
@@ -1019,19 +1032,19 @@ const FOW4 = (() => {
             });
             toFront(conditionToken);
             TokenCondition.AttachConditionToToken(conditionToken.id,this.id);
-            state.FOW4.conditions[this.id][condition] = conditionToken.id;
+            state.FOW.conditions[this.id][condition] = conditionToken.id;
         }
 
         removeCondition(condition) {
-            if (state.FOW4.conditions[this.id]) {
-                let conditions = state.FOW4.conditions[this.id];
+            if (state.FOW.conditions[this.id]) {
+                let conditions = state.FOW.conditions[this.id];
                 if (conditions[condition]) {
                     let conditionID = conditions[condition];
                     let token = findObjs({_type:"graphic", id: conditionID})[0];
                     if (token) {
                         token.remove();
                     }
-                    delete state.FOW4.conditions[this.id][condition];
+                    delete state.FOW.conditions[this.id][condition];
                 }
             }
         }
@@ -1071,8 +1084,8 @@ const FOW4 = (() => {
 
         bailed() {
             let result = false;
-            if (state.FOW4.conditions[this.id]) {
-                if (state.FOW4.conditions[this.id]["Bailed Out"]) {
+            if (state.FOW.conditions[this.id]) {
+                if (state.FOW.conditions[this.id]["Bailed Out"]) {
                     result = true;
                 }
             }
@@ -1576,7 +1589,7 @@ log(hit)
             });                
         })
 
-        state.FOW4 = {
+        state.FOW = {
             nations: [[],[]],
             players: {},
             playerInfo: [[],[]],
@@ -1584,12 +1597,12 @@ log(hit)
             labmode: false,
             darkness: false,
             turn: 0,
-            step: undefined,
-            gametype: undefined,
-            currentPlayer: undefined,
-            timeOfDay: undefined,
-            startingPlayer: undefined,
-            barrageID: undefined,
+            step: "start",
+            gametype: "undefined",
+            currentPlayer: -1,
+            timeOfDay: "Day",
+            startingPlayer: -1,
+            barrageID: "",
             BarrageInfo: [],
             smokeScreens: [[],[]],
             conditions: {},
@@ -1949,7 +1962,8 @@ log(hit)
         let elapsed = Date.now()-startTime;
         log("Hex Map Built in " + elapsed/1000 + " seconds");
         //add tokens to hex map, rebuild Team/Unit Arrays
-        TA();
+        //TA();
+        RebuildArrays();
         //check what is in command
         inCommand("All");
         BuildReserve();//places flag on units in reserve when rebuilding a map
@@ -2064,6 +2078,60 @@ log(hit)
         }
     }
 
+    const RebuildArrays = () => {
+        UnitArray = {};
+        TeamArray = {};
+        FormationArray = {};
+        let startTime = Date.now();
+        if (!state.FOW.teams) {
+            log("No Teams in Array")
+            return;
+        }
+
+        let teamKeys = Object.keys(state.FOW.teams);
+        let add = 0;
+        let remove = 0;
+
+        const teamBurndown = () => {
+            let id = teamKeys.shift();
+            if (id) {
+                let token = findObjs({_type:"graphic", id: id})[0];
+                if (!token) {
+                    delete state.FOW.teams[id];
+                    remove++;
+                    return;
+                }
+                let character =  getObj("character", token.get("represents")); 
+                if (!character) {
+                    return;
+                }
+                let nation = Attribute(character,"nation");
+    
+                let teamInfo = state.FOW.teams[id];
+                let fid = teamInfo.formationID;
+                let uid = teamInfo.unitID;
+    
+                if (!FormationArray[fid]) {
+                    new Formation(teamInfo.player,nation,fid,state.FOW.formations[fid]);
+                }
+                if (!UnitArray[uid]) {
+                    new Unit(teamInfo.player,nation,uid,state.FOW.units[uid],fid);
+                }
+                new Team(id,teamInfo.fid,uid,teamInfo.rank);
+                add++;
+            }
+        }
+        teamBurndown();
+        let elapsed = Date.now()-startTime;
+        log(add + " Teams added to array in " + elapsed/1000 + " seconds");
+        if (remove > 0) {
+            log(remove + " Teams removed as no Token on Map");
+        }
+    }
+
+
+/*
+
     const TA = () => {
         //add tokens on map into various arrays
         UnitArray = {};
@@ -2077,15 +2145,6 @@ log(hit)
             _subtype: "token",
             layer: "objects",
         });
-
-        /*
-        tokens = tokens.filter((t) => {
-            if (t.get("layer") === "objects" || t.get("layer") === "gmlayer") {
-                return t;
-            }
-        });
-        */
-
 
         let c = tokens.length;
         let s = (1===c?'':'s');     
@@ -2126,6 +2185,9 @@ log(hit)
         let elapsed = Date.now()-start;
         log(`${c} token${s} checked in ${elapsed/1000} seconds - ` + Object.keys(TeamArray).length + " placed in Team Array");
     }
+
+*/
+
 
 
     const Facing = (id1,id2) => { //id2 is the target, id1 is the shooter - returns the facing of id 2
@@ -2238,10 +2300,10 @@ log(hit)
         log(unit)
         
 
-        let basegmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id + ";";
+        //let basegmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id + ";";
 
         for (let i=0;i<teamIDs.length;i++) {
-            let team = new Team(teamIDs[i],formationID,unit.id);
+            let team = new Team(teamIDs[i],formationID,unit.id,3);
             if (!team) {continue};
             unit.add(team);
             let aura = "transparent";
@@ -2251,7 +2313,8 @@ log(hit)
             let info = NameAndRank(team,i);
             team.name = info.name;
             team.rank = info.rank;
-            gmn = basegmn + team.rank.toString();
+            state.FOW.teams[teamIDs[i]].rank = info.rank;
+            //gmn = basegmn + team.rank.toString();
             let r = 0.1;
             if (team.type === "Infantry") {r = 0.25}
             team.token.set({
@@ -2260,12 +2323,12 @@ log(hit)
                 aura1_color: aura,
                 aura1_radius: r,
                 showname: true,
-                gmnotes: gmn,
+                //gmnotes: gmn,
                 statusmarkers: unitMarker,
             })
         }
-        if (state.FOW4.nations[player].includes(nation) === false) {
-            state.FOW4.nations[player].push(nation);
+        if (state.FOW.nations[player].includes(nation) === false) {
+            state.FOW.nations[player].push(nation);
         }
         sendChat("",unitName + " Added to " + formation.name)
     }
@@ -2396,7 +2459,7 @@ log(hit)
         let nightVisibility = distanceT1T2;
         let losReason = "";
 
-        if (state.FOW4.darkness === true && special.includes("Spotter") === false && team2.token.get(SM.flare) === false) {
+        if (state.FOW.darkness === true && special.includes("Spotter") === false && team2.token.get(SM.flare) === false) {
             if (team1.nightvisibility > 0) {
                 nightVisibility = team1.nightvisibility;
             } else {
@@ -2652,7 +2715,7 @@ log(hit)
     }
 
     const SetupGame = (msg) => {
-        state.FOW4.turn = 0;
+        state.FOW.turn = 0;
         let Tag = msg.content.split(";");
         let gametype = Tag[1];
         let startingPlayer = Number(Tag[2]);
@@ -2664,15 +2727,15 @@ log(hit)
             if (roll > 4) {timeOfDay = "Dusk"};
         }
     
-        state.FOW4.gametype = gametype;
-        state.FOW4.currentPlayer = startingPlayer;
-        state.FOW4.timeOfDay = timeOfDay;
-        state.FOW4.darkness = false;
+        state.FOW.gametype = gametype;
+        state.FOW.currentPlayer = startingPlayer;
+        state.FOW.timeOfDay = timeOfDay;
+        state.FOW.darkness = false;
         if (timeOfDay === "Dawn" || timeOfDay === "Night") {
-            state.FOW4.darkness = true;
+            state.FOW.darkness = true;
         }
-        state.FOW4.startingPlayer = startingPlayer;
-        let nat = state.FOW4.nations[startingPlayer][0];
+        state.FOW.startingPlayer = startingPlayer;
+        let nat = state.FOW.nations[startingPlayer][0];
 
         SetupCard("Setup New Game","","Neutral");
         outputCard.body.push("Game Type: " + gametype);
@@ -2741,7 +2804,7 @@ log(hit)
         if (!specialorder) {
             specialorder = "";
             SetupCard(targetName,order,unit.nation);
-            if (state.FOW4.step === "Shooting" && order === "Hold" && targetTeam.moved === true) {
+            if (state.FOW.step === "Shooting" && order === "Hold" && targetTeam.moved === true) {
                 outputCard.body.push("Team/Unit has already moved and so cannot be issued a Hold Order");
                 PrintCard();
                 return;
@@ -2804,7 +2867,7 @@ log(hit)
         } else if (order.includes("Dash")) {
             outputCard.body.push(noun + ' can move at Dash Speed, but may not fire');
             outputCard.body.push(noun + ' cannot move within ' + 8*gameScale + ' hexes of visible enemies');
-            if (state.FOW4.darkness === true) {
+            if (state.FOW.darkness === true) {
                 outputCard.body.push("Darkness limits speed to Terrain Dash");
             }
         } else if (order.includes("Hold")) {
@@ -3012,7 +3075,7 @@ log(hit)
         if (team.specialorder.includes("Cross Here")) {
             cross--;
         }
-        if (state.FOW4.darkness === true) {
+        if (state.FOW.darkness === true) {
             cross++;
         }
         SetupCard(team.name,"vs. " + cross + "+",team.nation);
@@ -3037,7 +3100,7 @@ log(hit)
         let unitLeader = TeamArray[unit.teamIDs[0]];
         SetupCard(unit.name,specialorder,team.nation);
         let errorMsg = [];
-        let step = state.FOW4.step;
+        let step = state.FOW.step;
 
 
         let roll = randomInteger(6);
@@ -3119,7 +3182,7 @@ log(hit)
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
                             let id = unit.inCommandIDs[i];
                             if (TeamArray[id].token.get(SM.mounted) === true) {
-                                let transID = state.FOW4.passengers[id];
+                                let transID = state.FOW.passengers[id];
                                 RemovePassenger(id);
                                 DismountPassengersTwo(id,transID);
                             }
@@ -3141,7 +3204,7 @@ log(hit)
                         for (let i=0;i<unit.inCommandIDs.length;i++) {
                             let id = unit.inCommandIDs[i];
                             if (TeamArray[id].token.get(SM.mounted) === true) {
-                                let transID = state.FOW4.passengers[id];
+                                let transID = state.FOW.passengers[id];
                                 RemovePassenger(id);
                                 DismountPassengersTwo(id,transID);
                             }
@@ -3262,10 +3325,10 @@ log(hit)
     const ChangeStep = (msg) => {
         let Tag = msg.content.split(";");
         let newStep = Tag[1];
-        state.FOW4.step = newStep;
+        state.FOW.step = newStep;
         if (newStep === "Start") {
             RemoveMoveMarkers();
-            if (state.FOW4.darkness === true) {
+            if (state.FOW.darkness === true) {
                 pageInfo.page.set({
                     dynamic_lighting_enabled: true,
                     daylight_mode_enabled: true,
@@ -3277,7 +3340,7 @@ log(hit)
             StartStep("ResLeaders");
         }
         if (newStep === "Movement") {
-            SetupCard("Turn: " + state.FOW4.turn,"Movement Step",playerNation);
+            SetupCard("Turn: " + state.FOW.turn,"Movement Step",playerNation);
             outputCard.body.push("Give Units Orders if Desired");
             outputCard.body.push("Move Any or All Units");
             outputCard.body.push("Other Player can Interrupt for Opportunity Fire");
@@ -3285,9 +3348,9 @@ log(hit)
             PrintCard();
         }
         if (newStep === "Shooting") {
-            SetHexes(state.FOW4.currentPlayer);
+            SetHexes(state.FOW.currentPlayer);
             RemoveMoveMarkers();
-            SetupCard("Turn: " + state.FOW4.turn,"Shooting Step",playerNation);
+            SetupCard("Turn: " + state.FOW.turn,"Shooting Step",playerNation);
             outputCard.body.push("Anti-Aircraft Fire");
             outputCard.body.push("Direct Fire");
             outputCard.body.push("Bombardments");
@@ -3296,7 +3359,7 @@ log(hit)
         if (newStep === "Assault") {
             RemoveBarrageToken();
             AssaultHexes = [];
-            SetupCard("Turn: " + state.FOW4.turn,"Assault Step",playerNation);
+            SetupCard("Turn: " + state.FOW.turn,"Assault Step",playerNation);
             outputCard.body.push("Units that have Assault Orders can Charge Into Contact");
             outputCard.body.push("Then conduct Assaults");
             PrintCard();
@@ -3306,27 +3369,27 @@ log(hit)
 
     const AdvanceStep = () => {
         RemoveLines();
-        if (state.FOW4.nations[0].length === 0 && state.FOW4.nations[1].length === 0) {
+        if (state.FOW.nations[0].length === 0 && state.FOW.nations[1].length === 0) {
             sendChat("","No Units Created Yet");
             return;
         }
-        let turn = state.FOW4.turn;
-        let currentStep = state.FOW4.step;
+        let turn = state.FOW.turn;
+        let currentStep = state.FOW.step;
         let steps = ["Start","Movement","Shooting","Assault"];
         if (turn === 0) {
             for (let p=0;p<2;p++) {
                 let num = 100 + parseInt(p);
-                let form = new Formation(p,state.FOW4.nations[p][0],num,"Barrages");
-                let unit = new Unit(p,state.FOW4.nations[p][0],num,"Barrages");
+                let form = new Formation(p,state.FOW.nations[p][0],num,"Barrages");
+                let unit = new Unit(p,state.FOW.nations[p][0],num,"Barrages");
             }
-            currentPlayer = parseInt(state.FOW4.startingPlayer);
-            if (state.FOW4.gametype === undefined || currentPlayer === undefined) {
+            currentPlayer = parseInt(state.FOW.startingPlayer);
+            if (state.FOW.gametype === undefined || currentPlayer === undefined) {
                 SetupCard("Setup Game","","Neutral");
                 ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Allies,0|Axis,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
                 PrintCard();
                 return;
             }
-            if (state.FOW4.gametype === "Meeting Engagement") {
+            if (state.FOW.gametype === "Meeting Engagement") {
                 StartInFoxholes();
             }
 
@@ -3337,15 +3400,15 @@ log(hit)
             num += 1;
             if (num >= steps.length) {
                 num = 0;
-                if (state.FOW4.currentPlayer !== parseInt(state.FOW4.startingPlayer)) {
+                if (state.FOW.currentPlayer !== parseInt(state.FOW.startingPlayer)) {
                     turn++;
                 }
-                state.FOW4.currentPlayer = (state.FOW4.currentPlayer === 0) ? 1:0;
+                state.FOW.currentPlayer = (state.FOW.currentPlayer === 0) ? 1:0;
             };
             currentStep = steps[num];
         }
 
-        if ((state.FOW4.timeOfDay === "Dawn" || state.FOW4.timeOfDay === "Dusk") && currentPlayer === state.FOW4.firstPlayer && turn > 2) {
+        if ((state.FOW.timeOfDay === "Dawn" || state.FOW.timeOfDay === "Dusk") && currentPlayer === state.FOW.firstPlayer && turn > 2) {
             let numDice = turn - 2;
             let flip = false;
             for (let i=0;i<numDice;i++) {
@@ -3357,16 +3420,16 @@ log(hit)
             }
             if (flip) {
                 SetupCard("Time Change","","Neutral");
-                if (state.FOW4.timeOfDay === "Dawn") {
+                if (state.FOW.timeOfDay === "Dawn") {
                     outputCard.body.push("[#ff0000]Morning has broken, the rest of the battle is fought in Daylight[/#]");
-                    state.FOW4.timeOfDay = "Daylight";
-                    state.FOW4.darkness = false;
+                    state.FOW.timeOfDay = "Daylight";
+                    state.FOW.darkness = false;
                     pageInfo.page.set("dynamic_lighting_enabled",false);
                 }
-                if (state.FOW4.timeOfDay === "Dusk") {
+                if (state.FOW.timeOfDay === "Dusk") {
                     outputCard.body.push("[#ff0000]Night has fallen, the rest of the battle is fought in Darkness[/#]");
-                    state.FOW4.timeOfDay = "Night";
-                    state.FOW4.darkness = true;
+                    state.FOW.timeOfDay = "Night";
+                    state.FOW.darkness = true;
                     pageInfo.page.set({
                         dynamic_lighting_enabled: true,
                         daylight_mode_enabled: true,
@@ -3377,13 +3440,13 @@ log(hit)
             }
         }
 
-        state.FOW4.turn = turn;
-        state.FOW4.step = currentStep;
-        currentPlayer = state.FOW4.currentPlayer;
-        let playerNation = state.FOW4.nations[state.FOW4.currentPlayer][0];
+        state.FOW.turn = turn;
+        state.FOW.step = currentStep;
+        currentPlayer = state.FOW.currentPlayer;
+        let playerNation = state.FOW.nations[state.FOW.currentPlayer][0];
 
         if (currentStep === "Start") {
-            if (state.FOW4.darkness === true) {
+            if (state.FOW.darkness === true) {
                 pageInfo.page.set({
                     dynamic_lighting_enabled: true,
                     daylight_mode_enabled: true,
@@ -3395,16 +3458,16 @@ log(hit)
             StartStep("ResLeaders");
         }
         if (currentStep === "Movement") {
-            SetupCard("Turn: " + state.FOW4.turn,"Movement Step",playerNation);
+            SetupCard("Turn: " + state.FOW.turn,"Movement Step",playerNation);
             outputCard.body.push("Activate Units");
             outputCard.body.push("Special Orders if Desired");
             outputCard.body.push("Move any or all units");
             PrintCard();
         }
         if (currentStep === "Shooting") {
-            inCommand(state.FOW4.currentPlayer);
-            ResetAuras(state.FOW4.currentPlayer);
-            SetupCard("Turn: " + state.FOW4.turn,"Shooting Step",playerNation);
+            inCommand(state.FOW.currentPlayer);
+            ResetAuras(state.FOW.currentPlayer);
+            SetupCard("Turn: " + state.FOW.turn,"Shooting Step",playerNation);
             outputCard.body.push("Anti-Aircraft Fire");
             outputCard.body.push("Direct Fire");
             outputCard.body.push("Bombardments");
@@ -3412,10 +3475,10 @@ log(hit)
         }
         if (currentStep === "Assault") {
             RemoveBarrageToken();
-            ResetAuras(state.FOW4.currentPlayer);
+            ResetAuras(state.FOW.currentPlayer);
             assaultingUnitID = "";
             CCTeamIDs = [];
-            SetupCard("Turn: " + state.FOW4.turn,"Assault Step",playerNation);
+            SetupCard("Turn: " + state.FOW.turn,"Assault Step",playerNation);
             outputCard.body.push("Units that have Assault Orders can Charge Into Contact");
             outputCard.body.push("Resolve Close Combats One Unit at a Time")
             outputCard.body.push("Defensive Fire")
@@ -3425,8 +3488,8 @@ log(hit)
     }
 
     const StartStep = (pass) => {
-        let currentPlayer = parseInt(state.FOW4.currentPlayer);
-        let nat = state.FOW4.nations[currentPlayer][0];  
+        let currentPlayer = parseInt(state.FOW.currentPlayer);
+        let nat = state.FOW.nations[currentPlayer][0];  
         if (pass === "ResLeaders") {
             ResLeaders();
         }
@@ -3435,7 +3498,7 @@ log(hit)
             let keys = Object.keys(UnitArray); 
             for (let i=0;i<keys.length;i++) {
                 let unit = UnitArray[keys[i]];
-                if (unit.type !== "Tank" || unit.player !== state.FOW4.currentPlayer) {continue};
+                if (unit.type !== "Tank" || unit.player !== state.FOW.currentPlayer) {continue};
                 let ids = unit.teamIDs;
                 for (let j=0;j<ids.length;j++) {
                     let team = TeamArray[ids[j]];
@@ -3457,7 +3520,7 @@ log(hit)
             let keys = Object.keys(UnitArray);
             for (let i=0;i<keys.length;i++) {
                 let unit = UnitArray[keys[i]];
-                if (unit.player !== state.FOW4.currentPlayer || (unit.type !== "Infantry" && unit.type !== "Unarmoured Tank" && unit.type !== "Gun")) {continue};
+                if (unit.player !== state.FOW.currentPlayer || (unit.type !== "Infantry" && unit.type !== "Unarmoured Tank" && unit.type !== "Gun")) {continue};
                 let unitLeader = TeamArray[unit.teamIDs[0]];
                 if (!unitLeader) {
                     log("No Unit Leader for this unit: " + unit.name);
@@ -3489,7 +3552,7 @@ log(hit)
                     log(unit)
                     continue;
                 }
-                if (unit.player !== state.FOW4.currentPlayer || unitLeader.special.includes("HQ") || unitLeader.special.includes("Independent")) {continue};
+                if (unit.player !== state.FOW.currentPlayer || unitLeader.special.includes("HQ") || unitLeader.special.includes("Independent")) {continue};
                 let count = 0;
                 let ids = unit.teamIDs;
                 for (let j=0;j<ids.length;j++) {
@@ -3532,12 +3595,12 @@ log(hit)
             StartStep("Final");
         }
         if (pass === "Final") {
-            SetupCard("Turn: " + state.FOW4.turn,"Starting Step",nat);
+            SetupCard("Turn: " + state.FOW.turn,"Starting Step",nat);
             SendToRear();
             ClearSmoke();
             RemoveFoxholes();
             ResetFlags();
-            if (state.FOW4.turn === 1 && state.FOW4.currentPlayer === state.FOW4.startingPlayer) {
+            if (state.FOW.turn === 1 && state.FOW.currentPlayer === state.FOW.startingPlayer) {
                 outputCard.body.push("Aircraft cannot Arrive this turn");
                 outputCard.body.push("All Teams are treated as having moved in the Shooting Step");
                 outputCard.body.push("No Artillery Bombardments this turn");
@@ -3555,7 +3618,7 @@ log(hit)
         let keys = Object.keys(UnitArray);
         for (let j=0;j<keys.length;j++) {
             let unit = UnitArray[keys[j]];
-            if (unit.player === state.FOW4.currentPlayer) {
+            if (unit.player === state.FOW.currentPlayer) {
                 let conditions = ["Dash","Tactical","Hold","Assault","Fired","AAFire","Radio"];
                 for (let b=0;b<conditions.length;b++) {
                     for (let t=0;t<unit.teamIDs.length;t++) {
@@ -3563,7 +3626,7 @@ log(hit)
                         team.removeCondition(conditions[b]);
                     }
                 }
-                if (state.FOW4.turn === 1) {
+                if (state.FOW.turn === 1) {
                     GTG(unit);
                 }
             } else {
@@ -3571,7 +3634,7 @@ log(hit)
             }
             for (let i=0;i<unit.teamIDs.length;i++) {
                 let team = TeamArray[unit.teamIDs[i]];
-                if (unit.player === state.FOW4.currentPlayer) {
+                if (unit.player === state.FOW.currentPlayer) {
                     team.spotAttempts = 0;
                     team.prevHexLabel = team.hexLabel;
                     team.prevHex = team.hex;
@@ -3628,7 +3691,7 @@ log(hit)
         /*
         for (let i=0;i<2;i++) {
             if (LeaderResFlag[i] === false) {continue};
-            SetupCard("Commander Survival","",state.FOW4.nations[i][0]);
+            SetupCard("Commander Survival","",state.FOW.nations[i][0]);
             let possibleIDs = LeaderResInfo[i].possibleIDs;
             let count = 0;
             for (let j=0;j<possibleIDs.length;j++) {
@@ -3640,7 +3703,7 @@ log(hit)
             }
             if (count === 0) {continue} //all dead
             
-            outputCard.body.push(state.FOW4.nations[i][0] + " Commander has a chance of Survival");
+            outputCard.body.push(state.FOW.nations[i][0] + " Commander has a chance of Survival");
             outputCard.body.push("Eligible Teams are indicated by a Green dot");
             outputCard.body.push("Select One and Click the Button to Roll a Dice");
             outputCard.body.push("On a roll of 3+ the Commander survives and takes over the selected Team");
@@ -3725,21 +3788,21 @@ log(hit)
         if (Tag.length === 1) {
             let playerID = msg.playerid;
             let nation = "Neutral";
-            if (!state.FOW4.players[playerID] || state.FOW4.players[playerID] === undefined) {
+            if (!state.FOW.players[playerID] || state.FOW.players[playerID] === undefined) {
                 if (msg.selected) {
                     let id = msg.selected[0]._id;
                     if (id) {
                         let tok = findObjs({_type:"graphic", id: id})[0];
                         let char = getObj("character", tok.get("represents")); 
                         nation = Attribute(char,"nation");
-                        state.FOW4.players[playerID] = nation;
+                        state.FOW.players[playerID] = nation;
                     }
                 } else {
                     sendChat("","Click on one of your tokens then select Roll again");
                     return;
                 }
             } else {
-                nation = state.FOW4.players[playerID];
+                nation = state.FOW.players[playerID];
             }
             let res = "/direct " + DisplayDice(roll,nation,40);
             sendChat("player|" + playerID,res);
@@ -3900,7 +3963,7 @@ log(hit)
         let sname = shooter.name;
 
 
-        if (state.FOW4.step === "Movement" || state.FOW4.step === "Start") {
+        if (state.FOW.step === "Movement" || state.FOW.step === "Start") {
             sendChat("","Advance Step before Shooting");
             return;
         }
@@ -3930,7 +3993,7 @@ log(hit)
         SetupCard(sname,"Shooting",shooter.nation);
 
         let defensive = false;
-        if (shooter.player !== state.FOW4.currentPlayer) {
+        if (shooter.player !== state.FOW.currentPlayer) {
             defensive = true;
             outputCard.subtitle = "Defensive Fire";
             if (shooter.ccIDs.includes(targetID) === false || state.FOW.step !== "Assault") {
@@ -4178,7 +4241,7 @@ log(weapons)
                     toHit++;
                     toHitTips += "<br>Not in Command +1";
                 }
-                if (state.FOW4.darkness === true) {
+                if (state.FOW.darkness === true) {
                     toHitTips += "<br>Darkness +1";
                     toHit++;
                 }
@@ -4329,7 +4392,7 @@ log(weapons)
                 sTeam.addCondition("Fired");
                 sTeam.fired = true;
             }
-            if (state.FOW4.darkness === true) {
+            if (state.FOW.darkness === true) {
                 sTeam.token.set(SM.flare,true);
             }
 
@@ -4553,12 +4616,12 @@ log("In Create Barrages")
         if (observerTeam.fired === true || observerTeam.aaFired === true) {
             errorMsg.push("Spotter Team has Fired");
         }
-        if (observerTeam.player !== state.FOW4.currentPlayer) {
+        if (observerTeam.player !== state.FOW.currentPlayer) {
             errorMsg.push("Cannot Fire Barrage in Defensive Fire");
         }
 
 
-        if (state.FOW4.turn === 1 && state.FOW4.gametype === "Meeting Engagement" && state.FOW4.startingPlayer === state.FOW4.currentPlayer) {
+        if (state.FOW.turn === 1 && state.FOW.gametype === "Meeting Engagement" && state.FOW.startingPlayer === state.FOW.currentPlayer) {
             errorMsg.push("No Barrages for First Player this Turn");
         }
         if (errorMsg.length > 0) {
@@ -4595,7 +4658,7 @@ log("In Create Barrages")
             aura1_radius: 2,
         });
         toFront(newToken);
-        state.FOW4.barrageID = newToken.id;
+        state.FOW.barrageID = newToken.id;
 
         let num = 100 + parseInt(observerTeam.player);
         let barrageTeam = new Team(newToken.id,num,num);
@@ -4625,7 +4688,7 @@ log(ai)
             artUnitIDs: unitIDs,
         }
 
-        state.FOW4.BarrageInfo = info;
+        state.FOW.BarrageInfo = info;
 
         outputCard.body.push("Place Barrage Marker");
         outputCard.body.push("Choose Artillery When in Place");
@@ -4671,7 +4734,7 @@ log(artUnits)
                     salvo = true;
                 }    
                 smokeFlag = false;
-                if (unitFiredThisTurn === false && weapon.notes.includes("Smoke Bombardment") === true && state.FOW4.smokeScreens[unit.player].includes(unit.id) === false) {
+                if (unitFiredThisTurn === false && weapon.notes.includes("Smoke Bombardment") === true && state.FOW.smokeScreens[unit.player].includes(unit.id) === false) {
                     smokeFlag = true; //start of firing, hasnt fired its smoke bombardment
                 }
                 //add ability for this artillery unit to the barrage character
@@ -4704,9 +4767,9 @@ log(artUnits)
 
     const RemoveBarrageToken = (barrageID) => {
         if (!barrageID) {
-            barrageID = state.FOW4.barrageID;
+            barrageID = state.FOW.barrageID;
         }
-        state.FOW4.barrageID = "";
+        state.FOW.barrageID = "";
         let barrageTeam = TeamArray[barrageID];
         if (!barrageTeam) {return};
         let barrageToken = barrageTeam.token;
@@ -4722,9 +4785,9 @@ log(artUnits)
         let barrageID = Tag[1];
         let barrageTeam = TeamArray[barrageID];
 
-        let observerID = state.FOW4.BarrageInfo.observerID;
+        let observerID = state.FOW.BarrageInfo.observerID;
         let observerTeam = TeamArray[observerID];
-        let artUnitIDs = state.FOW4.BarrageInfo.artUnitIDs;
+        let artUnitIDs = state.FOW.BarrageInfo.artUnitIDs;
         let artUnits = [];
         let air = false;
 
@@ -4780,7 +4843,7 @@ log(artUnits)
             }
 
             let smoke = false;
-            if (artTeam.artillery.notes.includes("Smoke Bombardment") && state.FOW4.smokeScreens[artUnit.player].includes(artUnit.id) === false && unitFiredThisTurn === false) {
+            if (artTeam.artillery.notes.includes("Smoke Bombardment") && state.FOW.smokeScreens[artUnit.player].includes(artUnit.id) === false && unitFiredThisTurn === false) {
                 smoke = true;
             }
             if (tooClose[0] === true) {
@@ -4935,7 +4998,7 @@ log(artUnits)
             artTeam.token.set("rotation",phi);
             artTeam.fired = true;
             artTeam.addCondition("Fired");
-            if (state.FOW4.darkness === true) {
+            if (state.FOW.darkness === true) {
                 shooterTeam.token.set(SM.flare,true);
             }   
         }
@@ -4977,7 +5040,7 @@ log(artUnits)
             needed += 1;
             tip2 += "<br>+1 Template over Terrain or Smoke"; 
         };
-            if (state.FOW4.darkness === true) {
+            if (state.FOW.darkness === true) {
             needed += 1;
             tip2 += "<br>+1 Night Time";
         };
@@ -5055,7 +5118,7 @@ log(artUnits)
             if (ammoType === "Smoke Bombardment") {
                 let num = gunNum * 4;
                 SmokeScreen(targetHex,num,direction,artilleryUnit.player);
-                state.FOW4.smokeScreens[artilleryUnit.player].push(artilleryUnit.id); //tracks that unit fired its one smoke bombardment
+                state.FOW.smokeScreens[artilleryUnit.player].push(artilleryUnit.id); //tracks that unit fired its one smoke bombardment
                 outputCard.body.push("Smoke Screen successfully placed");
                 RemoveBarrageToken()
                 PrintCard();
@@ -5131,9 +5194,9 @@ log(artUnits)
     }
 
     const RemoveLines = () => {
-        let lineIDArray = state.FOW4.LOSLines;
+        let lineIDArray = state.FOW.LOSLines;
         if (!lineIDArray) {
-            state.FOW4.LOSLines = [];
+            state.FOW.LOSLines = [];
             return;
         }
         for (let i=0;i<lineIDArray.length;i++) {
@@ -5143,7 +5206,7 @@ log(artUnits)
                 path.remove();
             }
         }
-        state.FOW4.LOSLines = [];  
+        state.FOW.LOSLines = [];  
     }
 
     const PlaceRangedInMarker = (artilleryUnit,targetHex) => {
@@ -5190,7 +5253,7 @@ log(marker);
     }
 
     const PlaceRangedIn = (msg) => {
-        if (state.FOW4.turn > 0) {
+        if (state.FOW.turn > 0) {
             sendChat("","Only useable at Start of Game");
             return;
         }
@@ -5263,7 +5326,7 @@ log(marker);
             let info = SmokeArray[i];
             let hexLabel = info.hexLabel;
             let player = parseInt(info.player);
-            if (player !== state.FOW4.currentPlayer) {
+            if (player !== state.FOW.currentPlayer) {
                 newSmoke.push(info);
             } else {
                 if (hexMap[hexLabel]) {
@@ -5476,7 +5539,7 @@ log(unitIDs4Saves)
             }
         } else {
             let errorMsg;
-            if (state.FOW4.step !== "Assault") {
+            if (state.FOW.step !== "Assault") {
                 errorMsg = "Not Assault Step";
             }
             if (team1.special.includes("Heavy Weapon")) {
@@ -5564,7 +5627,7 @@ log("Charge Dist: " + chargeDist)
                 array2.push(team.id); //filter out the further away ones later
             }
         }
-        if (attackingPlayer === state.FOW4.currentPlayer) {
+        if (attackingPlayer === state.FOW.currentPlayer) {
             attackingTeamIDs = array1;
             defendingTeamIDs = array2;
         } else {
@@ -5868,14 +5931,14 @@ log("2nd Row to " + team3.name)
         //change below to be more flag and player moves
 
 
-        let player = state.FOW4.currentPlayer;
+        let player = state.FOW.currentPlayer;
         keys = Object.keys(TeamArray);
         let flag = false;
         for (let i=0;i<keys.length;i++) {
             let id = keys[i];
             let team = TeamArray[id];
             if (team.unarmedTransport === false || team.player !== player) {continue};
-            let pass = state.FOW4.transports[id];
+            let pass = state.FOW.transports[id];
             if (pass) {
                 if (pass.length === 0) {
                     flag = true;
@@ -5913,7 +5976,7 @@ log("2nd Row to " + team3.name)
         let errorMsg;
         let distance = passengerTeam.hex.distance(transportTeam.hex);
 
-        if (state.FOW4.step !== "Movement") {
+        if (state.FOW.step !== "Movement") {
             errorMsg = "Teams can only Mount in the Movement Phase";
         }
         if (transportTeam.maxPass === 0) {
@@ -5956,7 +6019,7 @@ log("2nd Row to " + team3.name)
         let id = msg.selected[0]._id;
         let transportTeam = TeamArray[id];
         SetupCard(transportTeam.name,"Dismount",transportTeam.nation);
-        if (state.FOW4.step !== "Movement") {
+        if (state.FOW.step !== "Movement") {
             outputCard.body.push("Can only Dismount in the Movement Step");
             PrintCard();
             return;
@@ -6088,7 +6151,7 @@ log("2nd Row to " + team3.name)
                 hexMap[newHexLabel].teamIDs.push(tok.id);
                 inCommand(team);
                 InCC(team,oldLocation);
-                if (state.FOW4.turn > 0) {
+                if (state.FOW.turn > 0) {
                     if (team.hexLabel !== team.prevHexLabel) {
                         if (team.moved === false) {
                             team.moved = true;
@@ -6116,7 +6179,7 @@ log("2nd Row to " + team3.name)
                         }
                         if (team.order === "") {
                             let defaultOrder;
-                            if (state.FOW4.step === "Assault") {
+                            if (state.FOW.step === "Assault") {
                                 defaultOrder = "Assault";
                             } else {
                                 defaultOrder = "Tactical";
@@ -6139,7 +6202,7 @@ log("2nd Row to " + team3.name)
                             }
                             sendChat("",noun + "Order defaulted to " + defaultOrder);
                         }
-                        if (state.FOW4.turn > 0 && state.FOW4.step === "Start") {
+                        if (state.FOW.turn > 0 && state.FOW.step === "Start") {
                             state.FOW.step = "Movement";
                             sendChat("","Advanced to Movement Step");
                         }
@@ -6175,7 +6238,7 @@ log("2nd Row to " + team3.name)
         switch(args[0]) {
             case '!Dump':
                 log("STATE");
-                log(state.FOW4);
+                log(state.FOW);
                 log("Terrain Array");
                 log(TerrainArray);
                 log("Hex Map");
