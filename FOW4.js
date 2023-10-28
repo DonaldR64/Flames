@@ -503,7 +503,6 @@ const FOW4 = (() => {
             this.limited = 0; //used to track limited use weapons
             this.inReserve = false;
             this.size; //used for pinning purposes, size of unit at start of turn
-            this.pinned = false;
 
             UnitArray[id] = this;
         }
@@ -560,8 +559,10 @@ const FOW4 = (() => {
         pinned() {
             let result = false;
             let leaderTeam = TeamArray[this.teamIDs[0]];
-            if (state.FOW4.conditions[leaderTeam.id]["Pinned"]) {
-                result = true;
+            if (state.FOW4.conditions[leaderTeam.id]) {
+                if (state.FOW4.conditions[leaderTeam.id]["Pinned"]) {
+                    result = true;
+                }
             }
             return result;
         }
@@ -980,6 +981,7 @@ const FOW4 = (() => {
             let leftConditions = ["Tactical","Dash","Hold","Assault"];
             let rightConditions = ["Fired","AAFire","GTG"];
             let topConditions = [];
+            let array = [];
             if (leftConditions.includes(condition)) {
                 array = leftConditions;
             } else if (rightConditions.includes(condition)) {
@@ -988,16 +990,22 @@ const FOW4 = (() => {
                 array = topConditions;
             }
             //clear other conditions in that array
-            let conditions = state.FOW4.conditions[this.id];
-            for (let i=0;i<array.length;i++) {
-                if (conditions[condition]) {
-                    let token = findObjs({_type:"graphic", id: conditions[condition]})[0];
-                    if (token) {
-                        token.remove();
+            let conditions = [];
+            if (state.FOW4.conditions[this.id]) {
+                conditions = state.FOW4.conditions[this.id];
+                for (let i=0;i<array.length;i++) {
+                    if (conditions[condition]) {
+                        let token = findObjs({_type:"graphic", id: conditions[condition]})[0];
+                        if (token) {
+                            token.remove();
+                        }
+                        delete state.FOW4.conditions[this.id][condition];
                     }
-                    delete state.FOW4.conditions[this.id][condition];
                 }
+            } else {
+                state.FOW4.conditions[this.id] = {};
             }
+
             let conditionToken = createObj("graphic", {   
                 left: this.location.x,
                 top: this.location.y,
@@ -1028,11 +1036,6 @@ const FOW4 = (() => {
                 }
             }
         }
-
-
-
-
-
 
         BailOut() {
             let result = {
@@ -1584,6 +1587,7 @@ log(hit)
             barrageID: undefined,
             BarrageInfo: [],
             smokeScreens: [[],[]],
+            conditions: {},
         }
         BuildMap();
         sendChat("","Cleared State/Arrays");
@@ -1941,7 +1945,6 @@ log(hit)
         //check what is in command
         inCommand("All");
         BuildReserve();//places flag on units in reserve when rebuilding a map
-        BuildConditions();//fixes links between tokens on various layers
     }
 
     const BuildTerrainArray = () => {
@@ -2300,7 +2303,7 @@ log(hit)
         let data = TokenCondition.LookUpMaster(id);
 log(data)
         if (data) {
-            id = data.token;
+            id = data.target;
         }
 
         let team = TeamArray[id];
@@ -2360,10 +2363,11 @@ log(data)
         } else {
             outputCard.body.push("Unit Order: " + unit.order);
         }
+        log(unit)
+
         if (unit.pinned() === true) {
             outputCard.body.push("Unit is Pinned");
         }
-
         PrintCard();
     }
 
@@ -2750,7 +2754,7 @@ log(data)
         }
 
         if (order.includes("Assault")) {
-            if (unit.pinned === true) {
+            if (unit.pinned() === true) {
                 outputCard.body.push("Unit is Pinned, cannot Assault");
                 outputCard.body.push("Unit defaults to a Tactical Order");
                 order = "Tactical";
@@ -2771,7 +2775,7 @@ log(data)
                 }
             } else {
                 if (specialorder.includes("Dig In") === false) {
-                    if (unit.pinned === false) {
+                    if (unit.pinned() === false) {
                         outputCard.body.push(noun + "can move at Tactical Speed, and may fire at" + noun2 + "Moving ROF");
                         outputCard.body.push(noun + 'cannot move within ' + 2*gameScale + ' hexes of enemies');
                     } else {
@@ -2787,7 +2791,7 @@ log(data)
                 outputCard.body.push("Darkness limits speed to Terrain Dash");
             }
         } else if (order.includes("Hold")) {
-            if (unit.pinned === false) {
+            if (unit.pinned() === false) {
                 outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Halted ROF");
             } else {
                 outputCard.body.push(noun + " stay in place, and may fire at" + noun2 + "Moving ROF");
@@ -3438,7 +3442,7 @@ log(data)
                 }
                 unit.size = unit.teamIDs.length;
                 unitLeader.token.set("bar1_value",0);
-                if (unit.pinned === true) {
+                if (unit.pinned() === true) {
                     CheckArray.push(unit);
                 };
             };
@@ -4175,7 +4179,7 @@ log(weapons)
                 if (sTeam.moved === true) {
                     rof = weapon.moving;
                 }
-                if (shooterUnit.pinned === true) {
+                if (shooterUnit.pinned() === true) {
                     if (weapon.notes.includes("Pinned ROF")) {
                         let substring = weapon.notes.split(",");
                         substring = substring.filter((string) => string.includes("Pinned ROF"));
@@ -4614,12 +4618,12 @@ log(ai)
             for (let i=0;i<keys.length;i++) {
                 let unit = UnitArray[keys[i]];
                 if (unit.artillery === false || unit.player !== spotter.player) {continue};
-                if (unit.pinned === true || unit.specialorder === "Failed Blitz" || unit.specialorder.includes("Dig In")) {continue};
+                if (unit.pinned() === true || unit.specialorder === "Failed Blitz" || unit.specialorder.includes("Dig In")) {continue};
                 artUnits.push(unit);
             }
         } else {
             let unit = UnitArray[spotter.unitID];
-            if (unit.pinned === false) {
+            if (unit.pinned() === false) {
                 artUnits.push(unit);
             };
         }
@@ -5354,7 +5358,7 @@ log(unitIDs4Saves)
                 if (unit.type === "Infantry" || unit.type === "Gun") {
                     unitLeader = TeamArray[unit.teamIDs[0]]; //in case original killed
                     unitLeader.token.set("bar3_value",unitHits);
-                    if (unitHits >= pinMargin && unit.pinned === false) {
+                    if (unitHits >= pinMargin && unit.pinned() === false) {
                         outputCard.body.push("The Unit is Pinned");
                         unit.pin();
                         if (shootingType === "Defensive") {
@@ -5787,50 +5791,6 @@ log("2nd Row to " + team3.name)
         }
     }
 
-    const BuildConditions = () => {
-        let tokens = findObjs({
-            _pageid: Campaign().get("playerpageid"),
-            _type: "graphic",
-            _subtype: "token",
-            layer: "gmlayer",
-        });
-        if (!tokens) {return};
-        let conditions = ["Bailed Out","Pinned","Dash","Tactical","Hold","Assault","AAFire","Fired","GTG","Radio"]
-        tokens.forEach((token) => {
-            let name = token.get("name");
-            if (!name) {return};
-            if (conditions.includes(name) === false) {
-                //find token in same hex that is transport
-                //and add to bits
-
-
-            } else {
-                let teamID = decodeURIComponent(token.get("gmnotes")).toString();
-                if (teamID === undefined) {return};
-                let team = TeamArray[teamID];
-                if (!team) {return};
-                let unit = UnitArray[team.unitID];
-                if (!unit) {return};
-                team.buddies[name] = token.id;
-                if (name === "Bailed Out") {
-                    team.bailed = true;
-                }
-                if (name === "Pinned") {
-                    unit.pinned = true;
-                }
-                if (name === "Fired") {
-                    team.fired = true;
-                }
-                if (name === "AAFire") {
-                    team.aaFired = true;
-                }
-                if (name === "Tactical" || name === "Dash" || name === "Assault") {
-                    team.moved = true;
-                }
-            }
-        });
-    }
-
     const BuddyToken = (team,condition,passengerTeam) => {
         if (condition.includes("Passenger")) {
             passengerTeam.token.set({
@@ -5913,7 +5873,7 @@ log("2nd Row to " + team3.name)
             if (unit.player !== player || unit.type === "System Unit") {continue};
             let unitLeader = TeamArray[unit.teamIDs[0]];
             if (unitLeader) {
-                let colour = (unit.pinned === false) ? Colours.green:Colours.yellow;
+                let colour = (unit.pinned() === false) ? Colours.green:Colours.yellow;
                 unitLeader.token.set("aura1_color",colour);
             }
         }
