@@ -1582,8 +1582,6 @@ log(hit)
             playerInfo: [[],[]],
             lineArray: [],
             labmode: false,
-            //transports: {},
-            //passengers: {},
             darkness: false,
             turn: 0,
             step: undefined,
@@ -1595,6 +1593,9 @@ log(hit)
             BarrageInfo: [],
             smokeScreens: [[],[]],
             conditions: {},
+            teams: {}, //teamIDs -> unit and formation IDs
+            formations: {}, //formationIDs -> name
+            units: {},//unitIDs -> name
         }
         BuildMap();
         sendChat("","Cleared State/Arrays");
