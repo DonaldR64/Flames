@@ -451,14 +451,14 @@ const FOW = (() => {
 
     //core classes
     class Formation {
-        constructor(player,nation,id,name){
+        constructor(nation,id,name){
             if (!id) {
                 id = stringGen();
             }
             this.id = id;
             this.name = name;
-            this.player = player;
             this.nation = nation;
+            this.player = (Allies.includes(nation)) ? 0:1;
             this.unitIDs = [];
 
             if (!state.FOW.formations[id]) {
@@ -486,16 +486,16 @@ const FOW = (() => {
     }
 
     class Unit {
-        constructor(player,nation,id,name,formationID){
+        constructor(nation,id,name,formationID){
             if (!id) {
                 id = stringGen();
             }
             this.id = id;
             this.name = name;
-            this.player= player;
             this.order = "";
             this.specialorder = "";
             this.nation = nation;
+            this.player = (Allies.includes(nation)) ? 0:1;
             this.formationID = formationID;
             this.teamIDs = [];
             this.hqUnit = false;
@@ -607,7 +607,7 @@ const FOW = (() => {
     }
 
     class Team {
-        constructor(tokenID,formationID,unitID,rank) {
+        constructor(tokenID,formationID,unitID) {
             let token = findObjs({_type:"graphic", id: tokenID})[0];
             if (!token) {sendChat("","No Token?"); return}
             let char = getObj("character", token.get("represents")); 
@@ -838,7 +838,6 @@ const FOW = (() => {
             AttributeSet(char.id,"countrydisplay",this.countrydash);
             AttributeSet(char.id,"roaddisplay",this.roaddash);
 
-
             this.armourF = front;
             this.armourSR = side;
             this.armourT = top;
@@ -876,7 +875,6 @@ const FOW = (() => {
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
             this.buddies = {};
-            this.rank = rank;
 
             this.fired = false;
             this.aaFired = false;
@@ -891,9 +889,6 @@ const FOW = (() => {
                 state.FOW.teams[this.id] = {
                     unitID: unitID,
                     formationID: formationID,
-                    rank: rank,
-                    name: this.name,
-                    player: player,
                 }
             }
 
@@ -2088,107 +2083,52 @@ log(hit)
             return;
         }
 
-        let teamKeys = Object.keys(state.FOW.teams);
         let add = 0;
         let remove = 0;
 
-        const teamBurndown = () => {
-            let id = teamKeys.shift();
-            if (id) {
-                let token = findObjs({_type:"graphic", id: id})[0];
-                if (!token) {
-                    delete state.FOW.teams[id];
-                    remove++;
-                    return;
-                }
-                let character =  getObj("character", token.get("represents")); 
-                if (!character) {
-                    return;
-                }
-                let nation = Attribute(character,"nation");
-    
-                let teamInfo = state.FOW.teams[id];
-                let fid = teamInfo.formationID;
-                let uid = teamInfo.unitID;
-    
-                if (!FormationArray[fid]) {
-                    new Formation(teamInfo.player,nation,fid,state.FOW.formations[fid]);
-                }
-                if (!UnitArray[uid]) {
-                    new Unit(teamInfo.player,nation,uid,state.FOW.units[uid],fid);
-                }
-                new Team(id,teamInfo.fid,uid,teamInfo.rank);
-                add++;
+        let teamKeys = Object.keys(state.FOW.teams);
+        for (let i=0;i<teamKeys.length;i++) {
+            let id = teamKeys[i];
+            let token = findObjs({_type:"graphic", id: id})[0];
+            if (!token) {
+                delete state.FOW.teams[id];
+                remove++;
+                continue;
             }
+            let character =  getObj("character", token.get("represents")); 
+            if (!character) {
+                continue;
+            }
+            let nation = Attribute(character,"nation");
+            let player = (Allies.includes(nation)) ? 0:1;
+
+            let teamInfo = state.FOW.teams[id];
+            let fid = teamInfo.formationID;
+            let fName = state.FOW.formations[fid];
+            let uName = state.FOW.units[fid];
+            let uid = teamInfo.unitID;
+            let formation,unit,team;
+            if (!FormationArray[fid]) {
+                formation = new Formation(nation,fid,fName);
+            } else {
+                formation = FormationArray[fid];
+            }
+            if (!UnitArray[uid]) {
+                unit = new Unit(nation,uid,uName,fid);
+                formation.add(unit);
+            } else {
+                unit = UnitArray[uid];
+            }
+            team = new Team(id,fid,uid);
+            unit.add(team);
+            add++;
         }
-        teamBurndown();
         let elapsed = Date.now()-startTime;
         log(add + " Teams added to array in " + elapsed/1000 + " seconds");
         if (remove > 0) {
-            log(remove + " Teams removed as no Token on Map");
+            log(remove + " Teams removed from Array as no Token");
         }
     }
-
-
-/*
-
-    const TA = () => {
-        //add tokens on map into various arrays
-        UnitArray = {};
-        TeamArray = {};
-        FormationArray = {};
-        //create an array of all tokens
-        let start = Date.now();
-        let tokens = findObjs({
-            _pageid: Campaign().get("playerpageid"),
-            _type: "graphic",
-            _subtype: "token",
-            layer: "objects",
-        });
-
-        let c = tokens.length;
-        let s = (1===c?'':'s');     
-        tokens.forEach((token) => {
-            let character = getObj("character", token.get("represents"));     
-            if (character === null || character === undefined) {
-                return;
-            };
-            let nation = Attribute(character,"nation");
-            let info = decodeURIComponent(token.get("gmnotes")).toString();
-            if (!info) {return};
-            info = info.split(";");
-            let player = (Allies.includes(nation)) ? 0:1;
-            let formationName = info[0];
-            let formationID = info[1];
-            let formation = FormationArray[formationID];
-            let unitName = info[2];
-            let unitID = info[3];
-            let rank = parseInt(info[4]);
-            let unit = UnitArray[unitID];
-            let statusmarkers = token.get("statusmarkers").split(",")
-            let unitMarker = returnCommonElements(statusmarkers,Nations[nation].platoonmarkers);
-            let unitNumber = Nations[nation].platoonmarkers.indexOf(unitMarker);
-
-            if (!formation) {
-                formation = new Formation(player,nation,formationID,formationName);
-            }
-            if (!unit) {
-                unit = new Unit(player,nation,unitID,unitName,formationID);
-                unit.number = unitNumber;
-                formation.add(unit);
-            }
-            let team = new Team(token.id,formationID,unitID);
-            team.rank = rank;
-            unit.add(team);
-        });
-
-        let elapsed = Date.now()-start;
-        log(`${c} token${s} checked in ${elapsed/1000} seconds - ` + Object.keys(TeamArray).length + " placed in Team Array");
-    }
-
-*/
-
-
 
     const Facing = (id1,id2) => { //id2 is the target, id1 is the shooter - returns the facing of id 2
         let facing = "Front";
@@ -2234,7 +2174,6 @@ log(hit)
             return;
         }
         let nation = Attribute(refChar,"nation");
-        let player = (Allies.includes(nation)) ? 0:1;
 
         let formationKeys = Object.keys(FormationArray);
         let supportFlag = false;
@@ -2250,7 +2189,7 @@ log(hit)
         }
 
         if (supportFlag === false) {
-            support = new Formation(player,nation,stringGen(),"Support");
+            support = new Formation(nation,stringGen(),"Support");
         }
 
         let newID = stringGen();
@@ -2271,7 +2210,6 @@ log(hit)
 
         unitCreationInfo = {
             nation: nation,
-            player: player,
             newID: newID,
             teamIDs: teamIDs,
             unitName: unitName,
@@ -2281,16 +2219,16 @@ log(hit)
     const UnitCreation2 = (msg) => {
         let Tag = msg.content.split(";");
         let unitName = unitCreationInfo.unitName;
-        let player = unitCreationInfo.player;
         let nation = unitCreationInfo.nation;
+        let player = (Allies.includes(nation)) ? 0:1;
         let teamIDs = unitCreationInfo.teamIDs;
         let formationID = Tag[1];
         let formation = FormationArray[formationID];
 
         if (!formation) {
-            formation = new Formation(player,nation,formationID,Tag[2]);
+            formation = new Formation(nation,formationID,Tag[2]);
         }
-        let unit = new Unit(player,nation,stringGen(),unitName,formationID);
+        let unit = new Unit(nation,stringGen(),unitName,formationID);
 
         unit.number = formation.unitIDs.length;
         let unitMarker = Nations[nation].platoonmarkers[unit.number];
@@ -2298,27 +2236,21 @@ log(hit)
 
         log(formation)
         log(unit)
-        
-
-        //let basegmn = formation.name + ";" + formation.id + ";" + unitName + ";" + unit.id + ";";
 
         for (let i=0;i<teamIDs.length;i++) {
-            let team = new Team(teamIDs[i],formationID,unit.id,3);
+            let team = new Team(teamIDs[i],formationID,unit.id);
             if (!team) {continue};
             unit.add(team);
             let aura = "transparent";
             if (i === 0) {
                 aura = Colours.green
             };
-            let info = NameAndRank(team,i);
-            team.name = info.name;
-            team.rank = info.rank;
-            state.FOW.teams[teamIDs[i]].rank = info.rank;
-            //gmn = basegmn + team.rank.toString();
+            let name = NameAndRank(team,i);
+            team.name = name;
             let r = 0.1;
             if (team.type === "Infantry") {r = 0.25}
             team.token.set({
-                name: team.name,
+                name: name,
                 tint_color: "transparent",
                 aura1_color: aura,
                 aura1_radius: r,
@@ -2362,11 +2294,7 @@ log(hit)
                 name = Rank(team.nation,rank) + Name(team.nation);
             } 
         }
-        let info = {
-            name: name,
-            rank: rank,
-        }
-        return info;
+        return name;
     }
 
     const TokenInfo = (msg) => {
@@ -5871,6 +5799,11 @@ log("2nd Row to " + team3.name)
             let unit = UnitArray[keys[i]];
             if (unit.type === "System Unit") {continue}
             let unitLeader = TeamArray[unit.teamIDs[0]];
+            if (!unitLeader) {
+                log("In Build Reserve")
+                log(unit)
+                continue;
+            }
             let offboard = hexMap[unitLeader.hexLabel].terrain.includes("Offboard");
             if (unitLeader.token.get("aura1_color") === Colours.purple && offboard === true) {
                 unit.inReserve = true;
