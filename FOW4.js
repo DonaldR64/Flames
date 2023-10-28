@@ -945,35 +945,35 @@ const FOW4 = (() => {
                     break;
                 case 'Dash':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738371/8Ov_DJPGHECoVdVUaEQG8w/thumb.png?1698192635";
-                    charID = "";
+                    charID = "-NhnnimsL_fUE_I44tij";
                     break;
                 case 'Tactical':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738370/zNsS7qwUbv3hWKhHmdhQFw/thumb.png?1698192635";
-                    charID = "";
+                    charID = "-Nhno-si_pOx9WcyqX8Q";
                     break;
                 case 'Hold':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364740800/zgiEA5heOJag10qcrKWlhA/thumb.png?1698193671";
-                    charID = "";
+                    charID = "-Nhno4KrMYcgi0c6_keC";
                     break;
                 case 'Assault':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364740790/-PpYtjvGninT5CBZ9cgvcw/thumb.png?1698193663";
-                    charID = "";
+                    charID = "-Nhno9pRPTXGOICorXWV";
                     break;
                 case 'AAFire':
                     imgSrc =  "https://s3.amazonaws.com/files.d20.io/images/364738389/jQaMAvsc3yfx7tsgMpkZ-Q/thumb.png?1698192640";
-                    charID = "";
+                    charID = "-NhnoEpVGQnaSECosUQs";
                     break;
                 case 'Fired':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738390/jRn7kK1dz3EnFwy8lFzyJw/thumb.png?1698192640";
-                    charID = "";
+                    charID = "-NhnoJcnvMESfrIA4ipF";
                     break;
                 case 'GTG':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364740777/TkNdbvE_My02jE0bkz1KzA/thumb.png?1698193655";
-                    charID = "";
+                    charID = "-NhnoOo2ydvrjTOFGMXW";
                     break;
                 case 'Radio':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364839305/-UanVemZgRrwTu3fVijGwA/thumb.png?1698268901";
-                    charID = "";
+                    charID = "-NhnoS6WDdovvJrkTeHC";
                     break;
             }
 
@@ -2702,8 +2702,15 @@ log(data)
     const ActivateUnit = (msg) => {
         RemoveLines();
         RemoveBarrageToken();
-        let Tag = msg.content.split(";");
+        if (!msg.selected) {
+            sendChat("","No Token Selected");
+            return;
+        };
         let teamID = msg.selected[0]._id;
+        let data = TokenCondition.LookUpMaster(id);
+        if (data) {
+            teamID = data.target;
+        }
         let order = Tag[1];
         ActivateUnitTwo(teamID,order);
     }
@@ -2841,9 +2848,16 @@ log(data)
     }
 
     const AddAbilities = (msg) => {
-        if (!msg) {return}
+        if (!msg.selected) {
+            sendChat("","No Token Selected");
+            return;
+        };
         let id = msg.selected[0]._id;
-        if (!id) {return};
+        let data = TokenCondition.LookUpMaster(id);
+        if (data) {
+            id = data.target;
+        }
+
         let token = findObjs({_type:"graphic", id: id})[0];
         let char = getObj("character", token.get("represents"));
 
