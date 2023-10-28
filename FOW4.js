@@ -871,7 +871,6 @@ const FOW4 = (() => {
             this.ccIDs = []; //ids of team in defensive fire range
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
-            this.bailed = false;
             this.buddies = {};
 
             this.fired = false;
@@ -886,7 +885,7 @@ const FOW4 = (() => {
 
 
             TeamArray[tokenID] = this;
-            hexMap[hexLabel].tokenIDs.push(tokenID);
+            hexMap[hexLabel].teamIDs.push(tokenID);
 
         }
 
@@ -1063,13 +1062,21 @@ const FOW4 = (() => {
         }
 
         bail() {
-            BuddyToken(this,"Bailed Out");
-            this.bailed = true;
+            this.addCondition("Bailed Out");
         }
 
         remount() {
-            this.bailed = false;
-            this.buddy("Bailed Out",false);            
+            this.removeCondition("Bailed Out");
+        }
+
+        bailed() {
+            let result = false;
+            if (state.FOW4.conditions[this.id]) {
+                if (state.FOW4.conditions[this.id]["Bailed Out"]) {
+                    result = true;
+                }
+            }
+            return result;
         }
 
         IC(ic) {
@@ -1828,7 +1835,7 @@ log(hit)
                     centre: point,
                     terrain: [], //array of names of terrain in hex
                     terrainIDs: [], //used to see if tokens in same building or such
-                    tokenIDs: [], //ids of tokens in hex
+                    teamIDs: [], //ids of tokens in hex
                     elevation: 0, //based on hills
                     height: 0, //height of top of terrain over elevation
                     smoke: false,
@@ -2067,13 +2074,17 @@ log(hit)
             _pageid: Campaign().get("playerpageid"),
             _type: "graphic",
             _subtype: "token",
+            layer: "objects",
         });
 
+        /*
         tokens = tokens.filter((t) => {
             if (t.get("layer") === "objects" || t.get("layer") === "gmlayer") {
                 return t;
             }
         });
+        */
+
 
         let c = tokens.length;
         let s = (1===c?'':'s');     
@@ -2315,6 +2326,8 @@ log(data)
         if (!nation) {nation = "Neutral"};
         SetupCard(team.name,"Hex: " + team.hexLabel,nation);
         let h = hexMap[team.hexLabel];
+        log("Team IDs: " + h.teamIDs)
+
         let terrain = h.terrain;
         terrain = terrain.toString();
         let elevation = teamHeight(team);
@@ -2354,20 +2367,16 @@ log(data)
 
         outputCard.body.push("[hr]");
         outputCard.body.push("Unit: " + unit.name);
-        for (let i=0;i<unit.teamIDs.length;i++) {
-            let m = TeamArray[unit.teamIDs[i]];
-            outputCard.body.push(m.name);
-        }
+        outputCard.body.push("# Teams: " + unit.teamIDs.length);
         if (unit.order === "") {
             outputCard.body.push("No Order this Turn");
         } else {
             outputCard.body.push("Unit Order: " + unit.order);
         }
-        log(unit)
-
         if (unit.pinned() === true) {
             outputCard.body.push("Unit is Pinned");
         }
+
         PrintCard();
     }
 
@@ -2810,7 +2819,7 @@ log(data)
         for (let i=0;i<targetArray.length;i++) {
             targetArray[i].order = order;
             if (order === "Hold") {
-                targetArray[i].buddy("Hold",true);
+                targetArray[i].addCondition("Hold");
             }
             if (targetArray[i].specialorder === "") {
                 targetArray[i].specialorder = specialorder;
@@ -3170,7 +3179,7 @@ log(data)
                 outputCard.body.push("That Team counts as having Dashed, and cannot Shoot or Assault");
                 outputCard.body.push("The Minefield can be removed immediately");
                 outputCard.body.push("Other Teams may be given the same order");
-                targetTeam.buddy("Dash",true);
+                targetTeam.addCondition("Dash");
                 targetTeam.moved = true;
                 targetTeam.specialorder = specialorder;
                 PrintCard();
@@ -3218,7 +3227,7 @@ log(data)
         let newFoxholes = [];
         for (let i=0;i<FoxholeArray.length;i++) {
             let foxhole = FoxholeArray[i];
-            if (hexMap[foxhole.hexLabel].tokenIDs.length === 0) {
+            if (hexMap[foxhole.hexLabel].teamIDs.length === 0) {
                 let index = hexMap[foxhole.hexLabel].terrain.indexOf("Foxholes");
                 if (index > -1) {
                     hexMap[foxhole.hexLabel].terrain.splice(index,1);
@@ -3536,7 +3545,7 @@ log(data)
                 for (let b=0;b<conditions.length;b++) {
                     for (let t=0;t<unit.teamIDs.length;t++) {
                         let team = TeamArray[unit.teamIDs[t]];
-                        team.buddy(conditions[b],false);
+                        team.removeCondition(conditions[b]);
                     }
                 }
                 if (state.FOW4.turn === 1) {
@@ -3596,7 +3605,7 @@ log(data)
             let team = TeamArray[teamIDs[i]];
             if (team.type === "System Unit" || team.type === "Aircraft") {continue};
             let gtg = (team.moved === true || team.fired === true) ? false:true;
-            team.buddy("GTG",gtg)
+            team.addCondition("GTG")
         }
     }
 
@@ -3892,7 +3901,7 @@ log(data)
                     if (i===0) {sTeam.token.set("aura1_color",Colours.black)};
                     if (sTeam.inCommand === true) {
                         sTeam.order = "Hold";
-                        sTeam.buddy("Hold",true);
+                        sTeam.addCondition("Hold");
                     }
                 }
             }
@@ -4299,10 +4308,10 @@ log(weapons)
             }
             //place markers on shooter
             if (target.type === "Aircraft") {
-                sTeam.buddy("AAFire",true);
+                sTeam.addCondition("AAFire");
                 sTeam.aaFired = true;
             } else if (defensive === false) {
-                sTeam.buddy("Fired",true);
+                sTeam.addCondition("Fired");
                 sTeam.fired = true;
             }
             if (state.FOW4.darkness === true) {
@@ -4910,7 +4919,7 @@ log(artUnits)
             let phi = Angle(artTeam.hex.angle(barrageTeam.hex));
             artTeam.token.set("rotation",phi);
             artTeam.fired = true;
-            artTeam.buddy("Fired",true);
+            artTeam.addCondition("Fired");
             if (state.FOW4.darkness === true) {
                 shooterTeam.token.set(SM.flare,true);
             }   
@@ -4936,9 +4945,9 @@ log(artUnits)
                 if (hex.type > 0) {
                     crossTerrainCheck = true;
                 }
-                if (hex.tokenIDs.length !== 0) {
-                    for (let j=0;j<hex.tokenIDs.length;j++) {
-                        let team = TeamArray[hex.tokenIDs[j]];
+                if (hex.teamIDs.length !== 0) {
+                    for (let j=0;j<hex.teamIDs.length;j++) {
+                        let team = TeamArray[hex.teamIDs[j]];
                         if (!team) {continue};
                         if (team.type === "Aircraft" || team.type === "System Unit") {continue};
                         targetArray.push(team);
@@ -4981,7 +4990,7 @@ log(artUnits)
         if (ammoType === "Smoke Bombardment") {extra = "Smoke Screen with "};
     
         outputCard.body.push("Firing " + extra + weaponName)
-        observerTeam.buddy("Radio",true);
+        observerTeam.addCondition("Radio");
         let hittip = "Ranging In Rolls: " + spotRolls.toString() + " vs. " + neededText + tip2;
     
         observerTeam.spotAttempts += spotRolls.length;
@@ -6057,11 +6066,11 @@ log("2nd Row to " + team3.name)
                 team.hex = newHex;
                 team.hexLabel = newHexLabel;
                 team.location = newLocation;
-                let index = hexMap[oldHexLabel].tokenIDs.indexOf(tok.id);
+                let index = hexMap[oldHexLabel].teamIDs.indexOf(tok.id);
                 if (index > -1) {
-                    hexMap[oldHexLabel].tokenIDs.splice(index,1);
+                    hexMap[oldHexLabel].teamIDs.splice(index,1);
                 }
-                hexMap[newHexLabel].tokenIDs.push(tok.id);
+                hexMap[newHexLabel].teamIDs.push(tok.id);
                 inCommand(team);
                 InCC(team,oldLocation);
                 if (state.FOW4.turn > 0) {
@@ -6069,24 +6078,24 @@ log("2nd Row to " + team3.name)
                         if (team.moved === false) {
                             team.moved = true;
                             if (team.order === "Tactical") {
-                                team.buddy("Tactical",true)
+                                team.addCondition("Tactical")
                             } else if (team.order === "Dash") {
-                                team.buddy("Dash",true)
+                                team.addCondition("Dash")
                             } else if (team.order === "Assault") {
-                                team.buddy("Assault",true)
+                                team.addCondition("Assault")
                             }
                         }
                     } else if (team.hexLabel === team.prevHexLabel) {
                         if (team.moved === true) {
                             team.moved = false;
                             if (team.order === "Hold" && team.fired === false) {
-                                team.buddy("GTG",true)
+                                team.addCondition("GTG")
                             }
                         }
                     }
      
                     if (team.moved === true) {
-                        team.buddy("GTG",false)
+                        team.removeCondition("GTG")
                         if (team.artillery !== undefined) {
                             RemoveRangedInMarker(team.unitID);
                         }
@@ -6105,13 +6114,13 @@ log("2nd Row to " + team3.name)
                                     if (t===0) {uTeam.token.set("aura1_color",Colours.black)}
                                     if (uTeam.inCommand === true) {
                                         uTeam.order = defaultOrder;
-                                        uTeam.buddy(defaultOrder,true);
+                                        uTeam.addCondition(defaultOrder);
                                     }
                                 }
                             } else if (team.inCommand === false) {
                                 noun = "Team "
                                 team.order = defaultOrder;
-                                team.buddy(defaultOrder,true);
+                                team.addCondition(defaultOrder);
                             }
                             sendChat("",noun + "Order defaulted to " + defaultOrder);
                         }
