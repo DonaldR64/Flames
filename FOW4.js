@@ -882,7 +882,7 @@ const FOW = (() => {
             this.aaweapon = ''; //used to track weapons fired in AA
           
             this.maxPass = maxPass;
-            this.carrying = false;
+            this.carrying = [];
             this.passenger = false;
 
             if (!state.FOW.teams[this.id]) {
@@ -941,6 +941,7 @@ const FOW = (() => {
         addCondition(condition) {
             let imgSrc,charID;
             let rotation = 0;
+            let size = 70;
             switch (condition) {
                 case 'Bailed Out':
                     imgSrc = Nations[this.nation].pinned;
@@ -983,6 +984,11 @@ const FOW = (() => {
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364839305/-UanVemZgRrwTu3fVijGwA/thumb.png?1698268901";
                     charID = "-NhnoS6WDdovvJrkTeHC";
                     break;
+                case 'Passengers':
+                    imgSrc = "https://s3.amazonaws.com/files.d20.io/images/365230932/HxeMNYtOiyWDnoyvoa8FCQ/thumb.png?1698516760";
+                    charID = "-NhrUN0XxRco5XKwLdSM";
+                    size = 40;
+                    break;
             }
 
             let leftConditions = ["Tactical","Dash","Hold","Assault"];
@@ -1016,8 +1022,8 @@ const FOW = (() => {
             let conditionToken = createObj("graphic", {   
                 left: this.location.x,
                 top: this.location.y,
-                width: 70, 
-                height: 70,
+                width: size, 
+                height: size,
                 rotation: rotation,
                 isdrawing: true,
                 pageid: this.token.get("pageid"),
@@ -5918,6 +5924,12 @@ log("2nd Row to " + team3.name)
         if (distance > 1) {
             errorMsg = "Need to be Adjacent to Transport";
         }
+        let passengers = transportTeam.carrying;
+        let room = parseInt(transportTeam.maxPass) - parseInt(passengers.length);
+
+        if (room < 1) {
+            errorMsg = "No Room on this Transport";
+        }
 
         if (errorMsg !== undefined) {
             outputCard.body.push(errorMsg);
@@ -5925,26 +5937,16 @@ log("2nd Row to " + team3.name)
             return;
         }
 
-        let loaded = false;
-        let roomLeft = 0;
-        if (transportTeam.maxPass > 0) {
-            let total = transportTeam.maxPass
-            for (let i=0;i<total;i++) {
-                let condName = "Passenger " + (i+1);
-                if (transportTeam.buddies[condName] === undefined) {
-                    transportTeam.buddy(condName,true,passengerTeam);
-                    loaded = true;
-                    roomLeft = total - (i+1);
-                    break;
-                }
-            }
+        passengers.push(passengerID);
+        if (passengers.length === 1) {
+            //after first, dont need to add icon
+            transportTeam.addCondition("Passengers");
         }
-        if (loaded === false) {
-            outputCard.body.push("No Room on this Transport");
-        } else {
-            outputCard.body.push("Loaded");
-            outputCard.body.push("Transport has " + roomLeft + " Room Left");
-        }
+        transportTeam.carrying = passengers;
+
+        outputCard.body.push(passengerTeam.name + " Loaded");
+        outputCard.body.push(transportTeam + " has " + room + " Transport Left");
+
         PrintCard();
     }
 
