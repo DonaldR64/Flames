@@ -2261,6 +2261,19 @@ log(hit)
         return name;
     }
 
+    const PromotedName = (team) => {
+        let name = team.name;
+        let subNames = name.split(" ");
+        let nat = team.nation;
+        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};   
+        let ranks = Ranks[nat];
+        if (ranks.includes(subNames[0]) === false) {
+            name = ranks[ranks.length - 1] + " " + subNames[1];
+        }
+        return name;
+    }
+
+
     const TokenInfo = (msg) => {
         if (!msg.selected) {
             sendChat("","No Token Selected");
@@ -3781,13 +3794,14 @@ log(hit)
                     outputCard.body.push("Success!");
                     outputCard.body.push(team.name + " assumes Command");
                     outputCard.body.push("He leaves his current Unit to form an HQ unit");
+                    outputCard.body.push("Promoted Leaders cannot Spot");
                     let originalUnit = UnitArray[team.unitID];
                     originalUnit.remove(team);
                     let newUnit = new Unit(team.nation,stringGen(),"Promoted HQ",team.formationID);
                     newUnit.add(team);
                     let r = 0.1;
                     if (team.type === "Infantry") {r = 0.25};
-                    let name = promotedName(team);
+                    let name = PromotedName(team);
                     team.token.set({
                         name: name,
                         tint_color: "transparent",
