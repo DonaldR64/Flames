@@ -5566,7 +5566,10 @@ log("2nd Row to " + team3.name)
                             if (passengerNumber === 1) {needed = 4};
                             if (passengerNumber > 1) {needed = 3};
                         }
-//others here later
+                        if (attTeam.amounted === "Mounted Assault: 1P+/5+") {
+                            needed = 5;
+                        }
+//others here later 
                     }
                 }
                 let roll = randomInteger(6);
