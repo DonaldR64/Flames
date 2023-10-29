@@ -28,7 +28,7 @@ input[type="hidden"][name="attr_nation"] ~ .mysheet {
     background-color: lightgray;
 }
 input[type="hidden"][name="attr_nation"][value="USA"] ~ .mysheet {
-    background-color: skyblue;;
+    background-color: #006400;
 }
 input[type="hidden"][name="attr_nation"][value="Germany"] ~ .mysheet {
     background-color: #555C5F;
@@ -37,14 +37,12 @@ input[type="hidden"][name="attr_nation"][value="Soviet"] ~ .mysheet {
     background-color: red;
 }
 input[type="hidden"][name="attr_nation"][value="UK"] ~ .mysheet {
-    background-color: olivedrab;
+    background-color: #0E2A7A;
 }
 input[type="hidden"][name="attr_nation"][value="Waffen-SS"] ~ .mysheet {
     background-color: black;
 }
-input[type="hidden"][name="attr_nation"][value="Canada"] ~ .mysheet {
-    background-color: red;
-}
+
 
 
 main {
