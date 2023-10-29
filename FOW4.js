@@ -6058,7 +6058,7 @@ log("2nd Row to " + team3.name)
                                 for (let t=0;t<unit.teamIDs.length;t++) {
                                     let uTeam = TeamArray[unit.teamIDs[t]];
                                     if (t===0) {uTeam.token.set("aura1_color",Colours.black)}
-                                    if (uTeam.inCommand === true) {
+                                    if (uTeam.inCommand === true || unit.inReserve === true) {
                                         uTeam.order = defaultOrder;
                                         uTeam.addCondition(defaultOrder);
                                     }
