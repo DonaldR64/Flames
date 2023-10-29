@@ -517,7 +517,11 @@ const FOW = (() => {
                 if (team.special.includes("Artillery")) {
                     this.artillery = true;
                 }
-                this.type = team.type;
+                if (team.special.includes("Transport") === false) {
+                    this.type = team.type;
+                } else if (team.special.includes("Transport") && this.hqUnit === false) {
+                    this.type = team.type;
+                }
             }
         }
 
@@ -532,7 +536,7 @@ const FOW = (() => {
     //if leader dead, set new leader
     //check if in command radius, if is then eligible
     //defaults to 1st token if none in command radius
-
+    //if hq unit - cant be the hq transport
 
             }
             if (this.teamIDs.length === 0) {
@@ -2206,7 +2210,6 @@ log(hit)
                 aura1_color: aura,
                 aura1_radius: r,
                 showname: true,
-                //gmnotes: gmn,
                 statusmarkers: unitMarker,
             })
         }
@@ -2842,7 +2845,7 @@ log(hit)
             action = "!Activate;Tactical";
         }
 
-        if ((special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) && type !== "Aircraft") {
+        if ((special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) && type !== "Aircraft" && special.includes("Transport") === false) {
             action += "|Spot";
         }
         if (type !== "Aircraft") {
@@ -3053,19 +3056,6 @@ log(hit)
             case "Blitz & Move":
                 if (roll >= stat) {
                     outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to " + 4*gameScale + " hexes before making a normal Tactical Move");
-                    /*
-                    if (unitLeader.token.get(SM.mounted) === true) {
-                        outputCard.body.push("The Unit dismounts as part of this Blitz Move");
-                        for (let i=0;i<unit.inCommandIDs.length;i++) {
-                            let id = unit.inCommandIDs[i];
-                            if (TeamArray[id].token.get(SM.mounted) === true) {
-                                let transID = state.FOW.passengers[id];
-                                RemovePassenger(id);
-                                DismountPassengersTwo(id,transID);
-                            }
-                        }
-                    }
-                    */
                 } else {    
                     outputCard.body.push("Teams from the Unit can only Move at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
                     specialorder = "Failed Blitz";
@@ -3075,19 +3065,6 @@ log(hit)
             case "Blitz & Hold":
                 if (roll >= stat) {
                     outputCard.body.push("The Unit Leader and any Teams that are In Command may immediately Move up to " + 4*gameScale + " hexes and then take up a Hold Order");
-                    /*
-                    if (unitLeader.token.get(SM.mounted) === true) {
-                        outputCard.body.push("The Unit dismounts as part of this Blitz Move");
-                        for (let i=0;i<unit.inCommandIDs.length;i++) {
-                            let id = unit.inCommandIDs[i];
-                            if (TeamArray[id].token.get(SM.mounted) === true) {
-                                let transID = state.FOW.passengers[id];
-                                RemovePassenger(id);
-                                DismountPassengersTwo(id,transID);
-                            }
-                        }
-                    }
-                    */
                     ActivateUnitTwo(unitLeader.id,"Hold",specialorder);
                 } else {    
                     outputCard.body.push("Teams from the Unit count as Moving at Tactical speed and automatically suffer a +1 to hit penalty as if they had Moved Out of Command");
@@ -3473,7 +3450,6 @@ log(hit)
         }
         if (pass === "Final") {
             SetupCard("Turn: " + state.FOW.turn,"Starting Step",nat);
-            SendToRear();
             ClearSmoke();
             RemoveFoxholes();
             ResetFlags();
@@ -3691,11 +3667,16 @@ log(hit)
             if (type === "Remount") {
                 let id = Tag[2];
                 let needed = parseInt(Tag[3]);
+                let neededText = needed.toString + "+";
                 let team = TeamArray[id];
+                if (team.special.includes("Transport") && hexMap[team.hexLabel].terrain.includes("Offboard")) {
+                    needed = 1;
+                    neededText = "Auto"
+                }
                 let unit = UnitArray[team.unitID];
                 let roll = randomInteger(6);
                 let reroll = CommandReroll(team);
-                SetupCard(team.name,"Needing: " + needed + "+",team.nation);
+                SetupCard(team.name,"Needing: " + neededText,team.nation);
                 outputCard.body.push("Team: " + DisplayDice(roll,team.nation,24));
                 if (roll < needed && reroll > -1) {
                     outputCard.body.push("Commander Reroll: " + DisplayDice(reroll,team.nation,24));
@@ -4427,7 +4408,20 @@ log("In Mistaken")
             if (i===0) {team.priority = 1};
             if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
             if (team.unique === true) {team.priority = 2};
-            if (team.bailed === true && team.type === "Tank") {team.priority = -2};
+            if (team.type === "Tank") {
+                if (team.bailed === true) {
+                    team.priority = -3;
+                } else {
+                    for (let j=0;j<team.hitArray.length;j++) {
+                        let hit = team.hitArray[j];
+                        if (hit.facing === "Side/Rear") {
+                            team.priority += 1;
+                        } else if (hit.range <= 16) {
+                            team.priority += 1;
+                        }
+                    }
+                }
+            }
             array.push(team);
         }
         if (unit.hqUnit === true && unit.linkedUnitID !== "") {
@@ -4907,6 +4901,7 @@ log(artUnits)
                         let team = TeamArray[hex.teamIDs[j]];
                         if (!team) {continue};
                         if (team.type === "Aircraft" || team.type === "System Unit") {continue};
+                        if (team.token.get("layer") === "walls") {continue}; //passengers added if approp in process saves
                         targetArray.push(team);
                     }
                 }
@@ -5765,29 +5760,6 @@ log("2nd Row to " + team3.name)
             }
         }
     }
-
-    const SendToRear = () => {
-        let bit = "";
-        let player = state.FOW.currentPlayer;
-        keys = Object.keys(TeamArray);
-        let flag = false;
-        for (let i=0;i<keys.length;i++) {
-            let id = keys[i];
-            let team = TeamArray[id];
-            if (team.unarmedTransport === false || team.player !== player) {continue};
-            let pass = state.FOW.transports[id];
-            if (pass) {
-                if (pass.length === 0) {
-                    flag = true;
-\                }
-            }
-        }
-        if (flag === true) {
-            SetupCard("Send To Rear","",state.TY.nations[player][0])
-            outputCard.body.push("Send Empty Unarmed/Unarmoured Transports to Rear")
-            PrintCard();
-        }
-    }
     
     const ResetAuras = (player) => {
         let unitKeys = Object.keys(UnitArray);
@@ -5874,54 +5846,12 @@ log("2nd Row to " + team3.name)
         PrintCard();
     }
 
-    const Test = (msg) => {
-        if (!msg.selected) {return};
-        let Tag = msg.content.split(";");
-        let id = msg.selected[0]._id
-        log("ID: " + id)
-        let add = Tag[1];
-        let token = findObjs({_type:"graphic", id: id})[0];
-        log(token.get("name"))
-        if (add === "Add") {
-            let team = TeamArray[id];
-            let imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348";
-            let conditionCharID = "-NhltPoS8_P4_rslcUsA";
-            let conditionToken = createObj("graphic", {   
-                left: team.location.x,
-                top: team.location.y,
-                width: 70, 
-                height: 60,
-                isdrawing: true,
-                pageid: team.token.get("pageid"),
-                imgsrc: imgSrc,
-                layer: "objects",
-                represents: conditionCharID,
-            });
-            toFront(conditionToken);
-            TokenCondition.AttachConditionToToken(conditionToken.id,msg.selected[0]._id);
-        } else if (add === "Remove") {
-            let data = TokenCondition.LookUpMaster(id);
-            log(data)
-            //will be the data from lookup array in Token Condition
-            //organizd by [tokenid] then conditions as an array with ids
-
-
-
-/*
-            let token = findObjs({_type:"graphic", id: id})[0];
-            let pid = token.get('pageid');
-            let conditionTokenInfo = state.TokenCondition.registry[pid][token.id]
-            log(conditionTokenInfo)
-*/        
-
-        
-        }
+    const PlaceInFoxholes = (msg) => {
+        let id = msg.selected[0]._id;
+        let team = TeamArray[id];
+        let unit = UnitArray[team.unitID];
+        DigIn(unit);
     }
-
-
-
-
-
 
     const changeGraphic = (tok,prev) => {
         if (tok.get('subtype') === "token") {
@@ -6178,6 +6108,9 @@ log("2nd Row to " + team3.name)
                 break;
             case '!PlaceInReserve':
                 PlaceInReserve(msg);
+                break;
+            case '!PlaceInFoxholes':
+                PlaceInFoxholes(msg);
                 break;
             case '!Mount':
                 Mount(msg);
