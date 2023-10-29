@@ -3407,6 +3407,7 @@ log(hit)
             }
         }
         if (pass === "Remount") {
+            deadHQs[currentPlayer] = [];
             CheckArray = [];
             let keys = Object.keys(UnitArray); 
             for (let i=0;i<keys.length;i++) {
