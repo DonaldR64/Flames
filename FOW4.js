@@ -546,6 +546,11 @@ const FOW = (() => {
             if (this.teamIDs.length === 0) {
                 let formation = FormationArray[this.formationID];
                 formation.remove(this);
+            } else if (index === 0) {
+                //change name to Sergeant if isnt a Lt or higher
+                let newLeader = TeamArray[this.teamIDs[0]];
+                newLeader.name = PromotedName(newLeader);
+                newLeader.token.set("name",newLeader.name);
             }
         }
 
