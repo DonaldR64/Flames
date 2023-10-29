@@ -2246,9 +2246,7 @@ log(hit)
         } else if (team.type === "Infantry" || team.type === "Gun") {
             name += " "+ i;
         } 
-        let nat = team.nation;
-        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};        
-        let rank = Ranks[nat].length - 1;
+        let rank;
         if (team.special.includes("HQ")) {
             rank = Math.min(i,1);
             unit.hqUnit = true;
