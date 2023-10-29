@@ -3132,7 +3132,7 @@ log(hit)
         for (let i=0;i<unit.teamIDs.length;i++) {
             let team = TeamArray[unit.teamIDs[i]];
             if (team.type !== "Infantry" && team.type !== "Gun") {continue};
-            if (team.inCommand === false) {continue};
+            if (team.inCommand === false || team.token.get("layer") === "walls") {continue};
             let hex = hexMap[team.hexLabel];
             if (team.artillery !== undefined) {
                 RemoveRangedInMarker(unit.id);
