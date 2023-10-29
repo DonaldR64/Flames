@@ -23,6 +23,8 @@ const FOW = (() => {
     let unitFiredThisTurn = false; //marker for smoke bombardments, inCommand
     let CCTeamIDs = []; //array of teams (IDs) in a CC, updated when charge/move
     let assaultingUnitID = "";
+    let deadHQs = [[],[]]; //formationIDs of any formations that lost leaders in prev. turn, by player
+
 
     let hexMap = {}; 
     let edgeArray = [];
@@ -44,6 +46,7 @@ const FOW = (() => {
         "flare": "status_Flare::5867553",
         "defensive": "status_green",
         "surprised": "status_yellow",
+        "HQ": "status_black-flag",
     };
 
     let specialInfo = {
@@ -467,12 +470,13 @@ const FOW = (() => {
         }
 
         remove(unit) {
-            let index = this.teamIDs.indexOf(team.id);
+            let index = this.unitIDs.indexOf(unit.id);
             if (index > -1) {
-                this.teamIDs.splice(index,1);
+                this.unitIDs.splice(index,1);
             }
-            if (this.teamIDs.length === 0) {
-                //Bad Thing
+            if (this.unitIDs.length === 0) {
+                SetupCard("Formation Destroyed","",this.nation);
+                PrintCard();
             }
         }
     }
@@ -514,7 +518,7 @@ const FOW = (() => {
                     this.teamIDs.push(team.id);
                 }
                 team.unitID = this.id;
-                if (team.special.includes("HQ")) {
+                if (team.special.includes("HQ") || team.token.get(SM.HQ)) {
                     this.hqUnit = true;
                 }
                 if (team.special.includes("Artillery")) {
@@ -530,20 +534,18 @@ const FOW = (() => {
 
         remove(team) {
             let index = this.teamIDs.indexOf(team.id);
-            if (index === 0) {
-
-            }
             if (index > -1) {
                 this.teamIDs.splice(index,1);
-    //check if leader
-    //if leader dead, set new leader
-    //check if in command radius, if is then eligible
-    //defaults to 1st token if none in command radius
-    //if hq unit - cant be the hq transport
-
+                if (this.teamIDs.length === 1 && this.hqUnit === true) {
+                    let team = TeamArray[this.teamIDs[0]];
+                    if (team.special.includes("Transport")) {
+                        sendChat("","Remaining Team is Transport and Leaves the Field");
+                    }
+                }
             }
             if (this.teamIDs.length === 0) {
-                //Bad Thing
+                let formation = FormationArray[this.formationID];
+                formation.remove(this);
             }
         }
 
@@ -2238,7 +2240,7 @@ log(hit)
             name += " "+ i;
         } 
         let rank;
-        if (team.special.includes("HQ")) {
+        if (team.special.includes("HQ") || team.token.get(SM.HQ) === true) {
             rank = Math.min(i,1);
             unit.hqUnit = true;
             name = Rank(team.nation,rank) + Name(team.nation);
@@ -3350,7 +3352,41 @@ log(hit)
         let currentPlayer = parseInt(state.FOW.currentPlayer);
         let nat = state.FOW.nations[currentPlayer][0];  
         if (pass === "ResLeaders") {
-            ResLeaders();
+            CheckArray = [];
+            //check if a formation HQ for the player is dead
+            let formationIDs = deadHQs[currentPlayer];
+            for (let i=0;i<formationIDs.length;i++) {
+                let formation = FormationArray[formationIDs[i]];
+                if (formation) {
+                    let eligibleUnitIDs = formation.unitIDs;
+                    let team;
+                    let possibleTeams = [];
+                    for (let i=0;i<eligibleUnitIDs.length;i++) {
+                        let unit = UnitArray[eligibleUnitIDs[i]];
+                        let unitLeader = TeamArray[unit.teamIDs[0]];
+                        if (unitLeader.special.includes("Transport")) {continue};
+                        if ((unit.teamIDs.length > (lastStandCount[unit.type] + 1)) || unit.teamIDs.length === 1) {
+                            team = unitLeader;
+                            break;
+                        } else {
+                            possibleTeams.push(unitLeader);
+                        }
+                    }
+                    if (team === undefined && possibleTeams.length > 0) {
+                        team = possibleTeams[0];
+                    }
+                    if (team !== undefined) {
+                        CheckArray.push(team);
+                    }
+                }
+            }
+            if (CheckArray.length > 0) {
+                SetupCard("Field Promotions","",nat);
+                ButtonInfo("Start","!FieldPromotions");
+                PrintCard();            
+            } else {
+                StartStep("Remount");
+            }
         }
         if (pass === "Remount") {
             CheckArray = [];
@@ -3411,7 +3447,7 @@ log(hit)
                     log(unit)
                     continue;
                 }
-                if (unit.player !== state.FOW.currentPlayer || unitLeader.special.includes("HQ") || unitLeader.special.includes("Independent")) {continue};
+                if (unit.player !== state.FOW.currentPlayer || unitLeader.special.includes("HQ") || unitLeader.token.get(SM.HQ) === true || unitLeader.special.includes("Independent")) {continue};
                 let count = 0;
                 let ids = unit.teamIDs;
                 for (let j=0;j<ids.length;j++) {
@@ -3536,33 +3572,18 @@ log(hit)
         }
     }
 
-    const ResLeaders = () => {
-        /*
-        for (let i=0;i<2;i++) {
-            if (LeaderResFlag[i] === false) {continue};
-            SetupCard("Commander Survival","",state.FOW.nations[i][0]);
-            let possibleIDs = LeaderResInfo[i].possibleIDs;
-            let count = 0;
-            for (let j=0;j<possibleIDs.length;j++) {
-                let team = TeamArray[possibleIDs[j]];
-                if (team) {
-                    team.token.set("status_green",true);
-                    count += 1;
-                }
-            }
-            if (count === 0) {continue} //all dead
-            
-            outputCard.body.push(state.FOW.nations[i][0] + " Commander has a chance of Survival");
-            outputCard.body.push("Eligible Teams are indicated by a Green dot");
-            outputCard.body.push("Select One and Click the Button to Roll a Dice");
-            outputCard.body.push("On a roll of 3+ the Commander survives and takes over the selected Team");
-            curLeaderPlayer = i;
-            ButtonInfo("Commander Survival","!CommanderSurvival");
+    const FieldPromotions = () => {
+        let team = CheckArray.shift();
+        if (team) {
+            let location = team.location;
+            sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
+            SetupCard(team.name,"Promote",team.nation);
+            outputCard.body.push("Roll Against: 3+");
+            ButtonInfo("Roll","!RollD6;Promote;" + team.id);
             PrintCard();
-            return;
+        } else {
+            StartStep("Remount");
         }
-        */
-        StartStep("Remount");
     }
 
     const StartInFoxholes = () => {
@@ -3746,6 +3767,45 @@ log(hit)
                     part1 = "Next Unit";
                 } 
                 ButtonInfo(part1,"!MoraleChecks");
+                PrintCard();
+            } else if (type === "Promote") {
+                let id = Tag[2];
+                let team = TeamArray[id]
+                let roll = randomInteger(6);
+                SetupCard(team.name,"Needing: 3+",team.nation);
+                outputCard.body.push("Roll: " + DisplayDice(roll,team.nation,24));
+                if (roll < 3) {
+                    outputCard.body.push("Failure!");
+                    outputCard.body.push("The Formation now lacks an HQ for the remainder of the Battle");
+                } else {
+                    outputCard.body.push("Success!");
+                    outputCard.body.push(team.name + " assumes Command");
+                    outputCard.body.push("He leaves his current Unit to form an HQ unit");
+                    let originalUnit = UnitArray[team.unitID];
+                    originalUnit.remove(team);
+                    let newUnit = new Unit(team.nation,stringGen(),"Promoted HQ",team.formationID);
+                    newUnit.add(team);
+                    let r = 0.1;
+                    if (team.type === "Infantry") {r = 0.25};
+                    let name = promotedName(team);
+                    team.token.set({
+                        name: name,
+                        tint_color: "transparent",
+                        aura1_color: Colours.green,
+                        aura1_radius: r,
+                        showname: true,
+                        statusmarkers: "",
+                    })                    
+                    team.name = name;
+                    newUnit.hqUnit = true;
+                    newUnit.size = 1;
+                    team.token.set(SM.HQ,true);
+                }
+                let part1 = "Done";
+                if (CheckArray.length > 0) {
+                    part1 = "Next Formation";
+                }
+                ButtonInfo(part1,"!FieldPromotions");
                 PrintCard();
             }
         }
@@ -4324,7 +4384,7 @@ log(weapons)
         let ids = targetUnit.teamIDs;
 
         //if HQ or independent, can add nearby formation in
-        if (targetTeam.special.includes("HQ") || targetTeam.special.includes("Independent")) {
+        if (targetTeam.special.includes("HQ") || targetTeam.special.includes("Independent") || targetTeam.token.get(SM.HQ) === true) {
             let keys = Object.keys(UnitArray);
             btaLoop1:
             for (let j=0;j<keys.length;j++) {
@@ -4395,7 +4455,7 @@ log("In Mistaken")
             if (team.hitArray.length === 0) {continue};
             team.priority = 0;
             if (i===0) {team.priority = 1};
-            if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
+            if (team.special.includes("HQ") || team.special.includes("Independent") || team.token.get(SM.HQ) === true) {team.priority = 3};
             if (team.unique === true) {team.priority = 2};
             if (team.type === "Tank") {
                 if (team.bailed === true) {
@@ -4420,7 +4480,7 @@ log("In Mistaken")
                 if (team.hitArray.length === 0) {continue};
                 team.priority = 0;
                 if (i===0) {team.priority = 1};
-                if (team.special.includes("HQ") || team.special.includes("Independent")) {team.priority = 3};
+                if (team.special.includes("HQ") || team.token.get(SM.HQ) === true || team.special.includes("Independent")) {team.priority = 3};
                 if (team.unique === true) {team.priority = 2};
                 if (team.bailed === true && team.type === "Tank") {team.priority = -2};
                 array.push(team);
@@ -6084,6 +6144,9 @@ log("2nd Row to " + team3.name)
                 break;
             case '!RallyChecks':
                 RallyChecks();
+                break;
+            case '!FieldPromotions':
+                FieldPromotions();
                 break;
             case '!MoraleChecks':
                 MoraleChecks();
