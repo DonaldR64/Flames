@@ -4351,6 +4351,7 @@ log(weapons)
             let team = TeamArray[ids[i]];
             let refDistance = targetTeam.hex.distance(team.hex);//distance from targeted team to this team
             if (refDistance > 6 || team.type !== targetTeam.type) {continue}; //too far or not same type
+            if (team.token.get("layer") === "walls") {continue}; //is a passenger
             if (shooterTeam.type === "Aircraft") {
                 let keys = Object.keys(TeamArray);
                 for (let k=0;k<keys.length;k++) {
@@ -5359,7 +5360,7 @@ log(unitIDs4Saves)
     }
 
     const InCC = (team1) => {
-        if (team1.order !== "Assault") {return};
+        if (team1.order !== "Assault" || team1.token.get("layer") === "walls") {return};
         //determine if this team is now in B2B or if infantry in 2nd row
         let teamKeys = Object.keys(TeamArray);
         if (assaultingUnitID !== "") {
@@ -5434,7 +5435,7 @@ log(unitIDs4Saves)
         let teamKeys = Object.keys(TeamArray);
         for (let i=0;i<teamKeys.length;i++) {
             let team2 = TeamArray[teamKeys[i]];
-            if (team2.id === team1.id || team2.player === team1.player) {continue};
+            if (team2.id === team1.id || team2.player === team1.player || team2.token.get("layer") === "walls") {continue};
             let dist = team1.hex.distance(team2.hex);
             let chargeDist = team1.hex.distance(team1.prevHex);
 log("Charge Dist: " + chargeDist)
