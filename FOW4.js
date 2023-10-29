@@ -55,17 +55,6 @@ const FOW = (() => {
         "surprised": "status_yellow",
     };
 
-    const Buddies = {
-        "Dash": "https://s3.amazonaws.com/files.d20.io/images/364738371/8Ov_DJPGHECoVdVUaEQG8w/thumb.png?1698192635",
-        "Tactical": "https://s3.amazonaws.com/files.d20.io/images/364738370/zNsS7qwUbv3hWKhHmdhQFw/thumb.png?1698192635",
-        "Hold": "https://s3.amazonaws.com/files.d20.io/images/364740800/zgiEA5heOJag10qcrKWlhA/thumb.png?1698193671",
-        "Assault": "https://s3.amazonaws.com/files.d20.io/images/364740790/-PpYtjvGninT5CBZ9cgvcw/thumb.png?1698193663",
-        "AAFire": "https://s3.amazonaws.com/files.d20.io/images/364738389/jQaMAvsc3yfx7tsgMpkZ-Q/thumb.png?1698192640",
-        "Fired": "https://s3.amazonaws.com/files.d20.io/images/364738390/jRn7kK1dz3EnFwy8lFzyJw/thumb.png?1698192640",
-        "GTG": "https://s3.amazonaws.com/files.d20.io/images/364740777/TkNdbvE_My02jE0bkz1KzA/thumb.png?1698193655",
-        "Radio": "https://s3.amazonaws.com/files.d20.io/images/364839305/-UanVemZgRrwTu3fVijGwA/thumb.png?1698268901",
-    };
-
     let specialInfo = {
         "Artillery": "Team has a weapon capable of an Artillery Barrage",
         "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
@@ -808,6 +797,8 @@ const FOW = (() => {
                 }
             }
 
+            let uat = (special.includes("Transport") && (weaponArray.length === 0 || type === "Unarmoured Tank")) ? true:false;
+
             this.id = tokenID;
             this.token = token;
             this.name = token.get("name");
@@ -874,15 +865,16 @@ const FOW = (() => {
             this.ccIDs = []; //ids of team in defensive fire range
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
-            this.buddies = {};
 
             this.fired = false;
             this.aaFired = false;
             this.moved = false;
             this.aaweapon = ''; //used to track weapons fired in AA
-          
+            this.gonetoground = false;
+
             this.maxPass = maxPass;
             this.passenger = false;
+            this.unarmouredTransport = uat;
 
             if (!state.FOW.teams[this.id]) {
                 state.FOW.teams[this.id] = {
@@ -893,48 +885,6 @@ const FOW = (() => {
 
             TeamArray[tokenID] = this;
             hexMap[hexLabel].teamIDs.push(tokenID);
-
-        }
-
-        buddy(condition,add,passengerTeam) {
-            let leftBuddies = ["Tactical","Dash","Hold","Assault"];
-            let rightBuddies = ["Fired","AAFire","GTG"];
-            if (add === true) {
-                //clear other buddies
-                let array = [];
-                if (leftBuddies.includes(condition)) {
-                    array = leftBuddies;
-                } else if (rightBuddies.includes(condition)) {
-                    array = rightBuddies;
-                }
-                for (let i=0;i<array.length;i++) {
-                    let cond = array[i];
-                    let id = this.buddies[cond];
-                    if (id) {
-                        let tok = findObjs({_type:"graphic", id: id})[0];
-                        tok.remove();
-                        this.buddies[cond] = undefined;
-                    }
-                }
-                //add this buddy
-                BuddyToken(this,condition,passengerTeam);
-            } else if (add === false) {
-                let id = this.buddies[condition];
-                if (id && condition.includes("Passenger") === false) {
-                    let tok = findObjs({_type:"graphic", id: id})[0];
-                    tok.remove();
-                } if (id && condition.includes("Passenger") === true) {
-                    let tok = findObjs({_type:"graphic", id: id})[0];
-                    tok.set({
-                        width: 70,
-                        height: 70,
-                        left: this.left,
-                        top: this.top,
-                        layer: "objects",
-                    });
-                }
-                this.buddies[condition] = undefined;
-            }
         }
 
         addCondition(condition) {
@@ -1622,19 +1572,14 @@ log(hit)
             _subtype: "token",
         });
 
-        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke","Bailed Out","Pinned"];
+        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke","Bailed Out","Pinned","Dash","Tactical","Hold","Assault","AAFire","Fired","GTG","Radio","Passengers"];
+        
         tokens.forEach((token) => {
             if (token.get("status_dead") === true) {
                 token.remove();
             }
             for (let i=0;i<removals.length;i++) {
                 if (removals[i] === token.get("name") && info === "All") {
-                    token.remove();
-                }
-            }
-            let bkeys = Object.keys(Buddies);
-            for (let i=0;i<bkeys.length;i++) {
-                if (bkeys[i] === token.get("name") && info === "All") {
                     token.remove();
                 }
             }
@@ -2350,15 +2295,13 @@ log(hit)
         if (team.specialorder !== "") {
             outputCard.body.push("Special Order: " + team.specialorder);
         }
-        if (team.carrying === true) {
+        if (state.FOW.passengers[team.id]) {
             outputCard.body.push("[hr]");
             outputCard.body.push("[U]Passengers[/u]");
-            for (let i=1;i<4;i++) {
-                let condName = "Passenger " + i;
-                if (team.buddies[condName] !== undefined) {
-                    let passTeam = TeamArray[team.buddies[condName]];
-                    outputCard.body.push(passTeam.name);
-                }
+            let passengers = state.FOW.passengers[team.id];
+            for (let i=0;i<passengers.length;i++) {
+                let passengerTeam = TeamArray[passengers[i]];
+                outputCard.body.push(passengerTeam.name);
             }
         }
 
@@ -3574,8 +3517,10 @@ log(hit)
                     team.prevHex = team.hex;
                     team.order = "";
                     team.specialorder = "";
+                } else {
                     team.aaweapon = "";
                 }
+
                 team.hitArray = [];
                 team.eta = [];
                 team.nightvisibility = 0;
@@ -3618,6 +3563,7 @@ log(hit)
             if (team.type === "System Unit" || team.type === "Aircraft") {continue};
             let gtg = (team.moved === true || team.fired === true) ? false:true;
             team.addCondition("GTG")
+            team.gonetoground = true;
         }
     }
 
@@ -3896,7 +3842,6 @@ log(hit)
         let unitFire = false;
         let sname = shooter.name;
 
-
         if (state.FOW.step === "Movement" || state.FOW.step === "Start") {
             sendChat("","Advance Step before Shooting");
             return;
@@ -3989,9 +3934,12 @@ log("Mistaken: " + mistaken)
                 }
             }
 
-            if (st.aaweapon.type === weaponType && defensive === true) {
-                excluded = " fired AA, can't use same weapon in Defensive Fire";
+            if (st.aaweapon.hasOwnProperty("name")) {
+                if (st.aaweapon.type === weaponType && defensive === true) {
+                    excluded = " fired AA, can't use same weapon in Defensive Fire";
+                }
             }
+
             if (st.type === "Tank" && st.bailed === true) {
                 excluded = " is Bailed Out";
             }
@@ -4064,14 +4012,11 @@ log("Mistaken: " + mistaken)
                         }
                     } 
                 }
-log(weaponExclusion)
-log(flag)
 
                 if (weaponExclusion !== undefined && flag === false) {
                     excluded = weaponExclusion;
                 }
             }
-log(excluded)
             if (excluded !== undefined) {
                 exclusions.push(st.name + excluded);
             }
@@ -4162,7 +4107,7 @@ log(weapons)
                 if (los.concealed === true) {
                     toHit++;
                     toHitTips += "<br>Concealed +1";
-                    if (target.buddies["GTG"] !== undefined) {
+                    if (target.gonetoground === true) {
                         toHit++;
                         toHitTips += "<br>Gone to Ground +1";
                     } 
@@ -4839,7 +4784,7 @@ log(artUnits)
         let observerID = Tag[2];
         let artUnitID = Tag[3];
         let ammoType = Tag[4]; //Normal, Smoke Bombardment
-        let direction = Tag[5]; //in Smoke BOmbardment
+        let direction = Tag[5]; //in Smoke Bombardment
         let barrageTeam = TeamArray[barrageID];
         let observerTeam = TeamArray[observerID];
         let artilleryUnit = UnitArray[artUnitID];
@@ -5359,6 +5304,10 @@ log(unitIDs4Saves)
             //seperate out smoke from regular hits, weapon.name will be "Smoke"
             //use DirectSmoke(team)
 
+            //if has passengers - if riders then they all take hits, if in transport then only if killed
+
+
+
                 outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
                 unitHits += team.hitArray.length;
 
@@ -5480,7 +5429,7 @@ log(unitIDs4Saves)
             if (team1.special.includes("Heavy Weapon")) {
                 errorMsg = "This Team is a Heavy Weapons Team and cannot Charge into Contact";
             }
-            if (team1.buddies["AAFire"] !== undefined) {
+            if (team1.aaweapon.hasOwnProperty("name")) {
                 errorMsg = "This Team fired AA Fire and cannot Charge into Contact";
             }
 
@@ -5817,59 +5766,8 @@ log("2nd Row to " + team3.name)
         }
     }
 
-    const BuddyToken = (team,condition,passengerTeam) => {
-        if (condition.includes("Passenger")) {
-            passengerTeam.token.set({
-                width: 40,
-                height: 40,
-                left: team.location.x,
-                top: team.location.y,
-                layer: "gmlayer",
-            })
-            toFront(passengerTeam.token);
-            passengerTeam.passenger = true;
-            team.carrying = true;
-            team.buddies[condition] = passengerTeam.id;
-        } else {
-            let rotation = 0;
-            let img;
-            if (condition === "Bailed Out" || condition === "Pinned") {
-                img = getCleanImgSrc(Nations[team.nation].pinned);
-                if (condition === "Bailed") {
-                    rotation = 180;
-                }
-            } else {
-                img = Buddies[condition];
-                if (img) {
-                    img = getCleanImgSrc(Buddies[condition]);
-                }
-            } 
-            if (img === undefined) {return};
-            let newToken = createObj("graphic", {   
-                left: team.location.x,
-                top: team.location.y,
-                width: 70, 
-                height: 70,
-                rotation: rotation,
-                name: condition,
-                showname: false,
-                isdrawing: true,
-                pageid: team.token.get("pageid"),
-                imgsrc: img,
-                layer: "gmlayer",
-                gmnotes: team.id,
-            });
-            toFront(newToken);
-            team.buddies[condition] = newToken.id;
-        }
-    }
-
     const SendToRear = () => {
-    return;
-
-        //change below to be more flag and player moves
-
-
+        let bit = "";
         let player = state.FOW.currentPlayer;
         keys = Object.keys(TeamArray);
         let flag = false;
@@ -5881,13 +5779,12 @@ log("2nd Row to " + team3.name)
             if (pass) {
                 if (pass.length === 0) {
                     flag = true;
-                    MoveOfftable(id);
-                }
+\                }
             }
         }
         if (flag === true) {
             SetupCard("Send To Rear","",state.TY.nations[player][0])
-            outputCard.body.push("Empty " + state.TY.nations[player][0] + " Transports Sent To Rear");
+            outputCard.body.push("Send Empty Unarmed/Unarmoured Transports to Rear")
             PrintCard();
         }
     }
@@ -6113,12 +6010,14 @@ log("2nd Row to " + team3.name)
                             team.moved = false;
                             if (team.order === "Hold" && team.fired === false) {
                                 team.addCondition("GTG")
+                                team.gonetoground = true;
                             }
                         }
                     }
      
                     if (team.moved === true) {
                         team.removeCondition("GTG")
+                        team.gonetoground = false;
                         if (team.artillery !== undefined) {
                             RemoveRangedInMarker(team.unitID);
                         }
