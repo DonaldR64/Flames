@@ -549,7 +549,7 @@ const FOW = (() => {
             } else if (index === 0) {
                 //change name to Sergeant if isnt a Lt or higher
                 let newLeader = TeamArray[this.teamIDs[0]];
-                newLeader.name = PromotedName(newLeader);
+                newLeader.name = PromotedName(newLeader,team);
                 newLeader.token.set("name",newLeader.name);
             }
         }
@@ -2266,14 +2266,19 @@ log(hit)
         return name;
     }
 
-    const PromotedName = (team) => {
+    const PromotedName = (team,oldTeam) => {
         let name = team.name;
+        if (!oldTeam) {oldTeam = " "};
         let subNames = name.split(" ");
         let nat = team.nation;
         if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};   
         let ranks = Ranks[nat];
         if (ranks.includes(subNames[0]) === false) {
-            name = ranks[ranks.length - 1] + " " + subNames[1];
+            if (team.nation === "Soviet" && oldTeam.includes("Kapitan")) {
+                name = ranks[ranks.length - 2] + " " + subNames[1];
+            } else {
+                name = ranks[ranks.length - 1] + " " + subNames[1];
+            }
         }
         return name;
     }
