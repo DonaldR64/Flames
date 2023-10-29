@@ -41,16 +41,7 @@ const FOW = (() => {
     }
 
     const SM = {
-        //"gtg": "status_brown",
-        //"dash": "status_Fast::5868456",
-        //"fired": "status_Shell::5553215",
-        //"tactical": "status_Advantage-or-Up::2006462",
-        //"hold": "status_Shield::2006495",
-        //"assault": "status_grenade",
-        "mounted": "status_Mounted-Transparent::2006522",
         "flare": "status_Flare::5867553",
-        //"radio": "status_Radio::5864350",
-        //"aafire": "status_sentry-gun",
         "defensive": "status_green",
         "surprised": "status_yellow",
     };
