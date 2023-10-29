@@ -51,6 +51,7 @@ const FOW = (() => {
 
     let specialInfo = {
         "Artillery": "Team has a weapon capable of an Artillery Barrage",
+        'Assault Smoke': "May fire a Smoke Bombardment in same turn they Assault",
         "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
         "Bombs": "Bombs do not need to re-roll successful To Hit rolls for having only 1 or 2 weapons firing",
         "Brutal": "Infantry, Gun and Unarmoured Tank Teams re-roll successful Saves against Brutal Weapons",
@@ -71,7 +72,10 @@ const FOW = (() => {
         "Overworked": "Overworked weapons add +1 to the score needed To Hit when moving",
         "Passengers #": "A Transport Team can carry # Infantry Teams as Passengers",
         "Pinned ROF 1": "These weapons have a ROF of 1 when Pinned Down",
+        "Pioneers": 'Can cross Minefields safely on a 2+. If remain in Minefield and not Pinned Down, clear the Minefield automatically',
+        "Redemption": "May not be placed in Reserve. Gets special Deployment, never benefits from Bulletproof Cover, cannot hold Objectives but can Contest them",
         "Salvo": "Use a larger Artillery Template",
+        "Sapper Body Armour": "Gets a Save of 6 in Close Combat",
         "Scout": "Scouts are Gone to Ground unless they Shoot or Assault",
         "Self Defence AA": "Self-Defence AA weapons can Shoot at Aircraft with ROF 1",
         "Slow Firing": "Slow Firing Weapons add +1 to the score needed To Hit when moving",
@@ -79,9 +83,12 @@ const FOW = (() => {
         "Smoke Bombardment": "Once per game, the weapon can fire a Smoke Bombardment",
         "Spearhead": "Special Rules for Deployment (page 93)",
         "Stormtroopers": "The Unit may attempt a second Special Order after succeeding in its first Special Order. The second Movement Order must be different from the first.",
+        "Tank Escorts": 'One Team per Tank can shoot while mounted on Tanks and can Dismount when Charging into Contact',
+        "Tankodesantniki": 'One Team per Tank can shoot while mounted on Tanks and can Dismount when Charging into Contact',
         "Tractor": "A Tractor Team can tow a single Gun Team as a Passenger, placing the Gun Team behind it",
         "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if Assaulted",
-        "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.'
+        "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.',
+        "Urrah": "Units with Urrah may charge " + 6*gameScale + '" into Close Combat',
 
     };
 
@@ -1099,6 +1106,10 @@ log(hit)
                 bp = false;
             }
 
+            if (this.special.includes("Redemption")) {
+                bp = false;
+            }
+
             if (this.type === "Tank") {
                 if (weapon.type === "Flamethrower") {
                     facing = "Top";
@@ -1219,12 +1230,6 @@ log(hit)
                     save.result = "saved";
                 } else {
                     save.tip += "<br>Firepower Roll: " + fpRoll + " vs. " + weapon.fp + "+";
-                    let noRerollWeapons = ["Guided","Guided AA","Anti-helicopter","Dedicated AA"];
-                    let notes = weapon.notes.split(",");
-                    if (((shooterType === "Infantry" && findCommonElements(noRerollWeapons,notes) === false) || weapon.type === "AA MG") && fpRoll >= weapon.fp) {
-                        fpRoll = randomInteger(6);
-                        save.tip += "<br>Rerolled: " + fpRoll;
-                    }
                     if (fpRoll < weapon.fp) {
                         save.result = "minor";
                     } else {
@@ -2578,6 +2583,10 @@ log(hit)
             bulletproof = false
             facing = "Side/Rear"
         };
+
+        if (team2.special.includes("Redemption")) {
+            bulletproof = false;
+        }
     
         let result = {
             los: los,
@@ -2662,6 +2671,8 @@ log(hit)
         SetupCard("GM Functions","","Neutral");
         ButtonInfo("Add Abilities","!AddAbilities");
         ButtonInfo("Clear State","!ClearState");
+        ButtonInfo("Place in Reserve","!PlaceInReserve");
+
         //ButtonInfo("Kill Selected Team","!!KillTeam;@{selected|token_id}");
         ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Allies,0|Axis,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
         //ButtonInfo("Test LOS","!TestLOS;@{selected|token_id};@{target|token_id}");
@@ -5362,6 +5373,7 @@ log(unitIDs4Saves)
                 //run Mistaken
                 Mistaken(unit);
             }
+            let flamethrowerFlag = false;
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let unitHits = parseInt(unitLeader.token.get("bar3_value"));
             for (let j=0;j<unit.teamIDs.length;j++) {
@@ -5379,7 +5391,7 @@ log(unitIDs4Saves)
                 outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
                 unitHits += team.hitArray.length;
 
-
+                //turn  flamethrowerflag true if hit by flamethrower
 
 
 
@@ -5393,7 +5405,7 @@ log(unitIDs4Saves)
 
 
             if (unit) {
-                if (unit.type === "Infantry" || unit.type === "Gun") {
+                if (unit.type === "Infantry" || unit.type === "Gun" || unit.type.includes("Unarmoured")) {
                     unitLeader = TeamArray[unit.teamIDs[0]]; //in case original killed
                     unitLeader.token.set("bar3_value",unitHits);
                     if (unitHits >= pinMargin && unit.pinned() === false) {
@@ -5402,6 +5414,10 @@ log(unitIDs4Saves)
                         if (shootingType === "Defensive") {
                             outputCard.body.push("The Unit must Fall Back");
                         }
+                    }
+                    if (flamethrowerFlag === true && unit.pinned() === false) {
+                        outputCard.body.push("The Unit is Pinned");
+                        unit.pin();
                     }
                 } else if (unit.type === "Tank" && shootingType === "Defensive") {
                     unitLeader = TeamArray[unit.teamIDs[0]]; //in case original killed
