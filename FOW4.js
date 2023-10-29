@@ -859,7 +859,11 @@ const FOW = (() => {
             this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
             this.hit = parseStat(attributeArray.hit);
             this.amounted = attributeArray.mountedassault;
-            this.camounted = attributeArray.counterattackmounted.replace(/[^\d]/g, "");
+            let camounted = "";
+            if (attributeArray.counterattackmounted) {
+                camounted = attributeArray.counterattackmounted.replace(/[^\d]/g, "");
+            }
+            this.camounted = camounted
 
             this.artillery = artillery;
             this.artNum = artNum;
@@ -2242,7 +2246,9 @@ log(hit)
         } else if (team.type === "Infantry" || team.type === "Gun") {
             name += " "+ i;
         } 
-        let rank = Ranks[team.nation].length - 1;
+        let nat = team.nation;
+        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};        
+        let rank = Ranks[nat].length - 1;
         if (team.special.includes("HQ")) {
             rank = Math.min(i,1);
             unit.hqUnit = true;
