@@ -784,7 +784,6 @@ const FOW = (() => {
             let top = attributeArray.armourT;
             if (top) {top = parseInt(top)} else {top = 0};
 
-
             //passengers
             let maxPass = 0;
             if (type === "Tank") {
@@ -847,6 +846,8 @@ const FOW = (() => {
             this.assault = parse2ndStat(attributeArray.assault,this.skill);
             this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
             this.hit = parseStat(attributeArray.hit);
+            this.amounted = attributeArray.mountedassault;
+            this.camounted = attributeArray.counterattackmounted.replace(/[^\d]/g, "");
 
             this.artillery = artillery;
             this.artNum = artNum;
@@ -1553,9 +1554,9 @@ log(hit)
             turn: 0,
             step: "start",
             gametype: "undefined",
-            currentPlayer: -1,
+            currentPlayer: undefined,
             timeOfDay: "Day",
-            startingPlayer: -1,
+            startingPlayer: undefined,
             barrageID: "",
             BarrageInfo: [],
             smokeScreens: [[],[]],
@@ -1576,9 +1577,9 @@ log(hit)
             _subtype: "token",
         });
 
-        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke","Bailed Out","Pinned","Dash","Tactical","Hold","Assault","AAFire","Fired","GTG","Radio","Passengers"];
-        
+        let removals = ["SmokeScreen","rangedin","Foxholes","Smoke"];
         tokens.forEach((token) => {
+            let layer = token.get("layer");
             if (token.get("status_dead") === true) {
                 token.remove();
             }
@@ -1587,10 +1588,11 @@ log(hit)
                     token.remove();
                 }
             }
+            if ((layer === "gmlayer" || layer === "walls") && info === "All") {
+                token.remove();
+            }
         });
     }
-
-
 
     const PrintCard = (id) => {
         let output = "";
@@ -1912,7 +1914,6 @@ log(hit)
         let elapsed = Date.now()-startTime;
         log("Hex Map Built in " + elapsed/1000 + " seconds");
         //add tokens to hex map, rebuild Team/Unit Arrays
-        //TA();
         RebuildArrays();
         //check what is in command
         inCommand("All");
@@ -2622,10 +2623,6 @@ log(hit)
         outputCard.body.push("First Player: " + nat);
         outputCard.body.push("Time of Day: " + timeOfDay);
 
-
-
-
-
         PrintCard();
     }
     
@@ -3236,7 +3233,7 @@ log(hit)
                 let form = new Formation(p,state.FOW.nations[p][0],num,"Barrages");
                 let unit = new Unit(p,state.FOW.nations[p][0],num,"Barrages");
             }
-            currentPlayer = parseInt(state.FOW.startingPlayer);
+            currentPlayer = state.FOW.startingPlayer;
             if (state.FOW.gametype === undefined || currentPlayer === undefined) {
                 SetupCard("Setup Game","","Neutral");
                 ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Allies,0|Axis,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
@@ -3297,6 +3294,7 @@ log(hit)
         state.FOW.turn = turn;
         state.FOW.step = currentStep;
         currentPlayer = state.FOW.currentPlayer;
+
         let playerNation = state.FOW.nations[state.FOW.currentPlayer][0];
 
         if (currentStep === "Start") {
@@ -3516,18 +3514,6 @@ log(hit)
                 if (unitLeader.bailed === true) {
                     SwapLeader(unit);
                 }
-            }
-        }
-    }
-
-    const SetStatus = (ids,status,setting) => {
-        for (let i=0;i<ids.length;i++) {
-            let team = TeamArray[ids[i]];
-            if (!team) {continue};
-            if (team.type === "System Unit") {continue};
-            let token = team.token;
-            if (token) {
-                token.set(status,setting);
             }
         }
     }
@@ -3785,11 +3771,6 @@ log(hit)
         for (let i=0;i<formationLeaders.length;i++) {
             let leader = formationLeaders[i];
             let checkID = leader.id;
-            /*
-            if (leader.token.get(SM.mounted) === true) {
-                checkID = leader.transport;
-            }
-            */
             let losCheck = LOS(team.id,checkID);
             if (losCheck.los === true && losCheck.distance <= 6) {
                 reroll = randomInteger(6);
@@ -5134,7 +5115,6 @@ log(marker);
         let artTeamID = msg.selected[0]._id;
         let artTeam = TeamArray[artTeamID];
         let artUnit = UnitArray[artTeam.unitID];
-        //create token
         if (RangedInArray[artUnit.id]) {
             RemoveRangedInMarker(artUnit.id);
         }
@@ -5349,8 +5329,6 @@ log(unitIDs4Saves)
         }
         unitIDs4Saves = {};
     }
-
-
 
     const inCommand = (team) => {
         //'team' could be an actual team or could be "All" or the player #
@@ -5581,6 +5559,16 @@ log("2nd Row to " + team3.name)
                 end = "";
             } else {
                 let needed = attTeam.assault;
+                if (attTeam.special.includes("Mounted Assault")) {
+                    if (state.FOW.passengers[attTeam.id]) {
+                        let passengerNumber = state.FOW.passengers[attTeam.id].length;
+                        if (attTeam.amounted === "Mounted Assault: 1P/4+, 2P/3+") {
+                            if (passengerNumber === 1) {needed = 4};
+                            if (passengerNumber > 1) {needed = 3};
+                        }
+//others here later
+                    }
+                }
                 let roll = randomInteger(6);
                 if (roll < needed) {
                     end = " Misses";
@@ -5720,7 +5708,17 @@ log("2nd Row to " + team3.name)
                 if (reroll > 0) {
                     rerollText = " (Reroll allowed)"
                 }
-                outputCard.body.push(unit.name + ": " + unitLeader.counterattack + "+" + rerollText);
+                let needed = unitLeader.counterattack;
+                if (unitLeader.special.includes("Mounted Assault")) {
+                    if (state.FOW.passengers[unitLeader.id]) {
+                        let passengerNumber = state.FOW.passengers[unitLeader.id].length;
+                        if (passengerNumber > 0) {
+                            needed = unitLeader.camounted;
+                        }
+//others here later
+                    }
+                }
+                outputCard.body.push(unit.name + ": " + needed + "+" + rerollText);
             }
         }
         PrintCard();
