@@ -233,7 +233,7 @@ const FOW = (() => {
             "platoonmarkers": ["letters_and_numbers0050::4815186","letters_and_numbers0051::4815187","letters_and_numbers0052::4815188","letters_and_numbers0053::4815189","letters_and_numbers0054::4815190","letters_and_numbers0055::4815191","letters_and_numbers0056::4815192","letters_and_numbers0057::4815193","letters_and_numbers0058::4815194","letters_and_numbers0059::4815195","letters_and_numbers0060::4815196","letters_and_numbers0061::4815197","letters_and_numbers0062::4815198","letters_and_numbers0063::4815199","letters_and_numbers0064::4815200","letters_and_numbers0065::4815201","letters_and_numbers0066::4815202","letters_and_numbers0067::4815203","letters_and_numbers0068::4815204","letters_and_numbers0069::4815205","letters_and_numbers0070::4815206","letters_and_numbers0071::4815207","letters_and_numbers0072::4815208","letters_and_numbers0073::4815209","letters_and_numbers0074::4815210","letters_and_numbers0075::4815211"],
         },
         "Waffen-SS": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/324283125/RG-Yo1FkEWvzDprUsFl3Cg/thumb.png?1674447941",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/365388497/Ok7UczzDDhN2CRKg5nFZ4Q/thumb.png?1698594609",
             "backgroundColour": "#000000",
             "dice": "SS",
             "titlefont": "Bokor",
