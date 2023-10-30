@@ -892,11 +892,12 @@ const FOW = (() => {
             this.assaultTargetIDs = []; //ids of teams in CC with
             this.frontLine = false;
 
-            this.fired = false;
-            this.aaFired = false;
-            this.moved = false;
+            this.bailed = this.queryCondition("Bailed Out");
+            this.fired = this.queryCondition("Fired");
+            this.aaFired = this.queryCondition("AA Fire");
+            this.moved = ((this.queryCondition("Tactical") || this.queryCondition("Dash")) === true) ? true:false;
             this.aaweapon = ''; //used to track weapons fired in AA
-            this.gonetoground = false;
+            this.gonetoground = this.queryCondition("GTG");
 
             this.maxPass = maxPass;
             this.passenger = false;
@@ -978,16 +979,10 @@ const FOW = (() => {
                 array = topConditions;
             }
             //clear other conditions in that array
-            let conditions = [];
             if (state.FOW.conditions[this.id]) {
-                conditions = state.FOW.conditions[this.id];
-                for (let i=0;i<array.length;i++) {
-                    if (conditions[condition]) {
-                        let token = findObjs({_type:"graphic", id: conditions[condition]})[0];
-                        if (token) {
-                            token.remove();
-                        }
-                        delete state.FOW.conditions[this.id][condition];
+                for (let a=0;a<array.length;a++) {
+                    if (state.FOW.conditions[this.id][array[a]]) {
+                        this.removeCondition(array[a]);
                     }
                 }
             } else {
@@ -1025,6 +1020,17 @@ const FOW = (() => {
             }
         }
 
+        queryCondition(condition) {
+            let result = false;
+            if (state.FOW.conditions[this.id]) {
+                let conditions = state.FOW.conditions[this.id];
+                if (conditions[condition]) {
+                    result = true;
+                }
+            }
+            return result;  
+        }
+
         BailOut() {
             let result = {
                 result: "",
@@ -1052,20 +1058,12 @@ const FOW = (() => {
 
         bail() {
             this.addCondition("Bailed Out");
+            this.bailed = true;
         }
 
-        remount() {
+        remountTank() {
             this.removeCondition("Bailed Out");
-        }
-
-        bailed() {
-            let result = false;
-            if (state.FOW.conditions[this.id]) {
-                if (state.FOW.conditions[this.id]["Bailed Out"]) {
-                    result = true;
-                }
-            }
-            return result;
+            this.bailed = false;
         }
 
         IC(ic) {
@@ -2076,7 +2074,6 @@ log(outputCard)
                 continue;
             }
             let nation = Attribute(character,"nation");
-            let player = (Allies.includes(nation)) ? 0:1;
 
             let teamInfo = state.FOW.teams[id];
             let fid = teamInfo.formationID;
@@ -2098,6 +2095,7 @@ log(outputCard)
                 unit = UnitArray[uid];
             }
             team = new Team(id,fid,uid);
+
             unit.add(team);
             add++;
         }
@@ -2331,6 +2329,9 @@ log(outputCard)
         } else {
             outputCard.body.push("Team is NOT In Command");
         }
+        if (team.bailed === true) {
+            outputCard.body.push("[#ff0000]Team is Bailed Out[/#]");
+        }
         if (team.order === "") {
             outputCard.body.push("No Order this Turn");
         } else {
@@ -2358,7 +2359,7 @@ log(outputCard)
             outputCard.body.push("Unit Order: " + unit.order);
         }
         if (unit.pinned() === true) {
-            outputCard.body.push("Unit is Pinned");
+            outputCard.body.push("[#ff0000]Unit is Pinned[/#]");
         }
 
         PrintCard();
@@ -3735,7 +3736,7 @@ log(outputCard)
                 }
                 if (roll >= needed || reroll >= needed) {
                     outputCard.body.push("Success!");
-                    team.remount();
+                    team.remountTank();
                 } else {
                     outputCard.body.push("Failure! Team remains Bailed Out");
                 }
@@ -4361,7 +4362,7 @@ log(weapons)
         let allFired = true;
         for (let i=0;i<shooterUnit.teamIDs.length;i++) {
             let team = TeamArray[shooterUnit.teamIDs[i]];
-            if (team.fired === false && team.aaFired === false) {
+            if (team.fired === false && team.aaFired === false && team.bailed === false) {
                 allFired = false;
                 break;
             }
@@ -4370,7 +4371,7 @@ log(weapons)
         if (allFired === false) {
             outputCard.body.push("[hr]");
             outputCard.body.push("Not all Teams have fired");
-//button            
+            ButtonInfo("End Unit Fire","!EndFire;" + shootingType);
         }    
         PrintCard();
         if (allFired === true) {
@@ -5360,6 +5361,12 @@ log(marker);
         }
     }
 
+    const EndFire = (msg) => {
+        let Tag = msg.content.split(";");
+        let type = Tag[1];
+        ProcessSaves(type);
+    }
+
     const ProcessSaves = (shootingType) => {
 log("In Process Saves")
 log(unitIDs4Saves)
@@ -6333,6 +6340,9 @@ log("2nd Row to " + team3.name)
                 break;
             case '!Test':
                 Test(msg);
+                break;
+            case '!EndFire':
+                EndFire(msg);
                 break;
         }
     };
