@@ -547,17 +547,28 @@ const FOW = (() => {
                     let team = TeamArray[this.teamIDs[0]];
                     if (team.special.includes("Transport")) {
                         sendChat("","Remaining Team is Transport and Leaves the Field");
+                        team.flees();
                     }
                 }
             }
             if (this.teamIDs.length === 0) {
                 let formation = FormationArray[this.formationID];
                 formation.remove(this);
+                if (this.hqUnit === true) {
+                    deadHQs[this.player].push(formation.id);
+                }
+                delete UnitArray[this.id];
             } else if (index === 0) {
+                let auraC = team.token.get("aura1_color");
                 //change name to Sergeant if isnt a Lt or higher
                 let newLeader = TeamArray[this.teamIDs[0]];
                 newLeader.name = PromotedName(newLeader,team);
-                newLeader.token.set("name",newLeader.name);
+                newLeader.token.set({
+                    name: newLeader.name,
+                    aura1_color: auraC,
+                    tint_color: "transparent",
+                })
+                newLeader.inCommand = true;
             }
         }
 
@@ -590,7 +601,6 @@ const FOW = (() => {
                 let id = this.teamIDs[i];
                 let team = TeamArray[id];
                 if (!team) {continue};
-                if (!team.token) {continue};
                 newTeamIDs.push(id);
             }
             this.teamIDs = newTeamIDs;
@@ -611,8 +621,6 @@ const FOW = (() => {
                 team.IC(ic);
             }
         }
-
-
 
     }
 
@@ -1115,9 +1123,9 @@ log(hit)
                 if (facing === "Front") {saveNeeded = this.armourF};
                 if (facing === "Side/Rear") {
                     if (weapon.fp > 4 && shooterType === "Infantry" && this.special.includes("Skirts")) {
-                        saveNeeded = Math.max(5,this.armourS);
+                        saveNeeded = Math.max(5,this.armourSR);
                     } else {
-                        saveNeeded = this.armourS
+                        saveNeeded = this.armourSR
                     }                
                 };
                 if (facing === "Top") {saveNeeded = this.armourT};
@@ -1241,9 +1249,27 @@ log(hit)
         }
 
 
+        kill() {
+            this.token.set({
+                layer: "map",
+                statusmarkers: "dead",
+            });
+            toFront(this.token);
+            if (state.FOW.conditions[this.id]) {
+                let keys = Object.keys(state.FOW.conditions[this.id]);
+                for (let i=0;i<keys.length;i++) {
+                    this.removeCondition(keys[i]);
+                }
+            }
+            UnitArray[this.unitID].remove(this);
+            delete TeamArray[this.id];
+        }
 
-
-
+        flees() {
+            UnitArray[this.unitID].remove(this);
+            this.token.remove();
+            delete TeamArray[this.id];
+        }
 
 
 
@@ -2280,10 +2306,10 @@ log(outputCard)
         if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};   
         let ranks = Ranks[nat];
         if (ranks.includes(subNames[0]) === false) {
-            if (team.nation === "Soviet" && oldTeam.includes("Kapitan")) {
-                name = ranks[ranks.length - 2] + " " + subNames[1];
+            if (team.nation === "Soviet" && oldTeam.name.includes("Kapitan")) {
+                name = ranks[ranks.length - 2] + " " + Name(team.nation);
             } else {
-                name = ranks[ranks.length - 1] + " " + subNames[1];
+                name = ranks[ranks.length - 1] + " " + Name(team.nation);
             }
         }
         return name;
@@ -2508,8 +2534,8 @@ log(outputCard)
                     let friendlyFlag = false;
                     let friendlyHeight = 0;
         
-                    if (special !== "Overhead" && special !== "Spotter" && special !== "Defensive") {
-            //check for intervening friendlies in 1 hexes of interHex - can ignore if same team
+                    if (special !== "Overhead" && special !== "Spotter" && special !== "Defensive" && i> 1) {
+            //check for intervening friendlies in 1 hexes of interHex - can ignore if same unit
                         //if find one, flag and note height
             //log("Friendlies")
                         for (let t=0;t<fKeys.length;t++) {
@@ -3551,12 +3577,16 @@ log(outputCard)
         let keys = Object.keys(UnitArray);
         for (let j=0;j<keys.length;j++) {
             let unit = UnitArray[keys[j]];
+            let conditions = ["Dash","Tactical","Hold","Assault","Fired","AAFire","Radio"];
             if (unit.player === state.FOW.currentPlayer) {
-                let conditions = ["Dash","Tactical","Hold","Assault","Fired","AAFire","Radio"];
-                for (let b=0;b<conditions.length;b++) {
-                    for (let t=0;t<unit.teamIDs.length;t++) {
-                        let team = TeamArray[unit.teamIDs[t]];
-                        team.removeCondition(conditions[b]);
+                for (let k=0;k<unit.teamIDs.length;k++) {
+                    let team = TeamArray[unit.teamIDs[k]];
+                    if (state.FOW.conditions[team.id]) {
+                        for (let c=0;c<conditions.length;c++) {
+                            if (state.FOW.conditions[team.id][conditions[c]]) {
+                                team.removeCondition(conditions[c]);
+                            }
+                        }
                     }
                 }
                 if (state.FOW.turn === 1) {
@@ -3720,7 +3750,7 @@ log(outputCard)
             if (type === "Remount") {
                 let id = Tag[2];
                 let needed = parseInt(Tag[3]);
-                let neededText = needed.toString + "+";
+                let neededText = needed.toString() + "+";
                 let team = TeamArray[id];
                 if (team.special.includes("Transport") && hexMap[team.hexLabel].terrain.includes("Offboard")) {
                     needed = 1;
@@ -4432,7 +4462,7 @@ log(weapons)
                 if (unit.id === targetUnit.id || unit.player !== targetUnit.player || unit.type !== targetUnit.type) {continue};
                 for (let k=0;k<unit.teamIDs.length;k++) {
                     let team3 = TeamArray[unit.teamIDs[k]];
-                    if (team3.hex.distance(targetTeam.hex) <= commandRadius[0]) {
+                    if (team3.hex.distance(targetTeam.hex) <= 6) {
                         //a valid team - add its unit IDs, rest will get sorted in/out below
                         ids = ids.concat(unit.teamIDs);
                         targetUnit.linkedUnitID = unit.id;
@@ -5386,35 +5416,26 @@ log(unitIDs4Saves)
             let flamethrowerFlag = false;
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let unitHits = parseInt(unitLeader.token.get("bar3_value"));
-            for (let j=0;j<unit.teamIDs.length;j++) {
-                let team = TeamArray[unit.teamIDs[j]];
-                if (team.hitArray.length === 0) {continue};
-                
-
+            unit.teamIDs.forEach((id) => {
+                let team = TeamArray[id];
+                if (team.hitArray.length === 0) {return};
+            
             //seperate out smoke from regular hits, weapon.name will be "Smoke"
             //use DirectSmoke(team)
 
             //if has passengers - if riders then they all take hits, if in transport then only if killed
 
-
-
-                //outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
                 unitHits += team.hitArray.length;
                 let results = ProcessSavesTwo(team);
                 for (let m=0;m<results.length;m++) {
                     outputCard.body.push(results[m]);
                 }
                 //turn  flamethrowerflag true if hit by flamethrower
-
-
-
-
-
-
-                
                 team.hitArray = [];
                 team.shooterIDs = [];
-            }
+            });
+
+
             if (unitHits === 0) {
                 outputCard.body.push("(Swapped)");
                 continue;
@@ -5525,7 +5546,7 @@ log(unitIDs4Saves)
         }
     
         if (outputArray.destroyed > 0) {
-            //.push(team.id);
+            team.kill();
         }
     
         team.hitArray = [];
