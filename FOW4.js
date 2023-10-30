@@ -1085,7 +1085,8 @@ log(hit)
             let weapon = hit.weapon;
             let rangedIn = hit.rangedIn;
             let shooterType = hit.shooterType;
-            let closeCombat = (!hit.closeCombat) ? false:true;
+            let closeCombat = hit.closeCombat;
+            if (!hit.closeCombat) {closeCombat = false};
 
             let notes = weapon.notes;
             let saveRoll = randomInteger(6);
@@ -1094,8 +1095,6 @@ log(hit)
             let save = {
                 result: "",
                 tip: hitNum + ": ",
-                passIDs: [],
-                passengerType: "",
             }
 
             if (bp === "Artillery") {
@@ -1626,6 +1625,8 @@ log(hit)
         if (!outputCard.nation || !Nations[outputCard.nation]) {
             outputCard.nation = "Neutral";
         }
+log(outputCard)
+        if (!outputCard.title) {outputCard.title = "No Title, Check Log"}
 
         //start of card
         output += `<div style="display: table; border: ` + Nations[outputCard.nation].borderStyle + " " + Nations[outputCard.nation].borderColour + `; `;
@@ -2079,9 +2080,11 @@ log(hit)
 
             let teamInfo = state.FOW.teams[id];
             let fid = teamInfo.formationID;
-            let fName = state.FOW.formations[fid];
-            let uName = state.FOW.units[fid];
             let uid = teamInfo.unitID;
+
+            let fName = state.FOW.formations[fid];
+            let uName = state.FOW.units[uid];
+
             let formation,unit,team;
             if (!FormationArray[fid]) {
                 formation = new Formation(nation,fid,fName);
@@ -5379,7 +5382,7 @@ log(unitIDs4Saves)
             for (let j=0;j<unit.teamIDs.length;j++) {
                 let team = TeamArray[unit.teamIDs[j]];
                 if (team.hitArray.length === 0) {continue};
-            
+                
 
             //seperate out smoke from regular hits, weapon.name will be "Smoke"
             //use DirectSmoke(team)
@@ -5388,9 +5391,12 @@ log(unitIDs4Saves)
 
 
 
-                outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
+                //outputCard.body.push(team.name + " takes " + team.hitArray.length + " hits");
                 unitHits += team.hitArray.length;
-
+                let results = ProcessSavesTwo(team);
+                for (let m=0;m<results.length;m++) {
+                    outputCard.body.push(results[m]);
+                }
                 //turn  flamethrowerflag true if hit by flamethrower
 
 
@@ -5402,7 +5408,11 @@ log(unitIDs4Saves)
                 team.hitArray = [];
                 team.shooterIDs = [];
             }
-
+            if (unitHits === 0) {
+                outputCard.body.push("(Swapped)");
+                continue;
+            }
+    
 
             if (unit) {
                 if (unit.type === "Infantry" || unit.type === "Gun" || unit.type.includes("Unarmoured")) {
@@ -5438,6 +5448,96 @@ log(unitIDs4Saves)
         }
         unitIDs4Saves = {};
     }
+
+
+
+
+    const ProcessSavesTwo = (team) => {
+        let hits = team.hitArray;
+        let tip = "";
+        let saveResult = [];
+        let outputArray = {
+            "deflect": 0,
+            "minor": 0,
+            "destroyed": 0,
+            "bailed": 0,
+            "bailedAgain": 0,
+            "flees": 0,
+            "saved": 0,
+            "cover": 0,
+        }
+        //let heliFlag = (team.type === "Helicopter" && team.token.get(sm.landed) === false) ? true:false;
+        let save; //as single hit's save can then carry onto output part
+    
+        for (let k=0;k<hits.length;k++) {
+            let hit = hits[k];
+            save = team.Save(hit,k+1);
+            if (k>0) {
+                tip += "<br>";
+            }
+            tip += save.tip
+            outputArray[save.result] += 1;
+        }
+    
+        if (hits.length === 1) {
+            saveResult.push('[🎲](#" class="showtip" title="' + tip + ') ' + team.name + ": 1 Hit");
+            saveResult.push(SaveResults[save.result]);
+        } else {
+            saveResult.push('[🎲](#" class="showtip" title="' + tip + ') ' + team.name + ": " + hits.length + " Hits");
+            if (team.type === "Tank") {
+                if (outputArray.destroyed > 0) {
+                    saveResult.push(SaveResultsMult.destroyed);
+                } else if (outputArray.flees > 0) {
+                    saveResult.push(SaveResultsMult.flees);
+                } else if (outputArray.bailedAgain > 0) {
+                    saveResult.push(SaveResultsMult.bailedAgain);
+                } else if (outputArray.bailed > 0) {
+                    saveResult.push(SaveResultsMult.bailed);
+                } else if (outputArray.minor > 0) {
+                    saveResult.push(SaveResultsMult.minor);
+                } else {
+                    saveResult.push("All Hits Deflected by Armour");
+                }
+            } else if (team.type === "Infantry" || team.type === "Unarmoured Tank" || team.type === "Gun") {
+                if (outputArray.destroyed > 0) {
+                    saveResult.push(SaveResultsMult.destroyed);
+                } else if (outputArray.cover > 0) {
+                    saveResult.push(SaveResultsMult.cover);
+                } else {
+                    saveResult.push(SaveResultsMult.saved);
+                }
+            } else if (team.type === "Aircraft" || team.type === "Helicopter") {
+                if (outputArray.destroyed > 0) {
+                    saveResult.push(SaveResultsMult.destroyed);
+                } else if (outputArray.minor > 0) {
+                    saveResult.push(SaveResultsMult.minor);
+                } else {
+                    saveResult.push(SaveResultsMult.saved);
+                }
+            }
+        }
+    
+        if (outputArray.destroyed > 0) {
+            //.push(team.id);
+        }
+    
+        team.hitArray = [];
+        team.priority = 0;
+    
+
+    
+        return saveResult;
+    }
+    
+
+
+
+
+
+
+
+
+
 
     const inCommand = (team) => {
         //'team' could be an actual team or could be "All" or the player #
