@@ -1,5 +1,5 @@
 const FOW = (() => { 
-    const version = '4.10.26';
+    const version = '4.10.30';
     if (!state.FOW) {state.FOW = {}};
 
     const gameScale = 1; //1 = Normal Movement, 0.5 = Half Movement
