@@ -1221,21 +1221,10 @@ log(hit)
                 }
 
                 if (facing === "Front") {saveNeeded = this.armourF};
-                if (facing === "Side/Rear") {
-                    if (weapon.fp > 4 && shooterType === "Infantry" && this.special.includes("Skirts")) {
-                        saveNeeded = Math.max(5,this.armourSR);
-                    } else {
-                        saveNeeded = this.armourSR
-                    }                
-                };
+                if (facing === "Side/Rear") {saveNeeded = this.armourSR};
                 if (facing === "Top") {saveNeeded = this.armourT};
 
                 saveNeeded = parseInt(saveNeeded);
-
-                if (range > 16 && weapon.notes.includes("HEAT") === false && weapon.notes.includes("Krasnopol") === false) {
-                    saveNeeded += 1;
-                    save.tip += "<br>+1 Armour for Long Range<br>";
-                };
 
                 if (this.special.includes("Skirts") && hit.weapon.notes.includes("HEAT") && facing !== "Top") {
                     saveNeeded = Math.max(saveNeeded,10);
@@ -1249,6 +1238,11 @@ log(hit)
                 if (this.special.includes("ERA") && hit.weapon.notes.includes("HEAT") && facing !== "Top" && hit.weapon.notes.includes("Tandem") === false) {
                     saveNeeded = Math.max(saveNeeded,16);
                 }
+
+                if (range > 16 && weapon.notes.includes("HEAT") === false && weapon.notes.includes("Krasnopol") === false) {
+                    saveNeeded += 1;
+                    save.tip += "<br>+1 Armour for Long Range<br>";
+                };
 
                 let armourSave = saveRoll + saveNeeded;
 
@@ -3064,27 +3058,21 @@ log(outputCard)
         }
 
         if (type === "Infantry") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault|Spot}";
         } else if (type === "Gun") {
             if (team.tactical === 0) {
-                action = "!Activate;?{Order|Dash|Hold";
+                action = "!Activate;?{Order|Dash|Hold|Spot}";
             } else {
-                action = "!Activate;?{Order|Tactical|Dash|Hold";
+                action = "!Activate;?{Order|Tactical|Dash|Hold|Spot}";
             }
         } else if (type === "Tank") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault";
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Assault|Spot}";
         } else if (type === "Unarmoured Tank") {
-            action = "!Activate;?{Order|Tactical|Dash|Hold";
+            action = "!Activate;?{Order|Tactical|Dash|Hold|Spot}";
         } else if (type === "Aircraft") {
-            action = "!Activate;Tactical";
+            action = "!Activate;Tactical|Spot}";
         }
 
-        if ((special.includes("HQ") || special.includes("Observer") || special.includes("Artillery")) && type !== "Aircraft" && special.includes("Transport") === false) {
-            action += "|Spot";
-        }
-        if (type !== "Aircraft") {
-            action += "}";
-        }
         abilityName = "Activate";
         AddAbility(abilityName,action,char.id);
 
@@ -4363,7 +4351,7 @@ log(weapons)
                 let toHit = target.hit;
                 let toHitTips = "<br>Base: " + toHit;
                 let los = eta[0].los;
-                if (los.distance > Math.max(16,Math.round(weapon.maxRange/2))) {
+                if (los.distance > 16) {
                     toHit++;
                     toHitTips += "<br>Long Range +1";
                 }
