@@ -182,8 +182,8 @@ const TY = (() => {
             "platoonmarkers": ["letters_and_numbers0099::4815235","letters_and_numbers0100::4815236","letters_and_numbers0101::4815237","letters_and_numbers0102::4815238","letters_and_numbers0103::4815239","letters_and_numbers0104::4815240","letters_and_numbers0105::4815241","letters_and_numbers0106::4815242","letters_and_numbers0107::4815243","letters_and_numbers0108::4815244","letters_and_numbers0109::4815245","letters_and_numbers0110::4815246","letters_and_numbers0111::4815247","letters_and_numbers0112::4815248","letters_and_numbers0113::4815249","letters_and_numbers0114::4815250","letters_and_numbers0115::4815251","letters_and_numbers0116::4815252","letters_and_numbers0117::4815253","letters_and_numbers0118::4815254","letters_and_numbers0119::4815255","letters_and_numbers0120::4815256","letters_and_numbers0121::4815257","letters_and_numbers0122::4815258","letters_and_numbers0123::4815259","letters_and_numbers0124::4815260"],
         },
         "West Germany": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/324330922/vm_sbQZSkc81fR4CtQp57g/thumb.png?1674494502",
-            "dice": "Germany",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028",
+            "dice": "West-German",
             "backgroundColour": "#000000",
             "titlefont": "Bokor",
             "fontColour": "#FFFFFF",
@@ -215,7 +215,7 @@ const TY = (() => {
             "objectiveimage": "https://s3.amazonaws.com/files.d20.io/images/365313551/2_miHmMrIheFFKq-5m3Iyw/thumb.png?1698546731",
             "platoonmarkers": ["letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
         },
-        "USA": {
+        "US Army": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/327595663/Nwyhbv22KB4_xvwYEbL3PQ/thumb.png?1676165491",
             "backgroundColour": "#FFFFFF",
             "dice": "USA",
@@ -232,57 +232,6 @@ const TY = (() => {
             "objectiveimage": "https://s3.amazonaws.com/files.d20.io/images/365313723/o7CvHeJhHOVJ9h2tUECKfQ/thumb.png?1698546825",
             "platoonmarkers": ["letters_and_numbers0050::4815186","letters_and_numbers0051::4815187","letters_and_numbers0052::4815188","letters_and_numbers0053::4815189","letters_and_numbers0054::4815190","letters_and_numbers0055::4815191","letters_and_numbers0056::4815192","letters_and_numbers0057::4815193","letters_and_numbers0058::4815194","letters_and_numbers0059::4815195","letters_and_numbers0060::4815196","letters_and_numbers0061::4815197","letters_and_numbers0062::4815198","letters_and_numbers0063::4815199","letters_and_numbers0064::4815200","letters_and_numbers0065::4815201","letters_and_numbers0066::4815202","letters_and_numbers0067::4815203","letters_and_numbers0068::4815204","letters_and_numbers0069::4815205","letters_and_numbers0070::4815206","letters_and_numbers0071::4815207","letters_and_numbers0072::4815208","letters_and_numbers0073::4815209","letters_and_numbers0074::4815210","letters_and_numbers0075::4815211"],
         },
-        
-
-        "Neutral": {
-            "image": "",
-            "backgroundColour": "#FFFFFF",
-            "dice": "UK",
-            "titlefont": "Arial",
-            "fontColour": "#000000",
-            "borderColour": "#00FF00",
-            "borderStyle": "5px ridge",
-            "objectiveimage": "https://s3.amazonaws.com/files.d20.io/images/312111244/vPCrjmQ7ep4nvKWu8LOmFQ/thumb.png?1667256328",
-        },
-        "Soviet": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/304547168/fMk9mH9WMsr8VSQFg6AZew/thumb.png?1663171370",
-            "dice": "Soviet",
-            "backgroundColour": "#FFFF00",
-            "titlefont": "Anton",
-            "fontColour": "#000000",
-            "borderColour": "#FF0000",
-            "borderStyle": "5px ridge",
-            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
-            "platoonmarkers": ["","letters_and_numbers0099::4815235","letters_and_numbers0100::4815236","letters_and_numbers0101::4815237","letters_and_numbers0102::4815238","letters_and_numbers0103::4815239","letters_and_numbers0104::4815240","letters_and_numbers0105::4815241","letters_and_numbers0106::4815242","letters_and_numbers0107::4815243","letters_and_numbers0108::4815244","letters_and_numbers0109::4815245","letters_and_numbers0110::4815246","letters_and_numbers0111::4815247","letters_and_numbers0112::4815248","letters_and_numbers0113::4815249","letters_and_numbers0114::4815250","letters_and_numbers0115::4815251","letters_and_numbers0116::4815252","letters_and_numbers0117::4815253","letters_and_numbers0118::4815254","letters_and_numbers0119::4815255","letters_and_numbers0120::4815256","letters_and_numbers0121::4815257","letters_and_numbers0122::4815258","letters_and_numbers0123::4815259","letters_and_numbers0124::4815260"],
-            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
-            "barrageChar": "-NUlUj2snn9vRtAo2k2l",        
-        },
-        "West Germany": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028",
-            "dice": "West-German",
-            "backgroundColour": "#000000",
-            "titlefont": "Bokor",
-            "fontColour": "#FFFFFF",
-            "borderColour": "#000000",
-            "borderStyle": "5px double",
-            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
-            "platoonmarkers": ["","letters_and_numbers0197::4815333","letters_and_numbers0198::4815334","letters_and_numbers0199::4815335","letters_and_numbers0200::4815336","letters_and_numbers0201::4815337","letters_and_numbers0202::4815338","letters_and_numbers0203::4815339","letters_and_numbers0204::4815340","letters_and_numbers0205::4815341","letters_and_numbers0206::4815342","letters_and_numbers0207::4815343","letters_and_numbers0208::4815344","letters_and_numbers0209::4815345","letters_and_numbers0210::4815346","letters_and_numbers0211::4815347","letters_and_numbers0212::4815348","letters_and_numbers0213::4815349","letters_and_numbers0214::4815350","letters_and_numbers0215::4815351","letters_and_numbers0216::4815352","letters_and_numbers0217::4815353","letters_and_numbers0218::4815354","letters_and_numbers0219::4815355","letters_and_numbers0220::4815356","letters_and_numbers0221::4815357","letters_and_numbers0222::4815358"],
-            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
-            "barrageChar": "-NUD72rOu6QMJVJHOU-q",    
-        },
-        "US Army": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/327595663/Nwyhbv22KB4_xvwYEbL3PQ/thumb.png?1676165491",
-            "dice": "US-Army",
-            "backgroundColour": "#FFFFFF",
-            "titlefont": "Arial",
-            "fontColour": "#006400",
-            "borderColour": "#006400",
-            "borderStyle": "5px double",
-            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835139/zd6jnMDVIEEvRg_cNkHxeQ/thumb.png?1676837399",
-            "platoonmarkers": ["","letters_and_numbers0050::4815186","letters_and_numbers0051::4815187","letters_and_numbers0052::4815188","letters_and_numbers0053::4815189","letters_and_numbers0054::4815190","letters_and_numbers0055::4815191","letters_and_numbers0056::4815192","letters_and_numbers0057::4815193","letters_and_numbers0058::4815194","letters_and_numbers0059::4815195","letters_and_numbers0060::4815196","letters_and_numbers0061::4815197","letters_and_numbers0062::4815198","letters_and_numbers0063::4815199","letters_and_numbers0064::4815200","letters_and_numbers0065::4815201","letters_and_numbers0066::4815202","letters_and_numbers0067::4815203","letters_and_numbers0068::4815204","letters_and_numbers0069::4815205","letters_and_numbers0070::4815206","letters_and_numbers0071::4815207","letters_and_numbers0072::4815208","letters_and_numbers0073::4815209","letters_and_numbers0074::4815210","letters_and_numbers0075::4815211"],
-            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
-            "barrageChar": "-NUlUl6uxp5omEWaZfze",         
-        },
         "US Marine Corps": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/327769203/uM2mlqoLnxDD_ptnBdNXfg/thumb.png?1676240966",
             "dice": "USMC",
@@ -296,26 +245,30 @@ const TY = (() => {
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
             "barrageChar": "-NUlUl6uxp5omEWaZfze",         
         },
-        "British": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/330506939/YtTgDTM3q7p8m0fJ4-E13A/thumb.png?1677713592",
-            "backgroundColour": "#0E2A7A",
-            "dice": "British",
-            "titlefont": "Merriweather",
-            "fontColour": "#FFFFFF",
-            "borderColour": "#BC2D2F",
-            "borderStyle": "5px groove",
-            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328837544/KrWC027rT0Lw_ghCuu_5DQ/thumb.png?1676838067",
-            "platoonmarkers": ["","letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
-            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891446/xsAVVJ0Ft-xZW92JUtZBdw/thumb.png?1676321000",
-            "barrageChar": "-NUmiciYK1_oqcH4RYvz",
-        },
+
         "Neutral": {
             "image": "",
             "backgroundColour": "#FFFFFF",
+            "dice": "UK",
             "titlefont": "Arial",
             "fontColour": "#000000",
             "borderColour": "#00FF00",
             "borderStyle": "5px ridge",
+            "objectiveimage": "https://s3.amazonaws.com/files.d20.io/images/312111244/vPCrjmQ7ep4nvKWu8LOmFQ/thumb.png?1667256328",
+        },
+
+        "US Marine Corps": {
+            "image": "https://s3.amazonaws.com/files.d20.io/images/327769203/uM2mlqoLnxDD_ptnBdNXfg/thumb.png?1676240966",
+            "dice": "USMC",
+            "backgroundColour": "#FFFFFF",
+            "titlefont": "Arial",
+            "fontColour": "#00008B",
+            "borderColour": "#00008B",
+            "borderStyle": "5px double",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835177/sjCggEYtL2PfE32fyQV4zw/thumb.png?1676837406",
+            "platoonmarkers": ["","letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
+            "barrageChar": "-NUlUl6uxp5omEWaZfze",         
         },
         "Warsaw Pact": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/341399561/LeCkvkoO5ea8g2bgODSoog/thumb.webp?1683859633",
@@ -560,7 +513,7 @@ const TY = (() => {
             this.id = id;
             this.name = name;
             this.nation = nation;
-            this.player = (Allies.includes(nation)) ? 0:1;
+            this.player = (WarsawPact.includes(nation)) ? 0:1;
             this.unitIDs = [];
 
             if (!state.TY.formations[id]) {
@@ -598,7 +551,7 @@ const TY = (() => {
             this.order = "";
             this.specialorder = "";
             this.nation = nation;
-            this.player = (Allies.includes(nation)) ? 0:1;
+            this.player = (WarsawPact.includes(nation)) ? 0:1;
             this.formationID = formationID;
             this.teamIDs = [];
             this.hqUnit = false;
@@ -734,7 +687,7 @@ const TY = (() => {
 
             let attributeArray = AttributeArray(char.id);
             let nation = attributeArray.nation;
-            let player = (Allies.includes(nation)) ? 0:1;
+            let player = (WarsawPact.includes(nation)) ? 0:1;
             if (nation === "Neutral") {player = 2};
 
             let type = attributeArray.type;
@@ -2380,7 +2333,7 @@ log(outputCard)
         let Tag = msg.content.split(";");
         let unitName = unitCreationInfo.unitName;
         let nation = unitCreationInfo.nation;
-        let player = (Allies.includes(nation)) ? 0:1;
+        let player = (WarsawPact.includes(nation)) ? 0:1;
         let teamIDs = unitCreationInfo.teamIDs;
         let formationID = Tag[1];
         let formation = FormationArray[formationID];
@@ -2845,7 +2798,11 @@ log(outputCard)
             state.TY.darkness = true;
         }
         state.TY.startingPlayer = startingPlayer;
+        let side = ["Warsaw Pact","NATO"];
         let nat = state.TY.nations[startingPlayer][0];
+        if (state.TY.nations[startingPlayer].length > 1) {
+            nat = side[startingPlayer];
+        }
 
         SetupCard("Setup New Game","","Neutral");
         outputCard.body.push("Game Type: " + gametype);
@@ -2862,13 +2819,44 @@ log(outputCard)
         ButtonInfo("Place in Reserve","!PlaceInReserve");
 
         //ButtonInfo("Kill Selected Team","!!KillTeam;@{selected|token_id}");
-        ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Allies,0|Axis,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
+        ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Warsaw Pact,0|NATO,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
         //ButtonInfo("Test LOS","!TestLOS;@{selected|token_id};@{target|token_id}");
         //ButtonInfo("Unit Creation","!UnitCreation;?{Unit Name};?{Formation Name};?{Support|No|Yes};");
         //ButtonInfo("Team Unit Info","!TeamInfo");
         PrintCard();
     }
 
+    const LaserGuided = (id) => {
+        let team = TeamArray[id];
+        let artWeapon = team.artillery;
+        let weapon;
+        if (NATO.includes(team.nation)) {
+            weapon = {
+                name: "Copperhead Projectile",
+                minRange: 16,
+                maxRange: artWeapon.maxRange,
+                halted: 1,
+                moving: 1,
+                at: 21,
+                fp: 2,
+                notes: "Brutal, Guided, HEAT",
+                type: "Vehicle Missile",
+            }
+        } else {
+            weapon = {
+                name: "Krasnopol Projectile",
+                minRange: 16,
+                maxRange: artWeapon.maxRange,
+                halted: 1,
+                moving: 1,
+                at: 4,
+                fp: 1,
+                notes: "Brutal, Guided, Krasnopol",
+                type: "Vehicle Missile",
+            }
+        }
+        return weapon
+    }
 
     const ActivateUnit = (msg) => {
         RemoveLines();
@@ -3461,7 +3449,7 @@ log(outputCard)
             currentPlayer = state.TY.startingPlayer;
             if (state.TY.gametype === undefined || currentPlayer === undefined) {
                 SetupCard("Setup Game","","Neutral");
-                ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Allies,0|Axis,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
+                ButtonInfo("Setup New Game","!SetupGame;?{Game Type|Meeting Engagement|Attack/Defend};?{First Player|Warsaw Pact,0|NATO,1};?{Time of Day|Daylight|Dawn|Dusk|Night|Random}");
                 PrintCard();
                 return;
             }
@@ -3521,6 +3509,9 @@ log(outputCard)
         currentPlayer = state.TY.currentPlayer;
 
         let playerNation = state.TY.nations[state.TY.currentPlayer][0];
+        if (state.TY.nations[state.TY.currentPlayer].length > 1) {
+            playerNation = (WarsawPact.includes(state.TY.nations[state.TY.currentPlayer][0])) ? "Warsaw Pact":"NATO";
+        }
 
         if (currentStep === "Start") {
             if (state.TY.darkness === true) {
@@ -3567,6 +3558,11 @@ log(outputCard)
     const StartStep = (pass) => {
         let currentPlayer = parseInt(state.TY.currentPlayer);
         let nat = state.TY.nations[currentPlayer][0];  
+        let side = ["Warsaw Pact","NATO"];
+        if (state.TY.nations[currentPlayer].length > 1) {
+            nat = side[currentPlayer];
+        }  
+
         if (pass === "ResLeaders") {
             CheckArray = [];
             //check if a formation HQ for the player is dead
