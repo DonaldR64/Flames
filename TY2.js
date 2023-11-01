@@ -3836,12 +3836,7 @@ log(outputCard)
             SetupCard(unit.name,"Rally",unit.nation);
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
-            let rally = unitLeader.rally;
-            if (unitLeader.nation === "Soviet" && unit.type === "Infantry") {
-                if (Komissar(unit) === true) {
-                    rally = Math.min(rally,unitLeader.komissar);
-                }
-            }           
+            let rally = unitLeader.rally;    
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
             outputCard.body.push("Roll Against: " + rally);
             ButtonInfo("Roll","!RollD6;Rally;" + unit.id + ";" + rally);
@@ -3858,11 +3853,6 @@ log(outputCard)
             let unitLeader = TeamArray[unit.teamIDs[0]];
             let location = unitLeader.location;
             let lastStand = unitLeader.laststand;
-            if (unitLeader.nation === "Soviet" && unit.type === "Infantry") {
-                if (Komissar(unit) === true) {
-                    lastStand = Math.min(lastStand,unitLeader.komissar);
-                }
-            }
             sendPing(location.x,location.y, Campaign().get('playerpageid'), null, true); 
             outputCard.body.push("Roll Against: " + lastStand);
             ButtonInfo("Roll","!RollD6;UnitMorale;" + unit.id + ";" + lastStand);
