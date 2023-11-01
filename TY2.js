@@ -1232,10 +1232,23 @@ log(hit)
 
                 saveNeeded = parseInt(saveNeeded);
 
-                if (range > Math.round(weapon.maxRange/2) && weapon.notes.includes("HEAT") === false) {
+                if (range > 16 && weapon.notes.includes("HEAT") === false && weapon.notes.includes("Krasnopol") === false) {
                     saveNeeded += 1;
                     save.tip += "<br>+1 Armour for Long Range<br>";
                 };
+
+                if (this.special.includes("Skirts") && hit.weapon.notes.includes("HEAT") && facing !== "Top") {
+                    saveNeeded = Math.max(saveNeeded,10);
+                }
+                if ((this.special.includes("BDD") || this.special.includes("Applique")) && hit.weapon.notes.includes("HEAT") && facing !== "Top") {
+                    saveNeeded = Math.max(saveNeeded,13);
+                }
+                if (this.special.includes("Chobham") && hit.weapon.notes.includes("HEAT") && facing !== "Top") {
+                    saveNeeded = Math.max(saveNeeded,16);
+                }
+                if (this.special.includes("ERA") && hit.weapon.notes.includes("HEAT") && facing !== "Top" && hit.weapon.notes.includes("Tandem") === false) {
+                    saveNeeded = Math.max(saveNeeded,16);
+                }
 
                 let armourSave = saveRoll + saveNeeded;
 
@@ -1327,14 +1340,20 @@ log(hit)
                     }                    
                     save.result = "destroyed";
                 }
-            } else if (this.type === "Aircraft") {
-                //only weapons capable of targetting aircraft should make it to here
+            } else if (this.type === "Aircraft" || this.type === "Helicopter") {
+                //only weapons capable of targetting aircraft/helos should make it to here
                 saveNeeded = parseInt(this.armourF);
                 save.tip = hitNum + ": Save Roll: " + saveRoll + " vs. " + saveNeeded + "+";
                 if (saveRoll >= saveNeeded) {
                     save.result = "saved";
                 } else {
                     save.tip += "<br>Firepower Roll: " + fpRoll + " vs. " + weapon.fp + "+";
+                    let noRerollWeapons = ["Guided","Guided AA","Anti-helicopter","Dedicated AA"];
+                    let notes = weapon.notes.split(",");
+                    if (((shooterType === "Infantry" && findCommonElements(noRerollWeapons,notes) === false) || weapon.type === "AA MG") && fpRoll >= weapon.fp) {
+                        fpRoll = randomInteger(6);
+                        save.tip += "<br>Rerolled: " + fpRoll;
+                    }
                     if (fpRoll < weapon.fp) {
                         save.result = "minor";
                     } else {
@@ -1350,10 +1369,16 @@ log(hit)
 
 
         kill() {
-            this.token.set({
-                layer: "map",
-                statusmarkers: "dead",
-            });
+            if (this.type === "Tank" || this.type === "Helicopter") {
+                this.wreck();
+                PlaySound("Explosion")
+            } else {
+                this.token.set({
+                    layer: "map",
+                    statusmarkers: "dead",
+                });
+            }
+
             toFront(this.token);
             if (state.TY.conditions[this.id]) {
                 let keys = Object.keys(state.TY.conditions[this.id]);
@@ -1367,11 +1392,50 @@ log(hit)
 
         flees() {
             UnitArray[this.unitID].remove(this);
-            this.token.remove();
+            if (this.bailed === true) {
+                this.wreck();
+            } else {
+                this.token.remove();
+            }
             delete TeamArray[this.id];
         }
 
+        wreck() {
+            let tok = this.token;
+            if (!tok) {return};
+            tok.set("name","WRECK")
+            tok.set("showname",false)
+            tok.set("layer","map")
+            tok.set("statusmarkers","");
+            tok.set("aura1_color","transparent");
+            tok.set("tint_color","transparent");
+            let y = tok.get('top') - 33
+            let img = "https://s3.amazonaws.com/files.d20.io/images/250890242/TNggOuyBFT67qEPS1nxIPg/thumb.png?1634484854"
+            let x = tok.get("left") + 30
+            if (randomInteger(2) === 2) {
+                img = "https://s3.amazonaws.com/files.d20.io/images/250892520/gL4-_C7Y7-cYDKW9icsUcg/thumb.png?1634485587"
+                x = tok.get("left") + 10
+            }
+            let newToken = createObj("graphic", {   
+                left: x,
+                top: y,
+                width: 70, 
+                height: 70,  
+                name: "vehiclefire",
+                isdrawing: true,
+                pageid: tok.get("pageid"),
+                imgsrc: img,
+                layer: "map",
+            });
+            toFront(newToken);
 
+            hexMap[this.hexLabel].terrain.push("Wreck");
+            hexMap[this.hexLabel].bp = true;
+            if (hexMap[this.hexLabel].type === 0) {
+                hexMap[this.hexLabel].type = 1;
+            }
+
+        }
 
 
 
