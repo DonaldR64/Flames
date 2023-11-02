@@ -173,7 +173,6 @@ const TY = (() => {
             "fontColour": "#000000",
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
-            "atWeapon": "Molotov Cocktails",
             "ranks": "Soviet",
             "names": "Soviet",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
@@ -192,7 +191,6 @@ const TY = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#000000",
             "borderStyle": "5px double",
-            "atWeapon": "Stielhandgranates",
             "ranks": "German",
             "names": "German",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
@@ -211,7 +209,6 @@ const TY = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#BC2D2F",
             "borderStyle": "5px groove",
-            "atWeapon": "Sticky Bombs",
             "ranks": "Western",
             "names": "British",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328837544/KrWC027rT0Lw_ghCuu_5DQ/thumb.png?1676838067",
@@ -230,7 +227,6 @@ const TY = (() => {
             "fontColour": "#006400",
             "borderColour": "#006400",
             "borderStyle": "5px double",
-            "atWeapon": "Hand Grenades",
             "ranks": "Western",
             "names": "USA",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835139/zd6jnMDVIEEvRg_cNkHxeQ/thumb.png?1676837399",
@@ -321,7 +317,6 @@ const TY = (() => {
             "fontColour": "#0068b1",
             "borderColour": "#0068b1",
             "borderStyle": "5px double",
-            "atWeapon": "",
             "ranks": "Western",
             "names": "Israel",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/365910297/BxbRCFdLS1KrSemBhPXWKw/thumb.png?1698940486",
@@ -340,7 +335,6 @@ const TY = (() => {
             "fontColour": "#2f8f43",
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
-            "atWeapon": "",            
             "ranks": "Arabic",
             "names": "Arabic",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
@@ -900,16 +894,13 @@ const TY = (() => {
 
             //armour
             let front = parseInt(attributeArray.armourF);
-            let side = attributeArray.armourSR;
+            let side = attributeArray.armourS;
             if (side) {side = parseInt(side)} else {side = 0};
             let top = attributeArray.armourT;
             if (top) {top = parseInt(top)} else {top = 0};
 
             //passengers
             let maxPass = 0;
-            if (type === "Tank") {
-                maxPass = 3;
-            }
             if (special.includes("Transport") || special.includes("Passengers")) {
                 let s = special.split(",");
                 for (let a=0;a<s.length;a++) {
@@ -954,25 +945,17 @@ const TY = (() => {
             AttributeSet(char.id,"roaddisplay",this.roaddash);
 
             this.armourF = front;
-            this.armourSR = side;
+            this.armourS = side;
             this.armourT = top;
 
-            this.motivation = parseStat(attributeArray.motivation);
-            this.komissar = parseStat(attributeArray.komissar);
-            this.laststand = parse2ndStat(attributeArray.laststand,this.motivation);
-            this.rally = parse2ndStat(attributeArray.rally,this.motivation);
-            this.counterattack = parse2ndStat(attributeArray.counterattack,this.motivation);
-            this.remount = parse2ndStat(attributeArray.remount,this.motivation);
+            this.courage = parseStat(attributeArray.courage);
+            this.remount = parseStat(attributeArray.remount);
+            this.morale = parseStat(attributeArray.morale);
             this.skill = parseStat(attributeArray.skill);
-            this.assault = parse2ndStat(attributeArray.assault,this.skill);
-            this.tactics = parse2ndStat(attributeArray.tactics,this.skill);
+            this.assault = parseStat(attributeArray.assault);
+            this.counterattack = parseStat(attributeArray.counterattack);
             this.hit = parseStat(attributeArray.hit);
-            this.amounted = attributeArray.mountedassault;
-            let camounted = "";
-            if (attributeArray.counterattackmounted) {
-                camounted = attributeArray.counterattackmounted.replace(/[^\d]/g, "");
-            }
-            this.camounted = camounted
+
 
             this.artillery = artillery;
             this.artNum = artNum;
@@ -1217,7 +1200,7 @@ log(hit)
                 }
 
                 if (facing === "Front") {saveNeeded = this.armourF};
-                if (facing === "Side/Rear") {saveNeeded = this.armourSR};
+                if (facing === "Side/Rear") {saveNeeded = this.armourS};
                 if (facing === "Top") {saveNeeded = this.armourT};
 
                 saveNeeded = parseInt(saveNeeded);
@@ -6021,7 +6004,7 @@ log("2nd Row to " + team3.name)
                         }
                         if (wpnNum === 5) {
                             weapon = {
-                                name: Nations[attTeam.nation].atWeapon,
+                                name: "Improvised AT Weapons",
                                 minRange: 1,
                                 maxRange: 1,
                                 halted: 1,
