@@ -145,7 +145,7 @@ const TY = (() => {
                 "German": ["Major ","Hauptmann ","Oberleutnant ","Feldwebel "],
                 "Western": ["Major ","Captain ","Lieutenant ","Sergeant "],
                 "Soviet": ["Podpolkovnik ","Majór ","Kapitán ","Leytnant ","Serzhant "],
-                "Arabic": ["Muquddam","Ra'id","Naqib","Mulazim","Raqib",]
+                "Arabic": ["Muquddam ","Ra'id ","Naqib ","Mulazim ","Raqib ",]
     };
 
     //Types: Flat = 0, Short = 1, Tall = 2, Building = 3
@@ -357,7 +357,7 @@ const TY = (() => {
             "backgroundColour": "#FFFFFF",
             "titlefont": "Anton",
             "fontColour": "#2f8f43",
-            "borderColour": "#FFFF00",
+            "borderColour": "#FF0000",
             "borderStyle": "5px groove",
             "ranks": "Arabic",
             "names": "Arabic",
@@ -1712,8 +1712,6 @@ log(hit)
 
       const Name = (nat) => {
         let num = randomInteger(25) - 1;
-        if (nat === "Canadian") {nat = "UK"};
-        if (["Syria","Iraq","Iran"]) {nat = "Arabic"};
         let names = {
             Germany: ["Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann","Bauer","Richter","Klein","Wolf","Schroder","Neumann","Schwarz","Braun","Hofmann","Werner","Krause","Konig","Lang","Vogel","Frank","Beck"],
             Soviet: ["Ivanov","Smirnov","Petrov","Sidorov","Popov","Vassiliev","Sokolov","Novikov","Volkov","Alekseev","Lebedev","Pavlov","Kozlov","Orlov","Makarov","Nikitin","Zaitsev","Golubev","Tarasov","Ilyin","Gusev","Titov","Kuzmin","Kiselyov","Belov"],
@@ -3009,9 +3007,14 @@ log(outputCard)
                 if (roll >= needed) {
                     outputCard.body.push("Aircraft Arrives and can be placed anywhere on the Field");
                     outputCard.body.push("Enemy AA Fire can happen anytime before the Aircraft attacks");
+                    outputCard.body.push("Teams can Spot for their own Fire");
                 } else {
                     outputCard.body.push("[#ff0000]The Unit is Refuelling/Refitting this turn[/#]");
                 }
+            } else if (unit.type === "Helicopter") {
+                outputCard.body.push("The Helicopter may be placed anywhere on  the Field");
+                outputCard.body.push("Teams can Spot for their own Fire");
+                outputCard.body.push("Alternately the Helicopter can move off table and Loiter");
             } else {
                 if (specialorder.includes("Dig In") === false) {
                     if (unit.pinned() === false) {
@@ -3042,7 +3045,13 @@ log(outputCard)
             outputCard.body.push("Eligible Teams can complete the charge");
         } else if (order.includes("Spot")) {
             CreateBarrages(targetTeam.id);
+        } else if (order.includes("Land")) {
+            outputCard.body.push("The Helicopter(s) may be placed anywhere on  the Field");
+            outputCard.body.push("At the end of its movement teams land");
+            outputCard.body.push('They may not land wthin 4" of an enemy team and may not Shoot while Landed');
+            outputCard.body.push('Passengers disembark the following turn');
         }
+
         targetTeam.token.set("aura1_color",Colours.black);
 
         outputCard.body.push(extraLine);
@@ -3050,6 +3059,9 @@ log(outputCard)
             targetArray[i].order = order;
             if (order === "Hold") {
                 targetArray[i].addCondition("Hold");
+            }
+            if (order === "Land") {
+                targetArray[i].addCondition("Land");
             }
             if (targetArray[i].specialorder === "") {
                 targetArray[i].specialorder = specialorder;
@@ -3099,8 +3111,10 @@ log(outputCard)
         if (special.includes("Passengers")) {
             abilityName = "Dismount Passengers";
             action = "!DismountPassengers";
-            AddAbility(abilityName,action,char.id);        
+            AddAbility(abilityName,action,char.id);     
         }
+
+
 
         if (char.get("name").includes("Mine") && type === "System Unit") {
             abilityName = "Minefield Check";
@@ -3122,6 +3136,12 @@ log(outputCard)
             action = "!Activate;?{Order|Tactical|Dash|Hold|Spot}";
         } else if (type === "Aircraft") {
             action = "!Activate;Tactical|Spot}";
+        } else if (type === "Helicopter") {
+            if (special.includes("Passengers")) {
+                action = "!Activate;?{Order|Tactical|Hold|Spot|Land}";
+            } else {
+                action = "!Activate;?{Order|Tactical|Hold|Spot}";
+            }
         }
 
         abilityName = "Activate";
@@ -3139,7 +3159,7 @@ log(outputCard)
             }
         } else if (type === "Unarmoured Tank") {
             specOrders = "!SpecialOrders;?{Special Order|Blitz & Move|Blitz & Hold|Cross Here|Follow Me|Shoot and Scoot";
-        } 
+        }
 
         specOrders += "}";
 
@@ -3244,7 +3264,6 @@ log(outputCard)
 
     const SpecialOrders = (msg) => {
         RemoveLines();
-        //!Orders;?{Order|Blitz|Cross Here|Dig In|Follow Me|Shoot and Scoot} - and which varies by team type
         let Tag = msg.content.split(";");
         let teamID = msg.selected[0]._id;
         let specialorder = Tag[1];
@@ -3308,7 +3327,7 @@ log(outputCard)
             return;
         }
         let line = DisplayDice(roll,unitLeader.nation,24) + " vs. ";
-        if (specialorder === "Cross Here" || specialorder === "Clear Minefield") {
+        if (specialorder === "Cross Here" || specialorder === "Clear Minefield" || specialorder === "Land") {
             line = "Auto";
         } else if (specialorder === "Follow Me") {
             stat = unitLeader.motivation;
