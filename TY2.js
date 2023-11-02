@@ -860,9 +860,16 @@ const TY = (() => {
             if (!specials || specials === "") {
                 specials = " ";
             }
+            let specialText = "";
+
+
             specials = specials.split(",");
             for (let i=0;i<specials.length;i++) {
                 let special = specials[i].trim();
+                if (i>0) {
+                    specialText += ' • ';
+                }
+                specialText += special;
                 let attName = "special" + i;
                 AttributeSet(char.id,attName,special);
                 infoArray.push(special);
@@ -916,6 +923,8 @@ const TY = (() => {
             if (!special || special === "" || special === " ") {
                 special = " ";
             }
+
+            AttributeSet(char.id,"specialText",specialText);
 
             let unique = (attributeArray.unique === "true") ? true:false;
 

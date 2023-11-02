@@ -601,7 +601,7 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault"], function(values) {
+        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault","special"], function(values) {
             let nationImage;
             let nation = values.nation;
 
@@ -688,11 +688,6 @@
                 "cross": cross,
                 "assaultname": assault,
                 "counterattackname": counterattack,
-
-
-
-
-
 
             })
         });    
