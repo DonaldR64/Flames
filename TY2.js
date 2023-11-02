@@ -86,6 +86,8 @@ const TY = (() => {
         "Minelets": "Once per game, the Unit can fire Minelets, placing 1 per 3 teams",
         "MLRS": "Multiple Launching Rocket System - each Team counts as two Teams firing",
         "Mounted": "Can fire a Mounted Weapon if a Passenger has that weapon",
+        "Napalm": "Infantry, Gun, and Unarmoured Tank Teams re-roll successful Saves when hit by Napalm bombs. Armoured Tank Teams use their Top armour for Armour Saves when hit by Napalm bombs",
+        "NLOS": 'A weapon with NLOS has no To Hit Penalty for ranges over 16" and does not require LOS. The Target Team always counds as Concealed even when in LOS. NLOS weapons cannot hit Infantry Teams unless the Infantry are stationary and in bulletproof cover',
         "No HE": "A weapon with no HE targetting an Infantry or Gun Team add +1 to the score needed To Hit",
         "Observer": "An Observer Team can Spot for any friendly Artillery Unit and reduces the score required to Range In by -1",
         "One Shot": "Can only be used once per game",
@@ -787,12 +789,12 @@ const TY = (() => {
                 if (halted !== "Artillery" && halted !== "Salvo") {
                     halted = parseInt(halted);
                 }
-                if (!halted || halted === "") {halted = 0};
+                if (!halted || halted === "" || isNaN(halted)) {halted = 0};
 
                 if (moving !== "Artillery" && moving !== "Salvo") {
                     moving = parseInt(moving);
                 }
-                if (!moving || moving === "") {moving = 0};
+                if (!moving || moving === "" || isNaN(moving)) {moving = 0};
 
                 let rangeText = attributeArray["weapon"+i+"range"];
                 rangeText = rangeText.split("-");
@@ -2579,7 +2581,7 @@ log(outputCard)
         let nightVisibility = distanceT1T2;
         let losReason = "";
 
-        if (state.TY.darkness === true && special.includes("Spotter") === false && team2.token.get(SM.flare) === false) {
+        if (state.TY.darkness === true && special.includes("Spotter") === false && team2.token.get(SM.flare) === false && special.includes("NLOS") === false) {
             if (team1.nightvisibility > 0) {
                 nightVisibility = team1.nightvisibility;
             } else {
@@ -2629,6 +2631,48 @@ log(outputCard)
             return result;    
         }
     
+        if (special.includes("NLOS")) {
+            if (team2.type === "Infantry" && team2.moved === false && team2Hex.bp === true) {
+                let result = {
+                    los: true,
+                    concealed: true,
+                    bulletproof: team2Hex.bp,
+                    smoke: false,
+                    facing: facing,
+                    shooterface: shooterFace,
+                    distance: distanceT1T2,
+                    special: special,
+                }
+                return result;    
+            } else if (team2.type !== "Aircraft" || team2.type !== "Helicopter") {
+                let result = {
+                    los: true,
+                    concealed: true,
+                    bulletproof: team2Hex.bp,
+                    smoke: false,
+                    facing: facing,
+                    shooterface: shooterFace,
+                    distance: distanceT1T2,
+                    special: special,
+                }
+                return result;    
+            } else {
+                let result = {
+                    los: false,
+                    concealed: true,
+                    bulletproof: false,
+                    smoke: false,
+                    facing: facing,
+                    shooterface: shooterFace,
+                    distance: distanceT1T2,
+                    special: special,
+                }
+                losReason = "Invalid Target"
+                return result;    
+            }
+        }
+
+
         let fKeys = Object.keys(TeamArray);
 
         if ((team2Hex.bp === true || team2Hex.foxholes === true) && team2.type === "Infantry") {
@@ -4419,7 +4463,15 @@ log(weapons)
                 let toHit = target.hit;
                 let toHitTips = "<br>Base: " + toHit;
                 let los = eta[0].los;
-                if (los.distance > 16) {
+                let excl = false;
+                if (weapon.notes.includes("Laser Rangefinder") || weapon.notes.includes("NLOS") || weapon.notes.includes("Guided") || (weapon.notes.includes("Accurate") && sTeam.moved === false)) {
+                    excl = true;
+                }
+                if (weapon.notes.includes("Radar") && (target.type === "Aircraft" || (target.type === "Helicopter" && target.queryCondition("Landed") === false))) {
+                    excl = true;
+                }
+
+                if (los.distance > 16 && excl === false) {
                     toHit++;
                     toHitTips += "<br>Long Range +1";
                 }
@@ -4431,7 +4483,7 @@ log(weapons)
                         toHitTips += "<br>Gone to Ground +1";
                     } 
                 }
-                if (los.smoke === true) {
+                if (los.smoke === true && sTeam.special.includes("Thermal Imaging") === false) {
                     toHit++;
                     toHitTips += "<br>Smoke +1";
                 }
@@ -4439,7 +4491,7 @@ log(weapons)
                     toHit++;
                     toHitTips += "<br>Not in Command +1";
                 }
-                if (state.TY.darkness === true) {
+                if (state.TY.darkness === true && sTeam.special.includes("Thermal Imaging") === false) {
                     toHitTips += "<br>Darkness +1";
                     toHit++;
                 }
@@ -4458,6 +4510,23 @@ log(weapons)
                 if (weapon.notes.includes("Slow Firing") && moved === true) {
                     toHit++;
                     toHitTips += "<br>Slow Firing & Moved +1";
+                }
+                if (weapon.notes.includes("Stabiliser") && weapon.notes.includes("Advanced Stabiliser") === false && team.movement > 10) {
+                    toHit += 1;
+                    toHitTips.push("+1 for Stabiliser")
+                }
+/*
+                if (aaPenalty[0] === true) {
+                    toHit += 1;
+                    toHitTips.push("+1 vs Aircraft");
+                }
+                if (aaPenalty[1] === true) {
+                    toHit += 1;
+                    toHitTips.push("+1 as ROF 1 Weapon vs. Air");
+                }
+*/
+                if (toHitTips.length === 0) {
+                    toHitTips = ["No Modifiers"];
                 }
 
                 let rof = weapon.halted;
@@ -4481,6 +4550,10 @@ log(weapons)
                         rof = weapon.halted;
                     }
                     sTeam.aaweapon = weapon;
+                }
+
+                if (rof === 0) {
+                    continue;
                 }
 
                 let rolls = [];
