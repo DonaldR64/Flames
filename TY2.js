@@ -881,6 +881,9 @@ const TY = (() => {
             for (let i=0;i<10;i++) {
                 let specName = infoArray[i];
                 if (!specName || specName === "") {continue}
+                if (soecName.includes("Infra")) {
+                    specName = "Infra-Red";
+                }
                 if (specName.includes("(")) {
                     let index = specName.indexOf("(");
                     specName = specName.substring(0,index);
@@ -962,11 +965,21 @@ const TY = (() => {
             this.roaddash = Math.max(0,Math.round(Number(attributeArray.road) * gameScale));
             this.cross = crossStat(attributeArray.cross);
 
+            let tactDisplay = this.tactical.toString();
+            if (special.includes("Stabiliser")) {
+                let second = this.tactical + 4;
+                tactDisplay += " [" + second + "]";
+            }
+            tactDisplay += '"';
+            let terDisplay = this.terraindash.toString() + '"';
+            let coDisplay = this.countrydash.toString() + '"';
+            let roDisplay = this.roaddash.toString() + '"';
+
             //update sheet based on above
-            AttributeSet(char.id,"tacticaldisplay",this.tactical);
-            AttributeSet(char.id,"terraindisplay",this.terraindash);
-            AttributeSet(char.id,"countrydisplay",this.countrydash);
-            AttributeSet(char.id,"roaddisplay",this.roaddash);
+            AttributeSet(char.id,"tacticaldisplay",tactDisplay);
+            AttributeSet(char.id,"terraindisplay",terDisplay);
+            AttributeSet(char.id,"countrydisplay",coDisplay);
+            AttributeSet(char.id,"roaddisplay",roDisplay);
 
             this.armourF = front;
             this.armourS = side;
