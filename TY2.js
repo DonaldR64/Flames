@@ -2431,17 +2431,17 @@ log(outputCard)
         if (team.special.includes("HQ") || team.token.get(SM.HQ) === true) {
             rank = Math.min(i,1);
             unit.hqUnit = true;
-            name = Ranks[Nations[team.nation].ranks][rank] + Name[Nations[team.nation].names];
+            name = Ranks[Nations[team.nation].ranks][rank] + Name(Nations[team.nation].names);
         } else {
             if (team.type === "Aircraft" || team.special.includes("Independent")) {
                 rank = 2;
                 unit.aircraft = true;
                 if (WarsawPact.includes(team.nation)) {rank=3};
-                name = Ranks[Nations[team.nation].ranks][rank] + Name[Nations[team.nation].names];
+                name = Ranks[Nations[team.nation].ranks][rank] + Name(Nations[team.nation].names);
             }  else if (i === 0) {
                 rank = 2;
                 if (WarsawPact.includes(team.nation) && unit.artillery === true) {rank=3};
-                name = Ranks[Nations[team.nation].ranks][rank] + Name[Nations[team.nation].names];
+                name = Ranks[Nations[team.nation].ranks][rank] + Name(Nations[team.nation].names);
             } 
         }
         return name;
