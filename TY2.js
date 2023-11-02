@@ -881,7 +881,7 @@ const TY = (() => {
             for (let i=0;i<10;i++) {
                 let specName = infoArray[i];
                 if (!specName || specName === "") {continue}
-                if (soecName.includes("Infra")) {
+                if (specName.includes("Infra")) {
                     specName = "Infra-Red";
                 }
                 if (specName.includes("(")) {
@@ -968,7 +968,7 @@ const TY = (() => {
             let tactDisplay = this.tactical.toString();
             if (special.includes("Stabiliser")) {
                 let second = this.tactical + 4;
-                tactDisplay += " [" + second + "]";
+                tactDisplay += '" / ' + second ;
             }
             tactDisplay += '"';
             let terDisplay = this.terraindash.toString() + '"';
