@@ -50,46 +50,66 @@ const TY = (() => {
     };
 
     let specialInfo = {
+        "Air Assault": "An Air Assault Unit may only be held in Reserve if all the Units deployed on table are Air Assault Units",
+        "Accurate": 'No penalty to Hit for range > 16" if Shooter did not Move',
+        "Advanced Stabiliser": 'Tactical Speed is 14". Machineguns cannot Shoot and the Team cannot Assault if it moves more than 10"',
+        "Amphibious": "Treat Impassable Water as Difficult Terrain",
+        "Anti-Helicopter": "Can shoot at Helicopters with a ROF of 1",
+        "Applique Armour": 'Front and Side Armour is 13 against HEAT weapons',
         "Artillery": "Team has a weapon capable of an Artillery Barrage",
-        'Assault Smoke': "May fire a Smoke Bombardment in same turn they Assault",
-        "Bazooka Skirts": "Side Armour increased to 5 against Infantry Weapons with FP 5+ or 6",
-        "Bombs": "Bombs do not need to re-roll successful To Hit rolls for having only 1 or 2 weapons firing",
+        "Bazooka Skirts": "Front and Side Armour is minimum 10 against HEAT Weapons",
+        "BDD Armour": "Front and Side Armour is minimum 13 against HEAT Weapons",
+        "Bomblets": "Bomblets scatter over a wider area, using a SALVO template",
         "Brutal": "Infantry, Gun and Unarmoured Tank Teams re-roll successful Saves against Brutal Weapons",
-        "Dedicated AA": "Dedicated AA Weapons can Shoot at Aircraft using their Halted ROF",
+        "Chobham Armour": "Front and Side Armour is minimum 16 vs HEAT weapons",
+        "Dedicated AA": "Uses normal ROF when firing at Aircraft/Helicopters",
+        "Dragon Mount": "The vehicle may fire the weapon if a Passenger with the weapon is mounted",
+        "ERA": "Front and Side Armour is minimum 16 against HEAT Weapons",
         "Flamethrower": "Infantry, Gun, and Unarmoured Tank Teams re-roll successful Saves when hit by a Flame-thrower and the Unit is automatically Pinned Down. Armoured Tank Teams use their Top armour for Armour Saves when hit by a Flame-thrower.",
         "Forward Firing": "Forward Firing Weapons can only target Teams fully in front of the Shooter",
+        "Guided": 'No penalty to Hit for range > 16". Cannot hit Infantry unless they are stationary in Bulletproof Cover',
+        "Guided AA": 'Guided Weapons that cannot target Tank or Infantry Teams. No penalty to Hit for range > 16"',
         "Gun Shield": "Gives Bulletproof Cover when shot at from the Front. No protection against Bombardments or if the Team moved at Dash speed",
-        "HEAT": "A Team's Armour is not increased by +1 if at long Range vs HEAT",
+        "Hammerhead": "Team with a Hammerhead can remain Gone to Ground while shooting its missile",
+        "HEAT": 'Target Armour is not increased for range over 16". Affected by BDD, Skirts, Chobham and ERA Armour',
         "Heavy Weapon": "A Heavy Weapon Team cannot Charge into Contact",
         "HQ": "Always In Command and ignores Morale Checks. May Spot for Artillery",
-        "Independent": "An Independent Team",
+        "Hunter-Killer": "Hunter-Killer Helicopters can use terrain for Concealment and are Gone to Ground unless they Shoot",
+        "Independent": "Independent Teams can use the Mistaken Target rule to reassign hits to nearby Units, but cannot Charge into Contact or take an Objective",        
+        "Infra-Red": "Rolls 2 Dice for Night Visibility and takes the highest score",
+        "Jump Jet": "Enters the table on a score of 3+",
         "Large Gun": 'Cannot be placed in Buildings and cannot be placed from Ambush within ' + 16*gameScale + '" of enemy',
+        "Laser Rangefinder": 'No penalty to Hit for range > 16"',
+        "Laser Guided Projectiles": "Must be guided by an Observer, using it for LOS",
         "Limited 1": "Each time the Unit  shoots, one of its Teams may shoot this weapon rather than its usual weapons",
+        "Mine Clearing Device": "Team can attempt to clear Minefields",
+        "Minelets": "Once per game, the Unit can fire Minelets, placing 1 per 3 teams",
+        "MLRS": "Multiple Launching Rocket System - each Team counts as two Teams firing",
+        "Mounted": "Can fire a Mounted Weapon if a Passenger has that weapon",
         "No HE": "A weapon with no HE targetting an Infantry or Gun Team add +1 to the score needed To Hit",
-        "Old Hand": 'An Old Hand Commander gives Units from their Formation whose Unit Leader is within 6" a Tactics rating of 3+', //command not affected by scale
-        "Observer": "Observer Teams can Spot for Artillery",
-        "Overhead Fire": "Grenade Launchers and Light Mortars capable of Overhead Fire can fire over friendly team",
+        "Observer": "An Observer Team can Spot for any friendly Artillery Unit and reduces the score required to Range In by -1",
+        "One Shot": "Can only be used once per game",
+        "Overhead Fire": "Grenade Launchers and Light Mortars capable of Overhead Fire can fire over friendly teams and Short Terrain",
         "Overworked": "Overworked weapons add +1 to the score needed To Hit when moving",
         "Passengers #": "A Transport Team can carry # Infantry Teams as Passengers",
         "Pinned ROF 1": "These weapons have a ROF of 1 when Pinned Down",
         "Pioneers": 'Can cross Minefields safely on a 2+. If remain in Minefield and not Pinned Down, clear the Minefield automatically',
-        "Redemption": "May not be placed in Reserve. Gets special Deployment, never benefits from Bulletproof Cover, cannot hold Objectives but can Contest them",
+        "Radar": 'When shooting at Aircraft/Helicopters, range is increased by 12" and there are no penalties for range >16"',
         "Salvo": "Use a larger Artillery Template",
-        "Sapper Body Armour": "Gets a Save of 6 in Close Combat",
         "Scout": "Scouts are Gone to Ground unless they Shoot or Assault",
         "Self Defence AA": "Self-Defence AA weapons can Shoot at Aircraft with ROF 1",
         "Slow Firing": "Slow Firing Weapons add +1 to the score needed To Hit when moving",
         "Smoke": "Smoke weapons can Shoot Smoke ammunition",
         "Smoke Bombardment": "Once per game, the weapon can fire a Smoke Bombardment",
+        "Sneak and Peek": 'A Team with Sneak and Peek can move 10" if it is not firing its Main Gun',
         "Spearhead": "Special Rules for Deployment (page 93)",
-        "Stormtroopers": "The Unit may attempt a second Special Order after succeeding in its first Special Order. The second Movement Order must be different from the first.",
-        "Tank Escorts": 'One Team per Tank can shoot while mounted on Tanks and can Dismount when Charging into Contact',
-        "Tankodesantniki": 'One Team per Tank can shoot while mounted on Tanks and can Dismount when Charging into Contact',
+        "Stabiliser": 'Tank can move 14" at Tactical, gaining a +1 penalty To Hit. Machineguns cannot Shoot and the Team cannot Assault if it moves more than 10"',
+        "Swingfire": "Team firing Swingfire Missiles can remain Gone to Ground",
+        "Tandem Warhead": "Tandem Warhead HEAT weapons are unaffected by ERA Armour",
+        "Thermal Imaging": "Rolls 2 Dice for Night Visibility and takes the highest score. No To Hit penalties for Night and Smoke",
         "Tractor": "A Tractor Team can tow a single Gun Team as a Passenger, placing the Gun Team behind it",
         "Unarmoured": "An Unarmoured Tank Team cannot Charge into Contact and must Break Off if Assaulted",
         "Unit Transport": 'The Unit Leader of the Transport Attachment must end the Movement Step within 6”/15cm of the Unit Leader of its Passenger Unit while on table. If it cannot do this, then the Transport Attachment must be Sent to the Rear.',
-        "Urrah": "Units with Urrah may charge " + 6*gameScale + '" into Close Combat',
-
     };
 
     const SaveResults = {
@@ -177,6 +197,7 @@ const TY = (() => {
             "names": "Soviet",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348",
+            "bailed": "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348",
             "pinnedCharID": "-NhltPoS8_P4_rslcUsA",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
             "barrageChar": "-NUlUj2snn9vRtAo2k2l", 
@@ -195,6 +216,7 @@ const TY = (() => {
             "names": "German",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/364580773/vg85YjKhl8LBdp-FSbTBtQ/thumb.png?1698089517",
+            "bailed": "https://s3.amazonaws.com/files.d20.io/images/364580773/vg85YjKhl8LBdp-FSbTBtQ/thumb.png?1698089517",
             "pinnedCharID": "",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319029852/xSAh0T5hTSCOSHrRZKBrtA/thumb.png?1671324745",
             "barrageChar": "",  
@@ -213,6 +235,7 @@ const TY = (() => {
             "names": "British",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328837544/KrWC027rT0Lw_ghCuu_5DQ/thumb.png?1676838067",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/365311899/aJNi6yvCdnwEINZWsAL63g/thumb.png?1698545921",
+            "bailed": "https://s3.amazonaws.com/files.d20.io/images/365311899/aJNi6yvCdnwEINZWsAL63g/thumb.png?1698545921",
             "pinnedCharID": "-NhtBzw_bXWrJORCxWZK",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891446/xsAVVJ0Ft-xZW92JUtZBdw/thumb.png?1676321000",
             "barrageChar": "-NUlUkuOz7tjIrafOcNo",
@@ -231,6 +254,7 @@ const TY = (() => {
             "names": "USA",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835139/zd6jnMDVIEEvRg_cNkHxeQ/thumb.png?1676837399",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/365311909/Gu6sVBnrKauP0gibski5CQ/thumb.png?1698545925",
+            "bailed": "https://s3.amazonaws.com/files.d20.io/images/365311909/Gu6sVBnrKauP0gibski5CQ/thumb.png?1698545925",
             "pinnedCharID": "-NhtC--h2t90ayjtfXPx",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
             "barrageChar": "-NUlUl6uxp5omEWaZfze",  
@@ -1007,13 +1031,12 @@ const TY = (() => {
             let size = 70;
             switch (condition) {
                 case 'Bailed Out':
-                    imgSrc = Nations[this.nation].pinned;
-                    charID = Nations[this.nation].pinnedCharID;
-                    rotation = 180;
+                    imgSrc = Nations[this.nation].bailed;
+                    charID = "-Nht9LnFvLCRVCbmcCZd";
                     break;
                 case 'Pinned':
                     imgSrc = Nations[this.nation].pinned;
-                    charID = Nations[this.nation].pinnedCharID;
+                    charID = "-Nht9LnFvLCRVCbmcCZd";
                     break;
                 case 'Dash':
                     imgSrc = "https://s3.amazonaws.com/files.d20.io/images/364738371/8Ov_DJPGHECoVdVUaEQG8w/thumb.png?1698192635";
@@ -1052,10 +1075,14 @@ const TY = (() => {
                     charID = "-NhrUN0XxRco5XKwLdSM";
                     size = 40;
                     break;
+                case 'Landed':
+                    imgSRC = "";
+                    charID = "";
+                    break;
             }
 
             let leftConditions = ["Tactical","Dash","Hold","Assault"];
-            let rightConditions = ["Fired","AAFire","GTG"];
+            let rightConditions = ["Fired","AAFire","GTG","Landed"];
             let topConditions = [];
             let array = [];
             if (leftConditions.includes(condition)) {
@@ -1081,7 +1108,6 @@ const TY = (() => {
                 top: this.location.y,
                 width: size, 
                 height: size,
-                rotation: rotation,
                 isdrawing: true,
                 pageid: this.token.get("pageid"),
                 imgsrc: imgSrc,

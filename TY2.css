@@ -355,14 +355,14 @@ input[type="hidden"][name="attr_nation"]:is([value="Canada"]) ~ .header :is(h1,h
   color: white;
 }
 
-input[type="hidden"][name="attr_nation"]:is([value="Canada"],[value="Israel"]) ~ .spheader h2 {
+input[type="hidden"][name="attr_nation"]:is([value="Canada"]) ~ .spheader h2 {
   color: black;
 }
 
 .spbody h4 {
   color: white;
 }
-input[type="hidden"][name="attr_nation"]:is([value="Canada"],[value="Israel"]) ~ .spbody {
+input[type="hidden"][name="attr_nation"]:is([value="Canada"]) ~ .spbody {
   color: black;
 }
 
