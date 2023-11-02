@@ -16,6 +16,7 @@
                 <option value="" selected disabled hidden>Choose here</option>
                 <option value="Infantry">Infantry</option>
                 <option value="Tank">Tank</option>
+                <option value="Gun">Gun</option>
                 <option value="Aircraft">Aircraft</option>
                 <option value="Helicopter">Helicopter</option>
                 <option value="Unarmoured Tank">Unarmoured Tank</option>
@@ -31,6 +32,9 @@
                 <option value="Soviet">Soviet Union</option>
                 <option value="British">British</option>
                 <option value="Canada">Canada</option>
+                <option value="Israel">Israel</option>
+                <option value="Syria">Syria</option>
+
             </select>
         </div>
         <div class="col">
@@ -396,8 +400,10 @@
             <h3><span name="attr_specialText"></span></h3>
           </section>
 
-          <section class="common f-center">
-              <img alt="Character Avatar" name="attr_character_avatar"/>
+          <section class="common">
+            <div class="f-center">
+              <img alt="Character Avatar" name="attr_character_avatar" style="width:400px;height:auto; bottom: 0;"/>
+            </div>
           </section>
 
           <section class="motive f-col">
@@ -446,10 +452,10 @@
               <span>Cross Country Dash</span>
               <span>Road Dash</span>
               <span>Cross</span>
-              <h4><span name="attr_tactical"></span><span>"</span></h4>
-              <h4><span name="attr_terrain"></span><span>"</span></h4>
-              <h4><span name="attr_country"></span><span>"</span></h4>
-              <h4><span name="attr_road"></span><span>"</span></h4>                 
+              <h4><span name="attr_tacticaldisplay"></span><span>"</span></h4>
+              <h4><span name="attr_terraindisplay"></span><span>"</span></h4>
+              <h4><span name="attr_countrydisplay"></span><span>"</span></h4>
+              <h4><span name="attr_roaddisplay"></span><span>"</span></h4>                 
               <h4><span name="attr_cross"></span></h4>
             </div>
             <div class="airmove">
@@ -469,11 +475,11 @@
           </section>
 
           <section class="flag">
-            <img name="attr_nationimageA">
+            <img name="attr_nationimage">
           </section>
-          
+
           <section class="flag2">
-            <img name="attr_nationimageB">
+            <img name="attr_nationimage">
           </section>
 
           <section class="weapon">
@@ -595,11 +601,10 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["type","nation","special","unique","tactical","terrain","country","road","cross","counterattack","assault","weapon1notes","weapon2notes","weapon3notes","weapon4notes"], function(values) {
+        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault"], function(values) {
             let nationImage;
             let nation = values.nation;
-            let special = values.special;
-            if (!special) {special = " "};
+
             let unique = values.unique;
             if (!unique) {unique = false};
 
@@ -632,147 +637,22 @@
             }
 
             if (nation === "Soviet") {
-                nationImageA = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
-                if (special.includes("HQ")) {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327591678/LqKZj1raocQeICX6Up1I-w/thumb.png?1676164117";
-                } else {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
-                }
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
             }
             if (nation === "British") {
-                nationImageA = "https://s3.amazonaws.com/files.d20.io/images/330518437/XRA7n-jqZHqHD92K4cA3wQ/thumb.png?1677718209";
-                if (special.includes("HQ")) {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327591678/LqKZj1raocQeICX6Up1I-w/thumb.png?1676164117";
-                } else {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/330518437/XRA7n-jqZHqHD92K4cA3wQ/thumb.png?1677718209";
-                }            }
+                nationImage = "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/1200px-Flag_of_the_United_Kingdom.svg.png";
+            }
             if (nation === "US Army") {
-                nationImageA = "https://s3.amazonaws.com/files.d20.io/images/327591694/wOEPfGDaGsOwSNTlLvC5VA/thumb.png?1676164120";
-                if (special.includes("HQ")) {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327591678/LqKZj1raocQeICX6Up1I-w/thumb.png?1676164117";
-                } else {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327591694/wOEPfGDaGsOwSNTlLvC5VA/thumb.png?1676164120";
-                }           
+                nationImage = "https://wallpapercave.com/wp/j4XbVE2.jpg";
             }
             if (nation === "US Marine Corps") {
-                nationImageA = "https://s3.amazonaws.com/files.d20.io/images/327770708/SxnQ76mw9gYbJZg1SJVAxw/thumb.png?1676241515";
-                if (special.includes("HQ")) {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327591678/LqKZj1raocQeICX6Up1I-w/thumb.png?1676164117";
-                } else {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327770708/SxnQ76mw9gYbJZg1SJVAxw/thumb.png?1676241515";
-                }           
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/327770708/SxnQ76mw9gYbJZg1SJVAxw/thumb.png?1676241515";       
             }
             if (nation === "West Germany") {
-                nationImageA = "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028";
-                if (special.includes("HQ")) {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/327591678/LqKZj1raocQeICX6Up1I-w/thumb.png?1676164117";
-                } else {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028";
-                }           
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028";        
             }
             if (nation === "Canada") {
-                nationImageA = "https://s3.amazonaws.com/files.d20.io/images/341267099/ytmrZaWp33yLZa64tcEkIw/thumb.png?1683769035";
-                if (special.includes("HQ")) {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/344127718/JY9iVFm3FkS15u5RvqjgiA/thumb.png?1685492130";
-                } else {
-                    nationImageB = "https://s3.amazonaws.com/files.d20.io/images/341267099/ytmrZaWp33yLZa64tcEkIw/thumb.png?1683769035";
-                }           
-            }
-
-
-            let specialText = " ";
-            let specialArray = [];
-            let specialInfo = {
-                "Air Assault": "An Air Assault Unit may only be held in Reserve if all the Units deployed on table are Air Assault Units",
-                "Accurate": 'No penalty to Hit for range > 16" if Shooter did not Move',
-                "Advanced Stabiliser": 'Tactical Speed is 14". Machineguns cannot Shoot and the Team cannot Assault if it moves more than 10"',
-                "Amphibious": "Treat Impassable Water as Difficult Terrain",
-                "Anti-helicopter": "Can shoot at Helicopters with a ROF of 1",
-                "Anti-Helicopter": "Can shoot at Helicopters with a ROF of 1",
-                "Applique Armour": 'Front and Side Armour is 13 against HEAT weapons',
-                "Bazooka Skirts": "Front and Side Armour is minimum 10 against HEAT Weapons",
-                "BDD Armour": "Front and Side Armour is minimum 13 against HEAT Weapons",
-                "Bomblets": "Bomblets scatter over a wider area, using a SALVO template",
-                "Brutal": 'Infantry and Unarmoured Tank Teams re-roll successful Saves',
-                "Chobham Armour": "Front and Side Armour is minimum 16 vs HEAT weapons",
-                "Dedicated AA": "Uses normal ROF when firing at Aircraft/Helicopters",
-                "Dragon Mount": "The vehicle may fire the weapon if a Passenger with the weapon is mounted",
-                "ERA": "Front and Side Armour is minimum 16 against HEAT Weapons",
-                "Firebase": "Artilery Unit can remain Offboard and fire Artillery Bombardments",
-                "Forward Firing": "Can only target Teams in front of the Shooter",
-                "Guided": 'No penalty to Hit for range > 16". Cannot hit Infantry unless they are stationary in Bulletproof Cover',
-                "Guided AA": 'Guided Weapons that cannot target Tank or Infantry Teams. No penalty to Hit for range > 16"',
-                "Hammerhead": "Team with a Hammerhead can remain Gone to Ground while shooting its missile",
-                "HEAT": 'Target Armour is not increased for range over 16". Affected by BDD, Skirts, Chobham and ERA Armour',
-                "Heavy Weapon": "Team cannot Charge into Contact",
-                "Hunter-Killer": "Hunter-Killer Helicopters can use terrain for Concealment and are Gone to Ground unless they Shoot",
-                "Independent": "Independent Teams can use the Mistaken Target rule to reassign hits to nearby Units, but cannot Charge into Contact or take an Objective",
-                "Infra Red": "Rolls 2 Dice for Night Visibility and takes the highest score",
-                "Infra-Red": "Rolls 2 Dice for Night Visibility and takes the highest score",
-                "Jump Jet": "Enters the table on a score of 3+",
-                "Laser Rangefinder": 'No penalty to Hit for range > 16"',
-                "Laser Guided Projectiles": "Must be guided by an Observer, using it for LOS",
-                "Mine Clearing Device": "Team can attempt to clear Minefields",
-                "Minelets": "Once per game, the Unit can fire Minelets, placing 1 per 3 teams",
-                "MLRS": "Multiple Launching Rocket System - each Team counts as two Teams firing",
-                "Mounted": "Can fire a Mounted Weapon if a Passenger has that weapon",
-                "Observer": "An Observer Team can Spot for any friendly Artillery Unit and reduces the score required to Range In by -1",
-                "One Shot": "Can only be used once per game",
-                "Overhead Fire": "Can fire over Short Terrain and Friendly Teams without penalty",
-                "Passengers 1": "Team can carry 1 Infantry Team as Passengers",
-                "Passengers 2": "Team can carry 2 Infantry Teams as Passengers",
-                "Passengers 3": "Team can carry 3 Infantry Teams as Passengers",
-                "Passengers 4": "Team can carry 4 Infantry Teams as Passengers",
-                "Pinned ROF 1": "ROF 1 when Unit is Pinned Down",
-                "Radar": 'When shooting at Aircraft/Helicopters, range is increased by 12" and there are no penalties for range >16"',
-                "Scout": "Scouts are Gone to Ground unless they Shoot or Assault",
-                "Slow Firing": "+1 to Hit if Moving",
-                "Smoke": "Can shoot Smoke ammunition",
-                "Smoke Bombardment": "Once per game can fire a Smoke Bombardment", 
-                "Sneak and Peek": 'A Team with Sneak and Peek can move 10" if it is not firing its Main Gun',
-                "Spearhead": "Initial Deployment Move and Rules",   
-                "Stabiliser": 'Tank can move 14" at Tactical, gaining a +1 penalty To Hit. Machineguns cannot Shoot and the Team cannot Assault if it moves more than 10"',
-                "Swingfire": "Team firing Swingfire Missiles can remain Gone to Ground",
-                "Tandem Warhead": "Tandem Warhead HEAT weapons are unaffected by ERA Armour",
-                "Thermal Imaging": "Rolls 2 Dice for Night Visibility and takes the highest score. No To Hit penalties for Night and Smoke",
-            }
-
-            if (special !== " ") {
-                specialText = " • ";
-                special = special.split(",");
-                for (let i=0;i<special.length;i++) {
-                    specialText += special[i].trim() + " • "
-                }                
-            }
-
-            let weapon1notes = values.weapon1notes.split(",");            
-            let weapon2notes = values.weapon2notes.split(","); 
-            let weapon3notes = values.weapon3notes.split(","); 
-            let weapon4notes = values.weapon4notes.split(","); 
-            let specials = weapon1notes.concat(weapon2notes,weapon3notes,weapon4notes,special);
-            specials = [... new Set(specials)];
-            for (let i=0;i<specials.length;i++) {
-                specials[i] = specials[i].trim();
-            }
-            specials.sort(function (a,b) {
-                let a1 = a.charAt(0).toLowerCase();
-                let b1 = b.charAt(0).toLowerCase();
-                if (a1<b1) {return -1};
-                if (a1>b1) {return 1};
-                return 0;
-            });
-
-            for (let i=0;i<specials.length;i++) {
-                let spec = specials[i];
-                let specName = spec + ": ";
-                let specText = specialInfo[spec];
-                if (specText) {
-                    specialArray.push([specName,specText]);
-                }
-            }
-
-            for (let i=(specialArray.length - 1);i<10;i++) {
-                specialArray.push(["",""]);
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/341267099/ytmrZaWp33yLZa64tcEkIw/thumb.png?1683769035";       
             }
 
             let tact = values.tactical;
@@ -794,8 +674,7 @@
             }
 
             setAttrs({
-                "nationimageA": nationImageA,
-                "nationimageB": nationImageB,
+                "nationimage": nationImage,
                 "rallyname": ralName,
                 "aplus": aplus,
                 "cplus": cplus,
@@ -809,27 +688,7 @@
                 "cross": cross,
                 "assaultname": assault,
                 "counterattackname": counterattack,
-                "specialText": specialText,
-                "spec1Name": specialArray[0][0],
-                "spec1Text": specialArray[0][1],
-                "spec2Name": specialArray[1][0],
-                "spec2Text": specialArray[1][1],
-                "spec3Name": specialArray[2][0],
-                "spec3Text": specialArray[2][1],
-                "spec4Name": specialArray[3][0],
-                "spec4Text": specialArray[3][1],
-                "spec5Name": specialArray[4][0],
-                "spec5Text": specialArray[4][1],
-                "spec6Name": specialArray[5][0],
-                "spec6Text": specialArray[5][1],
-                "spec7Name": specialArray[6][0],
-                "spec7Text": specialArray[6][1],
-                "spec8Name": specialArray[7][0],
-                "spec8Text": specialArray[7][1],
-                "spec9Name": specialArray[8][0],
-                "spec9Text": specialArray[8][1],
-                "spec10Name": specialArray[9][0],
-                "spec10Text": specialArray[9][1],
+
 
 
 
