@@ -312,6 +312,44 @@ const TY = (() => {
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
             "barrageChar": "-NUlUj2snn9vRtAo2k2l",
         },
+        "Israel": {
+            "image": "https://s3.amazonaws.com/files.d20.io/images/365908774/5u6Ez2PJK5I8lJGi8-ciMQ/thumb.png?1698939514",
+            "dice": "Israel",
+            "backgroundColour": "#FFFFFF",
+            "titlefont": "Arial",
+            "fontColour": "#0068b1",
+            "borderColour": "#0068b1",
+            "borderStyle": "5px double",
+            "atWeapon": "",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/365910297/BxbRCFdLS1KrSemBhPXWKw/thumb.png?1698940486",
+            "pinned": "https://s3.amazonaws.com/files.d20.io/images/365910077/5T9JPuKR1O5Kd9wlXqsfpQ/thumb.png?1698940338",
+            "bailed": "https://s3.amazonaws.com/files.d20.io/images/365910072/lx9C4uLHSh7XnCrzdJWPHg/thumb.png?1698940336",
+            "pinnedCharID": "",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891446/xsAVVJ0Ft-xZW92JUtZBdw/thumb.png?1676321000",
+            "barrageChar": "", 
+            "platoonmarkers": ["letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
+        },
+        "Syria": {
+            "image": "https://s3.amazonaws.com/files.d20.io/images/365908765/biDTSmlVtQGpGIAVLUz_3w/thumb.jpg?1698939510",
+            "dice": "Syria",
+            "backgroundColour": "#FFFFFF",
+            "titlefont": "Anton",
+            "fontColour": "#2f8f43",
+            "borderColour": "#FFFF00",
+            "borderStyle": "5px groove",
+            "atWeapon": "",
+            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
+            "pinned": "https://s3.amazonaws.com/files.d20.io/images/365910088/V1IH9ElaoOQANm96ChVnRw/thumb.png?1698940344",
+            "bailed": "https://s3.amazonaws.com/files.d20.io/images/365910087/WnjytMMCK-NJROZviRF6YA/thumb.png?1698940344",
+            "pinnedCharID": "",
+            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
+            "barrageChar": "", 
+            "platoonmarkers": ["letters_and_numbers0197::4815333","letters_and_numbers0198::4815334","letters_and_numbers0199::4815335","letters_and_numbers0200::4815336","letters_and_numbers0201::4815337","letters_and_numbers0202::4815338","letters_and_numbers0203::4815339","letters_and_numbers0204::4815340","letters_and_numbers0205::4815341","letters_and_numbers0206::4815342","letters_and_numbers0207::4815343","letters_and_numbers0208::4815344","letters_and_numbers0209::4815345","letters_and_numbers0210::4815346","letters_and_numbers0211::4815347","letters_and_numbers0212::4815348","letters_and_numbers0213::4815349","letters_and_numbers0214::4815350","letters_and_numbers0215::4815351","letters_and_numbers0216::4815352","letters_and_numbers0217::4815353","letters_and_numbers0218::4815354","letters_and_numbers0219::4815355","letters_and_numbers0220::4815356","letters_and_numbers0221::4815357","letters_and_numbers0222::4815358"],
+        },
+
+
+
+
 
 
 
