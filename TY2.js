@@ -117,14 +117,15 @@ const TY = (() => {
     const PM = ["status_Green-01::2006603","status_Green-02::2006607","status_Green-03::2006611"];
 
     let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: []};
-    const WarsawPact = ["Soviet","Poland"];
-    const NATO = ["US Army","US Marine Corps","British","West Germany","Canada"];
+    const WarsawPact = ["Soviet","Poland","Syria"];
+    const NATO = ["US Army","US Marine Corps","British","West Germany","Canada","Israel"];
     const lastStandCount = {"Infantry": 3,"Gun": 2,"Tank": 2,"Unarmoured Tank": 2,"Aircraft": 1,};
 
     const Ranks = {
-                "Germany": ["Major ","Hauptmann ","Oberleutnant ","Feldwebel "],
+                "German": ["Major ","Hauptmann ","Oberleutnant ","Feldwebel "],
                 "Western": ["Major ","Captain ","Lieutenant ","Sergeant "],
                 "Soviet": ["Podpolkovnik ","Majór ","Kapitán ","Leytnant ","Serzhant "],
+                "Arabic": ["Muquddam","Ra'id","Naqib","Mulazim","Raqib",]
     };
 
     //Types: Flat = 0, Short = 1, Tall = 2, Building = 3
@@ -173,6 +174,8 @@ const TY = (() => {
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
             "atWeapon": "Molotov Cocktails",
+            "ranks": "Soviet",
+            "names": "Soviet",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/364582400/VKa2E3Avx1Jd4OKUcuWjxA/thumb.png?1698090348",
             "pinnedCharID": "-NhltPoS8_P4_rslcUsA",
@@ -190,6 +193,8 @@ const TY = (() => {
             "borderColour": "#000000",
             "borderStyle": "5px double",
             "atWeapon": "Stielhandgranates",
+            "ranks": "German",
+            "names": "German",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909216/Cqm8z6ZX2WPDQkodhdLVqQ/thumb.png?1665016507",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/364580773/vg85YjKhl8LBdp-FSbTBtQ/thumb.png?1698089517",
             "pinnedCharID": "",
@@ -207,6 +212,8 @@ const TY = (() => {
             "borderColour": "#BC2D2F",
             "borderStyle": "5px groove",
             "atWeapon": "Sticky Bombs",
+            "ranks": "Western",
+            "names": "British",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328837544/KrWC027rT0Lw_ghCuu_5DQ/thumb.png?1676838067",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/365311899/aJNi6yvCdnwEINZWsAL63g/thumb.png?1698545921",
             "pinnedCharID": "-NhtBzw_bXWrJORCxWZK",
@@ -224,6 +231,8 @@ const TY = (() => {
             "borderColour": "#006400",
             "borderStyle": "5px double",
             "atWeapon": "Hand Grenades",
+            "ranks": "Western",
+            "names": "USA",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835139/zd6jnMDVIEEvRg_cNkHxeQ/thumb.png?1676837399",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/365311909/Gu6sVBnrKauP0gibski5CQ/thumb.png?1698545925",
             "pinnedCharID": "-NhtC--h2t90ayjtfXPx",
@@ -240,6 +249,8 @@ const TY = (() => {
             "fontColour": "#00008B",
             "borderColour": "#00008B",
             "borderStyle": "5px double",
+            "ranks": "Western",
+            "names": "USA",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835177/sjCggEYtL2PfE32fyQV4zw/thumb.png?1676837406",
             "platoonmarkers": ["","letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
@@ -255,20 +266,6 @@ const TY = (() => {
             "borderColour": "#00FF00",
             "borderStyle": "5px ridge",
             "objectiveimage": "https://s3.amazonaws.com/files.d20.io/images/312111244/vPCrjmQ7ep4nvKWu8LOmFQ/thumb.png?1667256328",
-        },
-
-        "US Marine Corps": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/327769203/uM2mlqoLnxDD_ptnBdNXfg/thumb.png?1676240966",
-            "dice": "USMC",
-            "backgroundColour": "#FFFFFF",
-            "titlefont": "Arial",
-            "fontColour": "#00008B",
-            "borderColour": "#00008B",
-            "borderStyle": "5px double",
-            "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/328835177/sjCggEYtL2PfE32fyQV4zw/thumb.png?1676837406",
-            "platoonmarkers": ["","letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
-            "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/327891469/QfaYQvRbVs7tA_3jGFwQ9Q/thumb.png?1676321007",
-            "barrageChar": "-NUlUl6uxp5omEWaZfze",         
         },
         "Warsaw Pact": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/341399561/LeCkvkoO5ea8g2bgODSoog/thumb.webp?1683859633",
@@ -299,6 +296,8 @@ const TY = (() => {
             "fontColour": "#000000",
             "borderColour": "#EA3423",
             "borderStyle": "5px groove",
+            "ranks": "Western",
+            "names": "British",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/340585556/aqSICgjEkrT9sLf730UJIA/thumb.png?1683384058",
             "barrageChar": "-NUlVpaKAbNPTitcQRzi",
         },
@@ -309,6 +308,8 @@ const TY = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#FFFFFF",
             "borderStyle": "5px groove",
+            "ranks": "Soviet",
+            "names": "Soviet",
             "barrageimage": "https://s3.amazonaws.com/files.d20.io/images/319032004/qf3aHgIiFnJ0aYoPOFR-TA/thumb.png?1671325647",
             "barrageChar": "-NUlUj2snn9vRtAo2k2l",
         },
@@ -321,6 +322,8 @@ const TY = (() => {
             "borderColour": "#0068b1",
             "borderStyle": "5px double",
             "atWeapon": "",
+            "ranks": "Western",
+            "names": "Israel",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/365910297/BxbRCFdLS1KrSemBhPXWKw/thumb.png?1698940486",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/365910077/5T9JPuKR1O5Kd9wlXqsfpQ/thumb.png?1698940338",
             "bailed": "https://s3.amazonaws.com/files.d20.io/images/365910072/lx9C4uLHSh7XnCrzdJWPHg/thumb.png?1698940336",
@@ -337,7 +340,9 @@ const TY = (() => {
             "fontColour": "#2f8f43",
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
-            "atWeapon": "",
+            "atWeapon": "",            
+            "ranks": "Arabic",
+            "names": "Arabic",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
             "pinned": "https://s3.amazonaws.com/files.d20.io/images/365910088/V1IH9ElaoOQANm96ChVnRw/thumb.png?1698940344",
             "bailed": "https://s3.amazonaws.com/files.d20.io/images/365910087/WnjytMMCK-NJROZviRF6YA/thumb.png?1698940344",
@@ -1677,12 +1682,16 @@ log(hit)
       const Name = (nat) => {
         let num = randomInteger(25) - 1;
         if (nat === "Canadian") {nat = "UK"};
-        if (nat.includes("SS")) {nat = "Germany"};
+        if (["Syria","Iraq","Iran"]) {nat = "Arabic"};
         let names = {
             Germany: ["Schmidt","Schneider","Fischer","Weber","Meyer","Wagner","Becker","Schulz","Hoffmann","Bauer","Richter","Klein","Wolf","Schroder","Neumann","Schwarz","Braun","Hofmann","Werner","Krause","Konig","Lang","Vogel","Frank","Beck"],
             Soviet: ["Ivanov","Smirnov","Petrov","Sidorov","Popov","Vassiliev","Sokolov","Novikov","Volkov","Alekseev","Lebedev","Pavlov","Kozlov","Orlov","Makarov","Nikitin","Zaitsev","Golubev","Tarasov","Ilyin","Gusev","Titov","Kuzmin","Kiselyov","Belov"],
             USA: ["Smith","Johnson","Williams","Brown","Jones","Wright","Miller","Davis","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin","Lee","Thompson","White","Harris","Clark","Lewis","Robinson","Walker","Young","Allen"],
             UK: ["Smith","Jones","Williams","Taylor","Davies","Brown","Wilson","Evans","Thomas","Johnson","Roberts","Walker","Wright","Robinson","Thompson","White","Hughes","Edwards","Green","Lewis","Wood","Harris","Martin","Jackson","Clarke"],
+            Israel: ["Cohen","Levy","Mizrahi","Peretz","Bitton","Dahan","Agbaria","Avaraham","Friedman","Yosef","Amar","Katz","Mhamid","Azoulay","Malkah","Khatib","Zoabi","Jabarin","Vaknin","Weiss","Gabay","Shapiro","Chided","Ohayon","Lavyan"],
+            Arabic: ["Khaled","Mohamed","Al numan","Ahmed","Ali","Hussein","Hassan","Ibrahim","Mahmoud","Samaan","Alzuhur","Saleh","Alththania","Allah","Mostafa","Suleiman","Yousef","Aldaman","Khalil","Khalaf","El din","Ismail","Sheik","Hamoud","Omar"],
+        
+        
         }
 
         let nameList = names[nat];
@@ -1924,13 +1933,6 @@ log(outputCard)
         }
         return c;
     }
-
-    const Rank = (nat,j) => {
-        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};        
-        let rank = Ranks[nat][j];
-        return rank
-    }
-
 
     const LoadPage = () => {
         //build Page Info and flesh out Hex Info
@@ -2429,19 +2431,17 @@ log(outputCard)
         if (team.special.includes("HQ") || team.token.get(SM.HQ) === true) {
             rank = Math.min(i,1);
             unit.hqUnit = true;
-            name = Rank(team.nation,rank) + Name(team.nation);
+            name = Ranks[Nations[team.nation].ranks][rank] + Name[Nations[team.nation].names];
         } else {
             if (team.type === "Aircraft" || team.special.includes("Independent")) {
                 rank = 2;
                 unit.aircraft = true;
-                if (team.nation === "Soviet") {rank=3};
-                name = Rank(team.nation,rank) + Name(team.nation);
-            } else if (name.includes("Komissar")) {
-                name = "Komissar " + Name(team.nation);
-            } else if (i === 0) {
+                if (WarsawPact.includes(team.nation)) {rank=3};
+                name = Ranks[Nations[team.nation].ranks][rank] + Name[Nations[team.nation].names];
+            }  else if (i === 0) {
                 rank = 2;
-                if (team.nation === "Soviet" && unit.artillery === true) {rank=3};
-                name = Rank(team.nation,rank) + Name(team.nation);
+                if (WarsawPact.includes(team.nation) && unit.artillery === true) {rank=3};
+                name = Ranks[Nations[team.nation].ranks][rank] + Name[Nations[team.nation].names];
             } 
         }
         return name;
@@ -2450,17 +2450,11 @@ log(outputCard)
     const PromotedName = (team,oldTeam) => {
         let name = team.name;
         if (!oldTeam) {oldTeam = " "};
-        let subNames = name.split(" ");
-        let nat = team.nation;
-        if (nat === "UK" || nat === "Canadian" || nat === "USA") {nat = "Western"};   
-        let ranks = Ranks[nat];
-        if (ranks.includes(subNames[0]) === false) {
-            if (team.nation === "Soviet" && oldTeam.name.includes("Kapitan")) {
-                name = ranks[ranks.length - 2] + " " + Name(team.nation);
-            } else {
-                name = ranks[ranks.length - 1] + " " + Name(team.nation);
-            }
-        }
+        let oldRank = name.split(" ")[0];
+        let ranks = Ranks[Nations[team.nation].ranks];
+        let index = ranks.indexOf(oldRank);
+        newRank = ranks[index - 1] || ranks[ranks.length - 1];
+        name = newRank + Name(Nations[team.nation].names);
         return name;
     }
 
