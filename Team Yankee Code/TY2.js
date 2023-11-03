@@ -970,6 +970,9 @@ const TY = (() => {
             this.specialorder = "";
             this.inCommand = true;
 
+
+/*
+
             this.tactical = Math.max(0,Math.round(Number(attributeArray.tactical) * gameScale));
             this.terraindash = Math.max(0,Math.round(Number(attributeArray.terrain) * gameScale));
             this.countrydash = Math.max(0,Math.round(Number(attributeArray.country) * gameScale));
@@ -991,6 +994,14 @@ const TY = (() => {
             AttributeSet(char.id,"terraindisplay",terDisplay);
             AttributeSet(char.id,"countrydisplay",coDisplay);
             AttributeSet(char.id,"roaddisplay",roDisplay);
+
+*/
+
+            this.tactical = parseInt(attributeArray.tactical);
+            this.terraindash = parseInt(attributeArray.terrain);
+            this.countrydash = parseInt(attributeArray.country);
+            this.roaddash = parseInt(attributeArray.road);
+            this.cross = crossStat(attributeArray.cross);
 
             this.armourF = front;
             this.armourS = side;

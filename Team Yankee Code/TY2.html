@@ -601,12 +601,14 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault","special"], function(values) {
+        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault","special","gamescale"], function(values) {
             let nationImage;
             let nation = values.nation;
 
             let unique = values.unique;
             if (!unique) {unique = false};
+            let special = values.special;
+            if (!special) {special = " "};
 
             let type = values.type;
             let ralName = "Remount: ";
@@ -654,12 +656,38 @@
             if (nation === "Canada") {
                 nationImage = "https://s3.amazonaws.com/files.d20.io/images/341267099/ytmrZaWp33yLZa64tcEkIw/thumb.png?1683769035";       
             }
+            if (nation === "Israel") {
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/365908774/5u6Ez2PJK5I8lJGi8-ciMQ/thumb.png?1698939514";       
+            }
+            if (nation === "Syria") {
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/365908765/biDTSmlVtQGpGIAVLUz_3w/thumb.jpg?1698939510";       
+            }
 
-            let tact = values.tactical;
-            let ter = values.terrain;
-            let count = values.country;
-            let road = values.road;
-            let cross = values.cross;
+
+
+
+
+
+            let gameScale = values.gamescale;
+            if (!gameScale) {
+                gameScale = 1;
+            }
+
+            let tact = parseInt(values.tactical) * gameScale;
+            let ter = parseInt(values.terrain) * gameScale;
+            let count = parseInt(values.country) * gameScale;
+            let road = parseInt(values.road) * gameScale;
+
+            let tactDisplay = tact.toString();
+            if (special.includes("Stabiliser")) {
+                let second = tact + 4;
+                tactDisplay += '" / ' + second ;
+            }
+
+            tactDisplay += '"';
+            let terDisplay = ter.toString() + '"';
+            let coDisplay = count.toString() + '"';
+            let roDisplay = road.toString() + '"';
 
             let move = "Other";
             if (type === "Aircraft" || type === "Helicopter") {
@@ -681,13 +709,13 @@
                 "rplus": rplus,
                 "movementtype": move,
                 "unique": unique,
-                "tactical": tact,
-                "terrain": ter,
-                "country": count,
-                "road": road,
-                "cross": cross,
+                "tacticaldisplay": tactDisplay,
+                "terraindisplay": terDisplay,
+                "countrydisplay": coDisplay,
+                "roaddisplay": roDisplay,
                 "assaultname": assault,
                 "counterattackname": counterattack,
+                "gamescale": gameScale,
 
             })
         });    
