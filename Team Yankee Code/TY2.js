@@ -1086,14 +1086,18 @@ const TY = (() => {
                     size = 40;
                     break;
                 case 'Landed':
-                    imgSRC = "";
-                    charID = "";
+                    imgSRC = "https://s3.amazonaws.com/files.d20.io/images/366077088/FP0gaU13t5SB11Cq4Fq4zQ/thumb.png?1699037802";
+                    charID = "-NiLY-VogcGd_EbrZegV";
+                    break;
+                case 'Flare':
+                    imgSRC = "https://s3.amazonaws.com/files.d20.io/images/366077896/UYxOO1P7P1wBDD75gtpsFA/thumb.png?1699038154";
+                    charID = "-NiLYVaQvQOHD16lukjv";
                     break;
             }
 
             let leftConditions = ["Tactical","Dash","Hold","Assault"];
             let rightConditions = ["Fired","AAFire","GTG","Landed"];
-            let topConditions = [];
+            let topConditions = ["Flare"];
             let array = [];
             if (leftConditions.includes(condition)) {
                 array = leftConditions;
