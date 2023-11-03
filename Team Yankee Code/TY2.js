@@ -1,5 +1,5 @@
 const TY = (() => { 
-    const version = '1.10.31    ';
+    const version = '1.11.3';
     if (!state.TY) {state.TY = {}};
 
     const gameScale = 1; //1 = Normal Movement, 0.5 = Half Movement
