@@ -336,11 +336,11 @@ const TY = (() => {
             "barrageChar": "-NUlUj2snn9vRtAo2k2l",
         },
         "Israel": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/365908774/5u6Ez2PJK5I8lJGi8-ciMQ/thumb.png?1698939514",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/366072697/aGu0UIeI_9CN1Uk-ti_bbQ/thumb.png?1699035971",
             "dice": "Israel",
-            "backgroundColour": "#FFFFFF",
+            "backgroundColour": "#0068b1",
             "titlefont": "Arial",
-            "fontColour": "#0068b1",
+            "fontColour": "#FFFFFF",
             "borderColour": "#0068b1",
             "borderStyle": "5px double",
             "ranks": "Western",
@@ -354,13 +354,13 @@ const TY = (() => {
             "platoonmarkers": ["letters_and_numbers0148::4815284","letters_and_numbers0149::4815285","letters_and_numbers0150::4815286","letters_and_numbers0151::4815287","letters_and_numbers0152::4815288","letters_and_numbers0153::4815289","letters_and_numbers0154::4815290","letters_and_numbers0155::4815291","letters_and_numbers0156::4815292","letters_and_numbers0157::4815293","letters_and_numbers0158::4815294","letters_and_numbers0159::4815295","letters_and_numbers0160::4815296","letters_and_numbers0161::4815297","letters_and_numbers0162::4815298","letters_and_numbers0163::4815299","letters_and_numbers0164::4815300","letters_and_numbers0165::4815301","letters_and_numbers0166::4815302","letters_and_numbers0167::4815303","letters_and_numbers0168::4815304","letters_and_numbers0169::4815305","letters_and_numbers0170::4815306","letters_and_numbers0171::4815307","letters_and_numbers0172::4815308","letters_and_numbers0173::4815309"],
         },
         "Syria": {
-            "image": "https://s3.amazonaws.com/files.d20.io/images/365908765/biDTSmlVtQGpGIAVLUz_3w/thumb.jpg?1698939510",
+            "image": "https://s3.amazonaws.com/files.d20.io/images/366073450/MaE7Hz3ruNZ-2LrDfZQicA/thumb.png?1699036295",
             "dice": "Syria",
-            "backgroundColour": "#FFFFFF",
+            "backgroundColour": "#2f8f43",
             "titlefont": "Anton",
-            "fontColour": "#2f8f43",
-            "borderColour": "#FF0000",
-            "borderStyle": "5px groove",
+            "fontColour": "#FFFFFF",
+            "borderColour": "#2f8f43",
+            "borderStyle": "5px solid",
             "ranks": "Arabic",
             "names": "Arabic",
             "rangedIn": "https://s3.amazonaws.com/files.d20.io/images/307909232/aEbkdXCShELgc4zcz89srg/thumb.png?1665016513",
@@ -6670,7 +6670,7 @@ log("2nd Row to " + team3.name)
     };
 
     on('ready', () => {
-        log("===> Flames of War v4 <===");
+        log("===> Team Yankee V2 <===");
         log("===> Software Version: " + version + " <===");
         LoadPage();
         BuildMap();
