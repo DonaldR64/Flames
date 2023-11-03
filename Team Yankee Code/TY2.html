@@ -601,7 +601,7 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault","special","gamescale"], function(values) {
+        getAttrs(["type","nation","unique","tactical","terrain","country","road","cross","counterattack","assault","special","gamescale","weapon1notes","weapon2notes"], function(values) {
             let nationImage;
             let nation = values.nation;
 
@@ -609,6 +609,12 @@
             if (!unique) {unique = false};
             let special = values.special;
             if (!special) {special = " "};
+            let w1Notes = values.weapon1notes;
+            if (!w1Notes) {w1Notes = " "};
+            let w2Notes = values.weapon2notes;
+            if (!w2Notes) {w2Notes = " "};
+            let combined = special + "," + w1Notes + "," + w2Notes;
+
 
             let type = values.type;
             let ralName = "Remount: ";
@@ -657,7 +663,7 @@
                 nationImage = "https://s3.amazonaws.com/files.d20.io/images/341267099/ytmrZaWp33yLZa64tcEkIw/thumb.png?1683769035";       
             }
             if (nation === "Israel") {
-                nationImage = "https://s3.amazonaws.com/files.d20.io/images/365908774/5u6Ez2PJK5I8lJGi8-ciMQ/thumb.png?1698939514";       
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/366070452/kNXrJvv_l_Bu-FiF0AN3wg/thumb.png?1699035068";       
             }
             if (nation === "Syria") {
                 nationImage = "https://s3.amazonaws.com/files.d20.io/images/365908765/biDTSmlVtQGpGIAVLUz_3w/thumb.jpg?1698939510";       
@@ -666,12 +672,7 @@
 
 
 
-
-
-            let gameScale = values.gamescale;
-            if (!gameScale) {
-                gameScale = 1;
-            }
+            let gameScale = (values.gamescale) ? parseInt(gameScale):1;
 
             let tact = parseInt(values.tactical) * gameScale;
             let ter = parseInt(values.terrain) * gameScale;
@@ -679,7 +680,7 @@
             let road = parseInt(values.road) * gameScale;
 
             let tactDisplay = tact.toString();
-            if (special.includes("Stabiliser")) {
+            if (combined.includes("Stabiliser")) {
                 let second = tact + 4;
                 tactDisplay += '" / ' + second ;
             }

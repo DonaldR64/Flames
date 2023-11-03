@@ -928,6 +928,8 @@ const TY = (() => {
 
             AttributeSet(char.id,"specialText",specialText);
 
+            AttributeSet(char.id,"gamescale",gameScale);
+
             let unique = (attributeArray.unique === "true") ? true:false;
 
             //armour
@@ -969,33 +971,6 @@ const TY = (() => {
             this.order = "";
             this.specialorder = "";
             this.inCommand = true;
-
-
-/*
-
-            this.tactical = Math.max(0,Math.round(Number(attributeArray.tactical) * gameScale));
-            this.terraindash = Math.max(0,Math.round(Number(attributeArray.terrain) * gameScale));
-            this.countrydash = Math.max(0,Math.round(Number(attributeArray.country) * gameScale));
-            this.roaddash = Math.max(0,Math.round(Number(attributeArray.road) * gameScale));
-            this.cross = crossStat(attributeArray.cross);
-
-            let tactDisplay = this.tactical.toString();
-            if (special.includes("Stabiliser")) {
-                let second = this.tactical + 4;
-                tactDisplay += '" / ' + second ;
-            }
-            tactDisplay += '"';
-            let terDisplay = this.terraindash.toString() + '"';
-            let coDisplay = this.countrydash.toString() + '"';
-            let roDisplay = this.roaddash.toString() + '"';
-
-            //update sheet based on above
-            AttributeSet(char.id,"tacticaldisplay",tactDisplay);
-            AttributeSet(char.id,"terraindisplay",terDisplay);
-            AttributeSet(char.id,"countrydisplay",coDisplay);
-            AttributeSet(char.id,"roaddisplay",roDisplay);
-
-*/
 
             this.tactical = parseInt(attributeArray.tactical);
             this.terraindash = parseInt(attributeArray.terrain);
